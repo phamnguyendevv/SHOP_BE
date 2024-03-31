@@ -6,6 +6,28 @@ import crypto from 'crypto';
 
 
 let ProductServices = {
+    createSlug: async (title) => {
+        let slug = slugify(title, {
+          lower: true,
+          remove: /[*+~.()'"!:@]/g,
+        });
+        let randomString = crypto.randomBytes(4).toString("hex");
+        let fullSlug = `${randomString}-${slug}`;
+    
+        // Kiểm tra xem slug đã tồn tại chưa
+        let existingProduct = await db.Product.findOne({
+          where: { slug: fullSlug },
+        });
+        while (existingProduct) {
+          // Nếu slug đã tồn tại, tiếp tục tạo slug mới và kiểm tra lại
+          randomString = crypto.randomBytes(4).toString("hex");
+          fullSlug = `${slug}-${randomString}`;
+          existingProduct = await db.Product.findOne({
+            where: { slug: fullSlug },
+          });
+        }
+        return fullSlug;
+      },
     //addProduct 
     addProduct: async (product) => {
         try {

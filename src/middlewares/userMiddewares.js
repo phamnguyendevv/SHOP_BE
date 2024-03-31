@@ -16,15 +16,11 @@ let userMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-
-
                     const user = await UserModel.getUserByEmail(connection, value);
-
                     if (!user) {
-                        throw new Error({ message: USERS_MESSAGES.EMAIL_NOT_FOUND });
+                        throw new Error(USERS_MESSAGES.EMAIL_NOT_FOUND);
                     }
                     // check ban hay ko 
-
                     req.user = user;
                     return true;
                 },
@@ -40,18 +36,11 @@ let userMiddlewares = {
             custom: {
                 options: async (value, { req }) => {
                     const user = req.user;
-                    
-                    if (!user) {
-                        throw new Error({ message: USERS_MESSAGES.EMAIL_NOT_FOUND });
-                    }
                     const password = user.password;
-
                     const isMatch = await passwordhandler.comparePassword(value, password);
-                    
                     if (!isMatch) {
-                        throw new Error({ message: USERS_MESSAGES.PASSWORD_NOT_MATCH });
+                        throw new Error(USERS_MESSAGES.PASSWORD_NOT_MATCH);
                     }
-                    
                     return true;
                 },
             },

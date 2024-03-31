@@ -2,16 +2,22 @@ import connection from '../db/configMysql.js';
 
 let UserModel = {
     getUserByEmail: async (connection, email) => {
-        try {
-            const user = await connection.execute('SELECT * FROM `user`  LIMIT 1;', [email]);
-           
-            return user[0][0];
-        } catch (error) {
-            // Xử lý lỗi ở đây
-            console.error('Error in getUserByEmail:', error);
-            throw error;
-        }
+            console.log('email', email);
+            const [rows, fields] = await connection.execute(
+                `SELECT * FROM user WHERE email = ?`,
+                [email]
+            );
+            return rows[0];
     },
+
+    getUserById: async (connection, id) => {
+            const [rows, fields] = await connection.execute(
+                `SELECT * FROM user WHERE id = ?`,
+                [id]
+            );
+            return rows[0];
+    },
+   
 
     createUser: async (connection, data, hashedPassword) => {
         try {

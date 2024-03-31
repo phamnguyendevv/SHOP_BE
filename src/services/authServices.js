@@ -23,9 +23,7 @@ let AuthService = {
       }
       return userNew;
     } catch (e) {
-      // Xử lý lỗi ở đây
-      console.error('Error in register:', e);
-      throw e;
+      
     }
   },
 
