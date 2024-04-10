@@ -10,15 +10,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 
-// Establish connection to database
-if (connection) {
-    console.log('Connection to database established')
-} else {
-    console.log('Connection to database failed')
-}
-
-
-
 
 
 app.use('/', indexRouter);

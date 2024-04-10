@@ -1,43 +1,46 @@
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
-require('dotenv').config()
-const jwt = require('jsonwebtoken');
-// privatekey tao co dinh 
+dotenv.config();
+
+const JWT_ACCESS_KEY = process.env.JWT_ACCESS_KEY
 
 
-const createTokenPair = async (payload ,privateKey) => {  
-    const {user_id,verify,exp} = payload
-    if(exp){
-        payload = {user_id,verify,exp}
-        try{
-            const accessToken = await jwt.sign({user_id,verify}, privateKey, {
-                expiresIn: '3 days',
-            });
-            const refreshToken = await jwt.sign(payload, privateKey, {
-            });
-            return {accessToken, refreshToken};
-        }catch(error){
-            console.log('error create token pair',error)
-            throw error;
+const generateToken = async (user) => {
+    return jwt.sign(
+        { id: user.id, role: user.role_id },
+        JWT_ACCESS_KEY,
+        {
+            expiresIn: "2h",
         }
-    }else{
-        payload = {user_id,verify}
-        try{
-            const accessToken = await jwt.sign(payload, privateKey, {
-                expiresIn: '3 days',
-            });
-            const refreshToken = await jwt.sign(payload, privateKey, {
-                expiresIn: '7 days',
-            });
-            return {accessToken, refreshToken};
-        }catch(error){
-            throw error;
+    );
+}
+
+//REFRESH TOKEN
+const refreshTokens = async (user) => {
+    return jwt.sign(
+        { id: user.id, role: user.role_id },
+        JWT_ACCESS_KEY,
+        {
+            expiresIn: "14d",
         }
+    );
+}
+
+
+const getTokenExpiration = (token) => {
+    const decoded = jwt.decode(token);
+    if (!decoded) {
+        return null;
     }
-    
-}
+    // Lấy thời gian hết hạn từ thuộc tính "exp" của payload
+    const expirationTime = decoded.exp;
+    // Chuyển đổi thời gian hết hạn từ dạng timestamp sang đối tượng Date
+    return new Date(expirationTime * 1000); // Nhân 1000 để chuyển đổi sang milliseconds
+};
 
 
 
-module.exports = {
-    createTokenPair
-}
+
+
+export { generateToken ,refreshTokens,getTokenExpiration};

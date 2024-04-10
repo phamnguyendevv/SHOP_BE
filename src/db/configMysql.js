@@ -17,6 +17,12 @@ dotenv.config();
         idleTimeout: 60000,
         queueLimit: 0
     });
+    // Nếu kết nối thành công, in ra thông báo
+    if (connection) {
+        console.log('Connection to database established')
+    } else {
+        console.log('Connection to database failed')
+    }
     
 
 // export connection

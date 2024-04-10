@@ -20,6 +20,8 @@ router.post('/updateCategory',categoryMiddlewares.updateCategoryValidator,  cate
 //delete category
 router.delete('/deleteCategory', categoryMiddlewares.deleteCategoryValidator, wrapAsync(categoryController.deleteCategory))
 
+// get category hot trend
+
 
 
 

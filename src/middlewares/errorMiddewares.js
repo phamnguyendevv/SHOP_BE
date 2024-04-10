@@ -15,9 +15,11 @@ const defaultErrorHandler = (err, req, res, next) => {
     return res.status(err.status || HTTP_STATUS.INTERNAL_SERVER).json(
         {
             message: err.message || 'Something went wrong',
-            errorInfo: _.omit(err, ['stack'])
+            status: err.status || HTTP_STATUS.INTERNAL_SERVER,
         }
     )
 }
 
-export default defaultErrorHandler
+
+export default defaultErrorHandler;
+
