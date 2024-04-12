@@ -9,13 +9,13 @@ router.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
-router.post('/addCategory/', categoryMiddlewares.addCategoryValidator,categoryController.addCategory)
+router.post('/addCategory/', categoryMiddlewares.addCategoryValidator, wrapAsync(categoryController.addCategory))
 
 //get all categories
-router.get('/getAllCategories',categoryController.getAllCategories)
+router.get('/getAllCategories',wrapAsync(categoryController.getAllCategories))
 
 //update category
-router.post('/updateCategory',categoryMiddlewares.updateCategoryValidator,  categoryController.updateCategory)
+router.post('/updateCategory',categoryMiddlewares.updateCategoryValidator, wrapAsync(categoryController.updateCategory))
 
 //delete category
 router.delete('/deleteCategory', categoryMiddlewares.deleteCategoryValidator, wrapAsync(categoryController.deleteCategory))

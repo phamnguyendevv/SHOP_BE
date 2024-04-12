@@ -33,7 +33,6 @@ let categoryController = {
         const result = await CategoryService.deleteCategory(req.body)
         return res.json({
             message: 'Delete category successfully!',
-            result
         })
     }
 

@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
-router.post('/register', userMiddlewares.registerValidator,wrapAsync(authController.registerController))
+router.post('/register',userMiddlewares.registerValidator,wrapAsync(authController.registerController))
 router.post('/login', userMiddlewares.loginValidator,wrapAsync(authController.loginController))
 router.post('/auth',wrapAsync(authController.authUserController))
 router.post('/refresh-token',wrapAsync(authController.refreshTokenController))

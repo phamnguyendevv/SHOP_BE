@@ -24,26 +24,12 @@ let UserModel = {
         }
         return rows[0];
     },
-    getUserByUsername: async (connection, username) => {
+    getUserByFullname: async (connection, fullname) => {
         const [rows, fields] = await connection.execute(
-            `SELECT * FROM user WHERE username = ?`,
-            [username]
+            `SELECT * FROM user WHERE fullname = ?`,
+            [fullname]
         );
 
-        return rows[0];
-    },
-    getUserByToken: async (connection, accessToken, refreshToken) => {
-
-        const [rows, fields] = await connection.execute(
-            `SELECT u.id AS id, u.email, u.username, u.phone, u.birthday, u.sex ,u.role_id, u.status_id, u.balance, u.isOnline, u.qrcode, u.referrer_id, u.avatar, u.points, u.offlineAt, u.referral_code
-
-            FROM user u JOIN token t ON u.id = t.user_id  WHERE t.accessToken = ? AND t.refreshToken = ?;`,
-            [accessToken, refreshToken]
-        );
-
-        if (rows.length === 0) {
-            throw new Error('Không tìm thấy user');
-        }
         return rows[0];
     },
 
@@ -57,58 +43,36 @@ let UserModel = {
             `
             INSERT INTO user (
                 email,
-                status_id,
+                fullname,
                 password,
+                qr_admin,
+                status_id,
                 role_id,
-                phone,
                 balance,
-                birthday,
-                isOnline,
-                qrcode,
-                referrer_id,
-                username,
-                avatar,
-                points,
-                sex,
-                offlineAt,
-                referral_code,
-                token_id,
                 created_at,
                 updated_at
             ) VALUES (
                 ?,
-                2,
+                ?,
+                ?,
                 ?,
                 1,
-                ?,
-                0,
-                ?,
-                TRUE,
-                "",
-                0,
-                ?,
-                "",
-                0,
-                ?,
-                NULL,
-                "",
+                2,
                 0,
                 CURRENT_DATE, 
                 CURRENT_DATE
             )`,
             [
                 data.email,
+                data.fullname,
                 hashedPassword,
-                data.phone,
-                data.birthday,
-                data.username,
-                data.sex
+                data.qr_admin
             ]
 
 
         );
         // Nếu không có lỗi, trả về thông tin người dùng vừa được tạo
-        const [rows, fields] = await connection.execute(
+        const [rows] = await connection.execute(
             `SELECT * FROM user WHERE email = ?`,
             [data.email]
         );

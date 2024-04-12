@@ -1,14 +1,11 @@
 import connection from '../db/configMysql.js';
 import UserModel from '../models/userModel.js';
 import password from '../utils/password.js';
-import { generateToken, refreshTokens, getTokenExpiration } from '../utils/jwt.js';
-import ErrorWithStatus from '../utils/error.js';
+import { generateToken, refreshTokens, decoToken } from '../utils/jwt.js';
 import USERS_MESSAGES from '../constants/messages.js';
-import HTTP_STATUS from '../constants/httpStatus.js';
 import crypto from 'crypto';
-import { check } from 'express-validator';
-import TokenModel from '../models/tokenModel.js';
-import { Console } from 'console';
+
+
 
 let AuthService = {
 
@@ -20,9 +17,7 @@ let AuthService = {
       .toUpperCase();
 
     const hashed = await password.hashPassword(data.password);
-
     const userNew = await UserModel.createUser(connection, data, hashed);
-
     const newReferralCode = `${userNew.id}${code}`;
     console.log(newReferralCode);
     userNew.referralCode = newReferralCode;
@@ -41,9 +36,10 @@ let AuthService = {
     const accessToken = await generateToken(user);
     const refreshToken = await refreshTokens(user);
 
-    const exp = await getTokenExpiration(accessToken);
+    const decod = await decoToken(accessToken);
+    const exp = await decod.exp;
 
-    const Token = await TokenModel.updateTokens(connection, user.id, accessToken, refreshToken, exp);
+    const Token = {accessToken,refreshToken,exp}
 
 
     return { usercustom, Token };
@@ -53,33 +49,16 @@ let AuthService = {
 
   auth: async (data) => {
     const { accessToken, refreshToken } = data;
-    const user = await UserModel.getUserByToken(connection, accessToken, refreshToken);
-    const token = await TokenModel.getToken(connection, accessToken, refreshToken);
-
-    if (user) {
-      return { user, token };
-    }
-    throw new Error(USERS_MESSAGES.AUTH_FAIL);
+    const decod = await decoToken(accessToken);
+    const user = await UserModel.getUserById(connection, decod.id);
+    const { password, created_at, updated_at, ...usercustom } = user;
+    const newaccessToken = await generateToken(user);
+    const exp = await decod.exp;
+    const Token = {accessToken:newaccessToken,refreshToken,exp}
+    return { usercustom, Token };
   },
 
-
-
-  refreshToken: async (data) => {
-    const { accessToken, refreshToken } = data;
-    const user = await UserModel.getUserByToken(connection, accessToken, refreshToken);
-
-    if (user) {
-      const newAccessToken = await generateToken(user);
-      const exp = await getTokenExpiration(newAccessToken);
-
-      const Token = await TokenModel.updateAccessToken(connection, user.id, newAccessToken, exp);
-      const tokenupdated = Token.accessToken
-      const tokenNew = await TokenModel.getToken(connection, tokenupdated, refreshToken);
-      return { user, tokenNew };
-    }
-    throw new Error(USERS_MESSAGES.AUTH_FAIL);
-  },
-
+    
   changePassword: async (data) => {
     const { newPassword, username } = data
     const hashedPassword = await password.hashPassword(newPassword)

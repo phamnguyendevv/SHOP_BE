@@ -1,15 +1,20 @@
 import UserModel from '../models/userModel.js';
 import validate from '../utils/validate.js'; // Đảm bảo đường dẫn đúng
-import ProductModel from '../models/productModel.js';
+import USERS_MESSAGES from '../constants/messages.js';
 import { checkSchema } from 'express-validator';
 import connection from '../db/configMysql.js';
+import passwordhandler from '../utils/password.js';
+import ErrorWithStatus from '../utils/error.js';
+import HTTP_STATUS from '../constants/httpStatus.js';
+import DiscountModel from '../models/DiscountModel.js';
+
+let discountMiddlewares = {
 
 
+    //add discount validator
+    addDiscountValidator: validate(checkSchema({
 
-let productMiddlewares = {
-    //add product validator
-    addProductValidator: validate(checkSchema({
-        user_id : {
+        user_id:{
             trim: true,
             isNumeric: {
                 errorMessage: 'User id must be a number',
@@ -24,55 +29,51 @@ let productMiddlewares = {
                 },
             },
         },
-        price: {
+        start_discount: {
+            trim: true,
+            isDate: {
+                errorMessage: 'Start discount must be a date',
+            },
+        },
+        end_discount: {
+            trim: true,
+            isDate: {
+                errorMessage: 'End discount must be a date',
+            },
+        },
+        persen_discount: {
             trim: true,
             isNumeric: {
-                errorMessage: 'Price must be a number',
+                errorMessage: 'Discount must be a number',
             },
         },
-
-        url_Demo:{
-            trim: true,
-            isURL: {
-                errorMessage: 'URL Demo must be a URL',
-            },
-        },
-
-        description: {
+        name_discount: {    
             trim: true,
             isLength: {
                 options: { min: 2 },
-                errorMessage: 'Description must be at least 2 characters long',
-            },
-        },
-
-        url_Download: {
-            trim: true,
-            isURL: {
-                errorMessage: 'URL Download must be a URL',
+                errorMessage: 'Name discount must be at least 2 characters long',
             },
         },
     }, ['body'])),
-
-
-    //update product validator
-    updateProductValidator: validate(checkSchema({
+    // update discount validator
+    updateDiscountValidator: validate(checkSchema({
         id:{
             trim: true,
             isNumeric: {
-                errorMessage: 'Product id must be a number',
+                errorMessage: 'Discount id must be a number',
             },
             custom: {
                 options: async (value, { req }) => {
-                    const product = await ProductModel.findProductById(connection, value);
-                    if (!product) {
-                        throw new Error('Product not found');
+            
+                    const discount = await DiscountModel.getDiscountById(connection, value);
+                    if (!discount) {
+                        throw new Error('Discount not found');
                     }
                     return true;
                 },
             },
         },
-        user_id : {
+        user_id:{
             trim: true,
             isNumeric: {
                 errorMessage: 'User id must be a number',
@@ -87,42 +88,33 @@ let productMiddlewares = {
                 },
             },
         },
-        price: {
+        start_discount: {
+            trim: true,
+            isDate: {
+                errorMessage: 'Start discount must be a date',
+            },
+        },
+        end_discount: {
+            trim: true,
+            isDate: {
+                errorMessage: 'End discount must be a date',
+            },
+        },
+        persen_discount: {
             trim: true,
             isNumeric: {
-                errorMessage: 'Price must be a number',
+                errorMessage: 'Discount must be a number',
             },
         },
-
-        url_Demo:{
-            trim: true,
-            isURL: {
-                errorMessage: 'URL Demo must be a URL',
-            },
-        },
-
-        description: {
+        name_discount: {    
             trim: true,
             isLength: {
                 options: { min: 2 },
-                errorMessage: 'Description must be at least 2 characters long',
-            },
-        },
-
-        url_Download: {
-            trim: true,
-            isURL: {
-                errorMessage: 'URL Download must be a URL',
+                errorMessage: 'Name discount must be at least 2 characters long',
             },
         },
     }, ['body'])),
 
-   
 }
 
-
-
-export default productMiddlewares;
-
-
-
+export default discountMiddlewares

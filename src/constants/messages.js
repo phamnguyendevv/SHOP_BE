@@ -11,7 +11,7 @@ const USERS_MESSAGES = {
     PASSWORD_MUST_BE_LONGER_THAN_6_CHARACTERS       : 'Password must be longer than 6 characters',
     CHANGE_PASSWORD_FAILED                          : 'Change password failed',
     INVALID_PHONE_NUMBER                            : 'Invalid phone number',
-
+    INVALID_QR_ADMIN                                : 'Invalid qr admin',
 
 
 

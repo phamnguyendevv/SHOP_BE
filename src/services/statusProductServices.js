@@ -1,22 +1,22 @@
-import statusModel from '../models/statusModel.js';
+import statusProductModel from '../models/statusProductModel.js';
 import connection from '../db/configMysql.js';  
 import USERS_MESSAGES from  '../constants/messages.js';
 import HTTP_STATUS from '../constants/httpStatus.js';
 import ErrorWithStatus from '../utils/error.js';
 
-let statusService = {
+let statusProductService = {
     addStatus: async (status) => {
         try {
-            const rows = await statusModel.addStatus(connection, status);
+            const rows = await statusProductModel.addStatus(connection, status);
         } catch (err) {
             throw new Error("Không thêm được trạng thái mới")
         }
     },
     getStatus: async (status) => {
         try {
-            const statuses = await statusModel.getStatus(connection, status);
-        
-            return statuses[0];
+            const statuses = await statusProductModel.getStatus(connection, status);
+            
+            return statuses;    
         } catch (error) {
             throw new ErrorWithStatus({ message: USERS_MESSAGES.NOT_GET_STATUS, status: HTTP_STATUS.NOT_FOUND });
           
@@ -24,7 +24,7 @@ let statusService = {
     },
     updateStatus: async (status) => {
         try {
-            const result = await statusModel.updateStatus(connection, status);
+            const result = await statusProductModel.updateStatus(connection, status);
         } catch (error) {
             throw new Error("Không cập nhật được trạng thái")
         }
@@ -32,7 +32,7 @@ let statusService = {
     deleteStatus: async (body) => {
         console.log(body)
         try {
-            const result = await statusModel.deleteStatus(connection, body);
+            const result = await statusProductModel.deleteStatus(connection, body);
             return result;
         } catch (error) {
             throw new Error("Không xóa được trạng thái")
@@ -40,4 +40,4 @@ let statusService = {
     }
 }
 
-export default statusService;
+export default statusProductService;

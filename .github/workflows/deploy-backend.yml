@@ -1,0 +1,44 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Docker image
+        run: docker build -t beshopweb .
+
+      - name: Push Docker image to registry
+        run: |
+          docker login -u duchaidev -p Ldh060303@
+          docker tag beshopweb duchaidev/beshopweb
+          docker push duchaidev/beshopweb
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: 20.206.240.27
+          username: duchaidevlinux
+          password: Leduchai2003
+          script: |
+            docker pull duchaidev/beshopweb
+            docker stop beshopweb || true
+            docker rm beshopweb || true
+            docker image prune -f
+            docker run -d --name beshopweb -p 8090:8989 duchaidev/beshopweb

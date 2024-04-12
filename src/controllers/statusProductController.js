@@ -1,28 +1,28 @@
-import statusService from '../services/statusService.js'
+import statusProductService from '../services/statusProductServices.js';
 
-let statusController = {
+let statusProductController = {
     addStatusController: async (req, res) => {
-        const result = await statusService.addStatus(req.body)
+        const result = await statusProductService.addStatus(req.body)
         return res.json({
             message: 'Add new status successfully!',
             result
         })
     },
     getStatusController: async (req, res) => {
-        const result = await statusService.getStatus(req.body)
+        const result = await statusProductService.getStatus(req.body)
         return res.json({
             message: 'Get all status successfully!',
             result
         })
     },
     updateStatusController: async (req, res) => {
-        const result = await statusService.updateStatus(req.body)
+        const result = await statusProductService.updateStatus(req.body)
         return res.json({
             message: `Status có id ${req.body.id} đã được cập nhật`
         })
     },
     deleteStatusController: async (req, res) => {
-        const result = await statusService.deleteStatus(req.body)
+        const result = await statusProductService.deleteStatus(req.body)
         return res.json({
             message: 'Delete status successfully!',
             result
@@ -31,4 +31,4 @@ let statusController = {
 
 }
 
-export default statusController;
+export default statusProductController;

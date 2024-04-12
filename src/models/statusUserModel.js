@@ -1,32 +1,32 @@
 
 
-let statusModel = {
+let statusUserModel = {
     addStatus: async (connection, status) => {
         await connection.execute(
-            `INSERT INTO status (ban, is_verify,created_at,
-                updated_at) VALUES (?, ?,CURRENT_DATE, 
+            `INSERT INTO status_user (name,created_at,
+                updated_at) VALUES (?,CURRENT_DATE, 
                     CURRENT_DATE)`,
-            [status.ban, status.is_verify]
+            [status.name]
         );
     },
     
     getStatus: async (connection, status) => {
-        const [rows] = await connection.execute('SELECT * FROM status');
+        const [rows] = await connection.execute('SELECT * FROM status_user');
         return rows;
     },
     updateStatus: async (connection, status) => {
         await connection.execute(
-            `UPDATE status SET ban = ?, is_verify = ? WHERE id = ?`,
-            [status.ban, status.is_verify, status.id]
+            `UPDATE status_user SET name = ? WHERE id = ?`,
+            [status.name, status.id]
         );
     },
     deleteStatus : async (connection, status) => {
         await connection.execute(
-            `DELETE FROM status WHERE id = ?`,
+            `DELETE FROM status_user WHERE id = ?`,
             [status.id]
         );
     }
 
 
 }
-export default statusModel;
+export default statusUserModel;

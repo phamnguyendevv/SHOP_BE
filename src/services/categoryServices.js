@@ -1,30 +1,39 @@
 import connection from '../db/configMysql.js';
 import CategoryModel from '../models/categoryModel.js';
 import ProductModel from '../models/productModel.js';
-import UserModel from '../models/userModel.js';
-import password from '../utils/password.js';
 import crypto from 'crypto';
-import ErrorWithStatus from '../utils/error.js';
-import { Console } from 'console';
-import { CONNREFUSED } from 'dns';
+import getSlug from 'speakingurl'
 
 let CategoryService = {
+    createSlug : async (name) => {
+        const slug = getSlug(name, { lang: 'vn' });
+    
+        let fullSlug, existingCategory;
+        do {
+            const randomInt = crypto.randomBytes(4).readUInt32LE();
+            fullSlug = `${slug}.cat-${randomInt}`;
+            
+         existingCategory = await CategoryModel.getCategoryBySlug(connection, fullSlug);
 
-
-    // add new category
-    addCategory: async (category) => {
-        try {
-            // Thực hiện truy vấn INSERT
-            const rows = await CategoryModel.addCategory(connection, category);
-          } catch (err) {
-            throw new Error("Không thêm được danh mục mới")
-          }
+        } while (existingCategory);
+    
+        return fullSlug;
     },
 
-   //get all categories
+    // add new category
+    addCategory: async (payload) => {
+        try {
+            payload.slug = await CategoryService.createSlug(payload.name)
+            const rows = await CategoryModel.addCategory(connection, payload);
+        } catch (err) {
+            throw new Error("Không thêm được danh mục mới")
+        }
+    },
+
+    //get all categories
     getAllCategories: async (category) => {
         try {
-            const categories = await CategoryModel.getAllCategories(connection,category);
+            const categories = await CategoryModel.getAllCategories(connection, category);
             return categories[0];
         } catch (error) {
             throw new Error("Không lấy được danh mục")
@@ -45,18 +54,17 @@ let CategoryService = {
 
     //deleteCategory
     deleteCategory: async (body) => {
-        console.log(body)
         try {
             const result = await CategoryModel.deleteCategory(connection, body);
             return result;
         } catch (error) {
             // Xử lý lỗi ở đây
             throw new Error("Không xóa được danh mục")
-        
-           
+
+
         }
     }
-  
+
 }
 
 export default CategoryService;

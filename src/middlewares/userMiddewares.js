@@ -4,8 +4,7 @@ import USERS_MESSAGES from '../constants/messages.js';
 import { checkSchema } from 'express-validator';
 import connection from '../db/configMysql.js';
 import passwordhandler from '../utils/password.js';
-import ErrorWithStatus from '../utils/error.js';
-import HTTP_STATUS from '../constants/httpStatus.js';
+
 
 let userMiddlewares = {
 
@@ -43,7 +42,7 @@ let userMiddlewares = {
             }
 
         },
-        username: {
+        fullname: {
             trim: true,
             isLength: {
                 options: { min: 6 },
@@ -52,7 +51,7 @@ let userMiddlewares = {
             custom: {
                 options: async (value) => {
                    
-                    const user = await UserModel.getUserByUsername(connection, value);
+                    const user = await UserModel.getUserByFullname(connection, value);
                     if (user) {
                         console.log(user); 
                         throw new Error(USERS_MESSAGES.USERNAME_IS_EXISTED);
@@ -61,25 +60,6 @@ let userMiddlewares = {
                 },
             },
         },
-        phone: {
-            trim: true,
-            isMobilePhone: {
-                options: ['vi-VN'],
-                errorMessage: USERS_MESSAGES.INVALID_PHONE_NUMBER,
-            },
-        },
-        birthday: {
-            trim: true,
-            isDate: {
-                errorMessage: 'Invalid date',
-            },
-        },
-        sex: {
-            trim: true,
-        },
-        
-        
-
     }, ['body'])),
 
 

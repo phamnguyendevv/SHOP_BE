@@ -28,19 +28,14 @@ const refreshTokens = async (user) => {
 }
 
 
-const getTokenExpiration = (token) => {
-    const decoded = jwt.decode(token);
-    if (!decoded) {
-        return null;
-    }
-    // Lấy thời gian hết hạn từ thuộc tính "exp" của payload
-    const expirationTime = decoded.exp;
-    // Chuyển đổi thời gian hết hạn từ dạng timestamp sang đối tượng Date
-    return new Date(expirationTime * 1000); // Nhân 1000 để chuyển đổi sang milliseconds
+const decoToken =  async (token) => {
+
+    return jwt.decode(token);
 };
 
 
 
 
 
-export { generateToken ,refreshTokens,getTokenExpiration};
+
+export { generateToken ,refreshTokens,decoToken};
