@@ -136,8 +136,8 @@ let ProductModel = {
     getOneProduct: async (connection, data) => {
         try {
             const query = `SELECT * FROM product WHERE id = ?`;
-            const [result] = await connection.query(query, [data.id]);
-
+            const [result] = await connection.query(query, data.id);
+            console.log(result);
             if (result.length === 0) {
                 throw new Error('Không tìm thấy sản phẩm với id này');
             }
@@ -159,7 +159,7 @@ let ProductModel = {
 
         return result;
     },
-    getProductPopularByCategory: async (connection, category, page, limit,popular) => {
+    getProductPopularByCategory: async (connection, category, page, limit, popular) => {
         try {
             const categoryJSON = JSON.stringify(category);
             const offset = (page - 1) * limit;

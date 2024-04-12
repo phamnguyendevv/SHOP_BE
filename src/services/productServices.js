@@ -43,7 +43,7 @@ let ProductServices = {
   },
 
   getOneProduct: async (data) => {
-
+    
     const result = await ProductModel.getOneProduct(connection, data);
     return result;
   },
