@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8989
 
 # Khởi chạy ứng dụng
-CMD ["node", "app.js"]
+CMD ["node", "server.js"]
