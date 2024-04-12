@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 dotenv.config();
 app.use(cors());
-const PORT = process.env.PORT || 8989
+const PORT = 8989
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
