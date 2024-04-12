@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 dotenv.config();
 app.use(cors());
+console.log('Server is starting...')
 const PORT = 8989
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
