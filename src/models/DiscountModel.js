@@ -4,7 +4,9 @@ let DiscountModel = {
         return result;
     },
     updateDiscount: async (connection, data) => {
-        const result = await connection.query('UPDATE discount SET ? WHERE id = ?', [data, data.id]);
+        const query = 'UPDATE discount SET user_id = ? ,discount_code = ?, persen_discount = ?, start_discount = ?, end_discount = ?, updated_at = CURDATE() WHERE id = ?';
+        const result = await connection.query(query, 
+            [data.user_id ,data.discount_code, data.persen_discount, data.start_discount, data.end_discount, data.id]);
         if (result[0].affectedRows  === 0) {
            throw new Error("Cập nhật mã giảm giá không thành công")
         }
@@ -23,8 +25,8 @@ let DiscountModel = {
         console.log(result[0])
         return result[0];
     },
-    getDiscountById: async (connection, data) => {
-        const result = await connection.query('SELECT * FROM discount WHERE id = ?', data.id);
+    getDiscountById: async (connection, id) => {
+        const result = await connection.query('SELECT * FROM discount WHERE id = ?', id);
         return result[0];
     }
 

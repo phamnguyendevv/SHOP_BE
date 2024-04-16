@@ -13,6 +13,14 @@ let authController = {
             message: 'User created',
         })
     },
+    registerAdminController: async (req, res) => {
+        const result = await AuthService.register(req.body)
+        return res.json({
+            message: 'Admin created',
+        })
+    },
+
+
 
 
     loginController: async (req, res) => {
@@ -38,7 +46,7 @@ let authController = {
             message: 'refreshToken successfull',
             result
         })
-    },
+    },  
     changePassController: async (req, res) =>{
         const result = await AuthService.changePassword(req.body)
         return res.json({

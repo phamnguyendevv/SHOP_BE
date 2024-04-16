@@ -15,7 +15,7 @@ let CategoryService = {
             
          existingCategory = await CategoryModel.getCategoryBySlug(connection, fullSlug);
 
-        } while (existingCategory);
+        } while (!existingCategory);
     
         return fullSlug;
     },

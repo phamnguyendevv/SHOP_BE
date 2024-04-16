@@ -12,7 +12,7 @@ const USERS_MESSAGES = {
     CHANGE_PASSWORD_FAILED                          : 'Change password failed',
     INVALID_PHONE_NUMBER                            : 'Invalid phone number',
     INVALID_QR_ADMIN                                : 'Invalid qr admin',
-
+    FULL_NAME_ALREADY_EXISTS                        : 'Full name already exists',
 
 
 

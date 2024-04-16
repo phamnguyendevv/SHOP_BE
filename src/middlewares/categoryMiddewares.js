@@ -10,16 +10,16 @@ import ProductModel from '../models/productModel.js';
 let categoryMiddlewares = {
     // add category validator
     addCategoryValidator: validate(checkSchema({
-        product_id: {
+        user_id: {
             trim: true,
             isNumeric: {
                 errorMessage: 'Product id must be a number',
             },
             custom: {
                 options: async (value, { req }) => {
-                    const user = await ProductModel.findProductById(connection, value);
+                    const user = await UserModel.getUserById(connection, value);
                     if (!user) {
-                        throw new Error('Product not found');
+                        throw new Error('User not found');
                     }
                     req.user = user;
                     return true;
@@ -61,16 +61,16 @@ let categoryMiddlewares = {
                 },
             },
         },
-        product_id: {
+        user_id: {
             trim: true,
             isNumeric: {
                 errorMessage: 'Product id must be a number',
             },
             custom: {
                 options: async (value, { req }) => {
-                    const user = await ProductModel.findProductById(connection, value);
+                    const user = await UserModel.getUserById(connection, value);
                     if (!user) {
-                        throw new Error('Product not found');
+                        throw new Error('User not found');
                     }
                     req.user = user;
                     return true;

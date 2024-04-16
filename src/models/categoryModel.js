@@ -29,9 +29,9 @@ let CategoryModel = {
   addCategory: async (connection, category) => {
     // Thực hiện truy vấn INSERT
     const [rows] = await connection.execute(
-      'INSERT INTO category (product_id, name, slug, popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO category (user_id, name, slug, popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [
-        category.product_id,
+        category.user_id,
         category.name,
         category.slug || '', // Sử dụng || '' để đảm bảo giá trị không null
         category.popular || false, // Sử dụng || false để đảm bảo giá trị không null

@@ -19,14 +19,11 @@ let AuthService = {
     const hashed = await password.hashPassword(data.password);
     const userNew = await UserModel.createUser(connection, data, hashed);
     const newReferralCode = `${userNew.id}${code}`;
-    console.log(newReferralCode);
     userNew.referralCode = newReferralCode;
     await UserModel.updateUserReferralCode(connection, newReferralCode, userNew.id);
-
-
     return userNew;
-
   },
+
 
   //login
   login: async (data) => {
@@ -35,25 +32,33 @@ let AuthService = {
     const { password, created_at, updated_at, ...usercustom } = user;
     const accessToken = await generateToken(user);
     const refreshToken = await refreshTokens(user);
-
     const decod = await decoToken(accessToken);
     const exp = await decod.exp;
-
     const Token = {accessToken,refreshToken,exp}
-
-
     return { usercustom, Token };
 
   },
 
 
-  auth: async (data) => {
+  auth: async (data) =>{
     const { accessToken, refreshToken } = data;
-    const decod = await decoToken(accessToken);
+    const decod = await decoToken(refreshToken);
     const user = await UserModel.getUserById(connection, decod.id);
     const { password, created_at, updated_at, ...usercustom } = user;
     const newaccessToken = await generateToken(user);
-    const exp = await decod.exp;
+    const expNewaccessToken = await decoToken(newaccessToken);
+    const exp = await expNewaccessToken.exp;
+    const Token = {accessToken:newaccessToken,refreshToken,exp}
+    return { usercustom, Token };
+  },
+  refreshToken: async (data) => {
+    const { refreshToken } = data;
+    const decod = await decoToken(refreshToken);
+    const user = await UserModel.getUserById(connection, decod.id);
+    const { password, created_at, updated_at, ...usercustom } = user;
+    const newaccessToken = await generateToken(user);
+    const expNewaccessToken = await decoToken(newaccessToken);
+    const exp = await expNewaccessToken.exp;
     const Token = {accessToken:newaccessToken,refreshToken,exp}
     return { usercustom, Token };
   },
@@ -69,10 +74,8 @@ let AuthService = {
     }
   },
   confirmPassword: async (data) =>{
-
-
+    const { password_new, confirm_password_new, token } = data
     
-
     user.password = password_new
     user.confirm_password = confirm_password_new
     user.forgot_password_token = undefined

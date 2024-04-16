@@ -30,7 +30,6 @@ let RoleModel = {
             throw new Error('Không tìm thấy sản phẩm với id này');
         }
     },
-
    
 
 }

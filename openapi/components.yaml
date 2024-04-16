@@ -1,0 +1,569 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: theUser
+        status_id:
+          type: integer
+          format: int64
+          example: 10
+        role_id:
+          type: integer
+          format: int64
+          example: 10
+        balance:
+          type: integer
+          format: int64
+          example: 10
+        fullname:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          example: "12345"
+        phone:
+          type: integer
+          example: 12345
+        sex:
+          type: string
+          example: "NAM"
+        avatar:
+          type: string
+          example: James
+        points:
+          type: integer
+          format: int64
+          example: 10
+        qr_admin:
+          type: object
+          example: {}
+        birthday:
+          type: string
+          format: date
+          example: "2024-04-14"
+        isOnline:
+          type: boolean
+          example: true
+        offlineAt:
+          type: string
+          format: date
+          example: "2024-04-14"
+        referrer_id:
+          type: integer
+          format: int64
+          example: 10
+        referral_code:
+          type: string
+          example: "12345"
+        created_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+        updated_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+      xml:
+        name: user
+    Token:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+      xml:
+        name: Token
+    UserResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 10
+            username:
+              type: string
+              example: theUser
+            status_id:
+              type: integer
+              format: int64
+              example: 10
+            role_id:
+              type: integer
+              format: int64
+              example: 10
+            balance:
+              type: integer
+              format: int64
+              example: 10
+            fullname:
+              type: string
+              example: James
+            email:
+              type: string
+              example: john@email.com
+            password:
+              type: string
+              example: "12345"
+            phone:
+              type: integer
+              example: 12345
+            sex:
+              type: string
+              example: "NAM"
+            avatar:
+              type: string
+              example: James
+            points:
+              type: integer
+              format: int64
+              example: 10
+            qr_admin:
+              type: object
+              example: {}
+            birthday:
+              type: string
+              format: date
+              example: "2024-04-14"
+            isOnline:
+              type: boolean
+              example: true
+            offlineAt:
+              type: string
+              format: date
+              example: "2024-04-14"
+            referrer_id:
+              type: integer
+              format: int64
+              example: 10
+            referral_code:
+              type: string
+              example: "12345"
+            created_at:
+              type: string
+              format: date
+              example: "2024-04-14"
+            updated_at:
+              type: string
+              format: date
+              example: "2024-04-14"
+        token:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI2OCIsInVuaXF1ZV9uYW1lIjoibGR1YyIsInJvbGUiOiIiLCJuYmYiOjE3MTMxMDkzMjIsImV4cCI6MTcxMzcxNDEyMiwiaWF0IjoxNzEzMTA5MzIyfQ.02s_2wlHNRQXnLFohK2wsUCCIkQXGH58onx_tiudIM8"
+            refreshToken:
+              type: string
+              example: "GicNOQb9ruLGiNLxe8qrFtVJixywt1j/zxfMVW7jtIs="
+            expires:
+              type: string
+              format: date-time
+              example: "2024-04-21T15:42:02.3609868Z"
+    AuthByUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "phamVan@gmail.com"
+        password:
+          type: string
+          example: "12345"
+      xml:
+        name: authbyuser
+    UserCreationRequest:
+      type: object
+      properties:
+        fullname:
+          type: string
+          example: Nguyen1
+        email:
+          type: string
+          example: nguyen@gmail.com
+        password:
+          type: string
+          example: "12345@aA"
+        qr_admin:
+          type: object
+          example:
+            [
+              {
+                "nameAccout": "admin",
+                "nameBank": "Vietcombank",
+                "numberAccout": "123456789",
+                "qrcode": "https://www.qrcode-monkey.com/qrcode-api/?size=200&data=123456789",
+                "money": 1000000,
+              },
+              {
+                "nameAccout": "admin",
+                "nameBank": "Vietinbank",
+                "numberAccout": "123456789",
+                "qrcode": "https://www.qrcode-monkey.com/qrcode-api/?size=200&data=123456789",
+                "money": 1000000,
+              },
+            ]
+      required:
+        - fullname
+        - email
+        - password
+        - qr_admin
+    ChangePassword:
+      type: object
+      properties:
+        fullname:
+          type: string
+          example: "phamVan"
+        oldPassword:
+          type: string
+          example: "12345@aA"
+        newPassword:
+          type: string
+          example: "12345"
+      xml:
+        name: changePassword
+    GetUserList:
+      type: object
+      properties:
+        keyword:
+          type: string
+          example: "phamVan"
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+      xml:
+        name: getUserList
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        status_id:
+          type: integer
+          format: int64
+          example: 1
+        price:
+          type: integer
+          format: int64
+          example: 1000000
+        url_Demo:
+          type: string
+          example: "https://example.com/demo"
+        popular:
+          type: boolean
+          example: true
+        category:
+          type: array
+          items:
+            type: string
+          example: ["category1", "category2"]
+        description:
+          type: string
+          example: "This is a product description."
+        code_Discount:
+          type: string
+          example: "DISCOUNT123"
+        url_Download:
+          type: string
+          example: "https://example.com/download"
+        pre_order:
+          type: boolean
+          example: false
+        points:
+          type: integer
+          format: int64
+          example: 100
+        slug:
+          type: string
+          example: "product-slug"
+        technology:
+          type: array
+          items:
+            type: string
+          example: ["technology1", "technology2"]
+        created_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+        updated_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+      required:
+        - user_id
+        - status_id
+        - price
+        - description
+        - sold
+        - created_at
+        - updated_at
+    
+    ProductInput:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 2
+        user_id:
+          type: integer
+          format: int64
+          example: 5
+        name:
+          type: string
+          example: "dien thoai"
+        price:
+          type: integer
+          format: int64
+          example: 99000
+        url_Demo:
+          type: string
+          example: "https://example.com/demo"
+        category:
+          type: array
+          items:
+            type: string
+          example: ["WebDevelopment", "JavaScript"]
+        description:
+          type: string
+          example: "This is a product description"
+        url_Download:
+          type: string
+          example: "https://example.com/download"
+        technology:
+          type: array
+          items:
+            type: string
+          example: ["nodejs", "JavaScript"]
+      required:
+        - user_id
+        - name
+        - price
+        - description
+        - url_Download
+    SearchParamsProduct:
+      type: object
+      properties:
+        pagingParams:
+          type: object
+          properties:
+            orderBy:
+              type: string
+              example: "string"
+            keyword:
+              type: string
+              example: "string"
+            pageIndex:
+              type: integer
+              format: int32
+              example: 1
+            isPaging:
+              type: boolean
+              example: true
+            pageSize:
+              type: integer
+              format: int32
+              example: 20
+        filterParams:
+          type: object
+          properties:
+            userId:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]
+            categoryId:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]
+            popularProductId:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]
+    CategoryProductResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Lấy sản phẩm theo danh mục thành công!"
+        data:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 2
+                  user_id:
+                    type: integer
+                    format: int64
+                    example: 5
+                  status_id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  name:
+                    type: string
+                    example: "dien thoai"
+                  price:
+                    type: integer
+                    format: int64
+                    example: 99000
+                  url_Demo:
+                    type: string
+                    example: "https://example.com/demo"
+                  popular:
+                    type: integer
+                    format: int32
+                    example: 1
+                  category:
+                    type: array
+                    items:
+                      type: string
+                    example: ["WebDevelopment", "JavaScript"]
+                  description:
+                    type: string
+                    example: "This is a product description"
+                  sold:
+                    type: integer
+                    format: int64
+                    example: 0
+                  code_Discount:
+                    type: string
+                    example: ""
+                  url_Download:
+                    type: string
+                    example: "https://example.com/download"
+                  pre_order:
+                    type: integer
+                    format: int32
+                    example: 0
+                  points:
+                    type: integer
+                    format: int64
+                    example: 0
+                  slug:
+                    type: string
+                    example: "dien-thoai.prod-2445967813"
+                  technology:
+                    type: array
+                    items:
+                      type: string
+                    example: ["nodejs", "JavaScript"]
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: "2024-04-10T17:00:00.000Z"
+                  updated_at:
+                    type: string
+                    format: date-time
+                    example: "2024-04-14T17:00:00.000Z"
+            total_count:
+              type: integer
+              format: int32
+              example: 2
+            current_page:
+              type: integer
+              format: int32
+              example: 1
+            per_page:
+              type: integer
+              format: int32
+              example: 2
+    DiscountInput:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 2
+        user_id:
+          type: integer
+          format: int64
+          example: 5
+        start_discount:
+          type: string
+          format: date
+          example: "2024-04-11"
+        end_discount:
+          type: string
+          format: date
+          example: "2024-04-15"
+        persen_discount:
+          type: integer
+          example: 10
+        name_discount:
+          type: string
+          example: "Đại hạ giá"
+        discount_code:
+          type: string
+          example: "abc1234"
+      required:
+        - user_id
+        - start_discount
+        - end_discount
+        - persen_discount
+        - name_discount
+        - discount_code
+    SearchParamsDiscount:
+      type: object
+      properties:
+        pagingParams:
+          type: object
+          properties:
+            orderBy:
+              type: string
+              example: "string"
+            keyword:
+              type: string
+              example: "string"
+            pageIndex:
+              type: integer
+              format: int32
+              example: 1
+            isPaging:
+              type: boolean
+              example: true
+            pageSize:
+              type: integer
+              format: int32
+              example: 20
+        filterParams:
+          type: object
+          properties:
+            id:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]

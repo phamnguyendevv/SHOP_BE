@@ -1,0 +1,1884 @@
+openapi: 3.0.3
+info:
+  title: Web API
+  description: |-
+  license:
+    name: API WEB 1.0
+    url: "http://localhost:8989/api/v0"
+  version: 1.0.11
+
+servers:
+  - url: http://localhost:8989/api/v0
+paths:
+  /auth/token:
+    post:
+      tags:
+        - Auth
+      description: auth by token
+      operationId: auth
+      requestBody:
+        description: Auth by token
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Token"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Token"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Token"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Token not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /auth/user:
+    post:
+      tags:
+        - Auth
+      description: auth by password and email
+      operationId: auth
+      requestBody:
+        description: Auth by password and email
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthByUser"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/AuthByUser"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/AuthByUser"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreationRequest"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/UserCreationRequest"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/UserCreationRequest"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  #   get:
+  #     tags:
+  #       - user
+  #     summary: Get user by user name
+  #     description: ''
+  #     operationId: getUserByName
+  #     parameters:
+  #       - name: username
+  #         in: path
+  #         description: 'The name that needs to be fetched. Use user1 for testing. '
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/User'
+  #           application/xml:
+  #             schema:
+  #               $ref: '#/components/schemas/User'
+  #       '400':
+  #         description: Invalid username supplied
+  #       '404':
+  #         description: User not found
+  #   put:
+  #     tags:
+  #       - user
+  #     summary: Update user
+  #     description: This can only be done by the logged in user.
+  #     operationId: updateUser
+  #     parameters:
+  #       - name: username
+  #         in: path
+  #         description: name that need to be deleted
+  #         required: true
+  #         schema:
+  #           type: string
+  #     requestBody:
+  #       description: Update an existent user in the store
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/User'
+  #         application/xml:
+  #           schema:
+  #             $ref: '#/components/schemas/User'
+  #         application/x-www-form-urlencoded:
+  #           schema:
+  #             $ref: '#/components/schemas/User'
+  #     responses:
+  #       default:
+  #         description: successful operation
+  #   delete:
+  #     tags:
+  #       - user
+  #     summary: Delete user
+  #     description: This can only be done by the logged in user.
+  #     operationId: deleteUser
+  #     parameters:
+  #       - name: username
+  #         in: path
+  #         description: The name that needs to be deleted
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       '400':
+  #         description: Invalid username supplied
+  #       '404':
+  #         description: User not found
+  /auth/register-admin:
+    post:
+      tags:
+        - Auth
+      description: register admin
+      operationId: register
+      requestBody:
+        description: Register admin
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UserCreationRequest"
+                - type: object
+                  properties:
+                    status_id:
+                      type: integer
+                      example: 2
+          application/xml:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UserCreationRequest"
+                - type: object
+                  properties:
+                    status_id:
+                      type: integer
+                      example: 2
+          application/x-www-form-urlencoded:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/UserCreationRequest"
+                - type: object
+                  properties:
+                    status_id:
+                      type: integer
+                      example: 2
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      description: refresh token
+      operationId: refresh
+      requestBody:
+        description: Refresh token
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Token"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Token"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Token"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Token not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /auth/change-password:
+    post:
+      tags:
+        - Auth
+      description: change password
+      operationId: change
+      requestBody:
+        description: Change password
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePassword"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ChangePassword"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ChangePassword"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /role/addRole:
+    post:
+      tags:
+        - Role
+      description: add role
+      operationId: addRole
+      requestBody:
+        description: Add role
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - name
+          application/xml:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - name
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - name
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /role/getRole:
+    get:
+      tags:
+        - Role
+      description: get role
+      operationId: getRole
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "admin"
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "admin"
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /role/updateRole:
+    post:
+      tags:
+        - Role
+      description: update role
+      operationId: updateRole
+      requestBody:
+        description: Update role
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - id
+                - name
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - id
+                - name
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - id
+                - name
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /user/list:
+    post:
+      tags:
+        - User
+      description: get list user
+      operationId: list
+      requestBody:
+        description: Get list user
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetUserList"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/GetUserList"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/GetUserList"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            userId:
+                              type: integer
+                            userName:
+                              type: string
+                            roles_id:
+                              type: integer
+                            updatedDate:
+                              type: string
+                              format: date-time
+
+                      meta:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          totalPage:
+                            type: integer
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /user/update-role:
+    post:
+      tags:
+        - User
+      description: update role
+      operationId: updateRole
+      requestBody:
+        description: Update role
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                roles_id:
+                  type: integer
+                  example: 1
+              required:
+                - userId
+                - roles_id
+          application/xml:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                roles_id:
+                  type: integer
+                  example: 1
+              required:
+                - userId
+                - roles_id
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+                roles_id:
+                  type: integer
+                  example: 1
+              required:
+                - userId
+                - roles_id
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /user/getUser:
+    get:
+      tags:
+        - User
+      description: get user
+      operationId: getUser
+      parameters:
+        - name: id
+          in: query
+          description: The name that needs to be fetched. Use user1 for testing.
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /user/updateUser:
+    post:
+      tags:
+        - User
+      description: update user
+      operationId: updateUser
+      requestBody:
+        description: Update user
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                username:
+                  type: string
+                  example: "admin"
+                balance:
+                  type: integer
+                  example: 1
+                fullname:
+                  type: string
+                  example: "admin"
+                email:
+                  type: string
+                  example: "nguen@gmail.com"
+                password:
+                  type: string
+                  example: "12345"
+                phone:
+                  type: integer
+                  example: 12345
+                sex:
+                  type: string
+                  example: "NAM"
+                avatar:
+                  type: string
+                  example: "admin"
+                birthday:
+                  type: string
+                  format: date
+                  example: "2024-04-14"
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
+  /category/addCategory:
+    post:
+      tags:
+        - Category
+      description: add category
+      operationId: addCategory
+      requestBody:
+        description: Add category
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "admin"
+                product_id:
+                  type: integer
+                  example: "11"
+                image:
+                  type: string
+                  example: "https://example.com/images/web-development.jpg"
+              required:
+                - name
+          application/xml:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - name
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - name
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /category/getAllCategories:
+    get:
+      tags:
+        - Category
+      description: get all categories
+      operationId: getAllCategories
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            user_id:
+                              type: integer
+                            popular:
+                              type: integer
+                            slug:
+                              type: string
+                            image:
+                              type: string
+                            updatedDate:
+                              type: string
+                              format: date-time
+                      meta:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          totalPage:
+                            type: integer
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /category/updateCategory:
+    post:
+      tags:
+        - Category
+      description: update category
+      operationId: updateCategory
+      requestBody:
+        description: Update category
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "web landingpage"
+                user_id:
+                  type: integer
+                  example: "11"
+                image:
+                  type: string
+                  example: "https://example.com/images/web-development.jpg"
+              required:
+                - id
+                - name
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - id
+                - name
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "admin"
+              required:
+                - id
+                - name
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /category/deleteCategory:
+    delete:
+      tags:
+        - Category
+      description: delete category
+      operationId: deleteCategory
+      requestBody:
+        description: Delete category
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
+  /product/addProduct:
+    post:
+      tags:
+        - Product
+      description: add product
+      operationId: addProduct
+      requestBody:
+        description: Add product
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Product"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /product/updateProduct:
+    post:
+      tags:
+        - Product
+      description: update product
+      operationId: updateProduct
+      requestBody:
+        description: Update product
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /product/deleteProduct:
+    delete:
+      tags:
+        - Product
+      description: delete product
+      operationId: deleteProduct
+      requestBody:
+        description: Delete product
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
+    post:
+      tags:
+        - Product
+      description: get one product
+      operationId: getOneProduct
+      requestBody:
+        description: Get one product
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /product/List:
+    post:
+      tags:
+        - Product
+      description: get product by user id
+      operationId: getProductByUserId
+      requestBody:
+        description: Get product by user id
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchParamsProduct"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/SearchParamsProduct"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/SearchParamsProduct"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryProductResponse"
+        "400":
+          description: Invalid ID supplied
+  /product/updatePopular:
+    post:
+      tags:
+        - Product
+      description: update popular
+      operationId: updatePopular
+      requestBody:
+        description: Update popular
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                popular:
+                  type: integer
+                  example: 1
+              required:
+                - id
+                - popular
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                popular:
+                  type: integer
+                  example: 1
+              required:
+                - id
+                - popular
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                popular:
+                  type: integer
+                  example: 1
+              required:
+                - id
+                - popular
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
+  /product/adDDiscount:
+    post:
+      tags:
+        - Product
+      description: add discount
+      operationId: addDiscount
+      requestBody:
+        description: Add discount
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
+  /product/updateDiscount:
+    post:
+      tags:
+        - Product
+      description: update discount
+      operationId: updateDiscount
+      requestBody:
+        description: Update discount
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/DiscountInput"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /product/deleteDiscount:
+    delete:
+      tags:
+        - Product
+      description: delete discount
+      operationId: deleteDiscount
+      requestBody:
+        description: Delete discount
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+              required:
+                - id
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /product/getDiscount:
+    post:
+      tags:
+        - Product
+      description: get discount
+      operationId: getDiscount
+      requestBody:
+        description: Get discount
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchParamsDiscount"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/SearchParamsDiscount"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/SearchParamsDiscount"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            product_id:
+                              type: integer
+                            discount:
+                              type: integer
+                            updatedDate:
+                              type: string
+                              format: date-time
+                      meta:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          totalPage:
+                            type: integer
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: theUser
+        status_id:
+          type: integer
+          format: int64
+          example: 10
+        role_id:
+          type: integer
+          format: int64
+          example: 10
+        balance:
+          type: integer
+          format: int64
+          example: 10
+        fullname:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        password:
+          type: string
+          example: "12345"
+        phone:
+          type: integer
+          example: 12345
+        sex:
+          type: string
+          example: "NAM"
+        avatar:
+          type: string
+          example: James
+        points:
+          type: integer
+          format: int64
+          example: 10
+        qr_admin:
+          type: object
+          example: {}
+        birthday:
+          type: string
+          format: date
+          example: "2024-04-14"
+        isOnline:
+          type: boolean
+          example: true
+        offlineAt:
+          type: string
+          format: date
+          example: "2024-04-14"
+        referrer_id:
+          type: integer
+          format: int64
+          example: 10
+        referral_code:
+          type: string
+          example: "12345"
+        created_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+        updated_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+      xml:
+        name: user
+    Token:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+      xml:
+        name: Token
+    UserResponse:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 10
+            username:
+              type: string
+              example: theUser
+            status_id:
+              type: integer
+              format: int64
+              example: 10
+            role_id:
+              type: integer
+              format: int64
+              example: 10
+            balance:
+              type: integer
+              format: int64
+              example: 10
+            fullname:
+              type: string
+              example: James
+            email:
+              type: string
+              example: john@email.com
+            password:
+              type: string
+              example: "12345"
+            phone:
+              type: integer
+              example: 12345
+            sex:
+              type: string
+              example: "NAM"
+            avatar:
+              type: string
+              example: James
+            points:
+              type: integer
+              format: int64
+              example: 10
+            qr_admin:
+              type: object
+              example: {}
+            birthday:
+              type: string
+              format: date
+              example: "2024-04-14"
+            isOnline:
+              type: boolean
+              example: true
+            offlineAt:
+              type: string
+              format: date
+              example: "2024-04-14"
+            referrer_id:
+              type: integer
+              format: int64
+              example: 10
+            referral_code:
+              type: string
+              example: "12345"
+            created_at:
+              type: string
+              format: date
+              example: "2024-04-14"
+            updated_at:
+              type: string
+              format: date
+              example: "2024-04-14"
+        token:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI2OCIsInVuaXF1ZV9uYW1lIjoibGR1YyIsInJvbGUiOiIiLCJuYmYiOjE3MTMxMDkzMjIsImV4cCI6MTcxMzcxNDEyMiwiaWF0IjoxNzEzMTA5MzIyfQ.02s_2wlHNRQXnLFohK2wsUCCIkQXGH58onx_tiudIM8"
+            refreshToken:
+              type: string
+              example: "GicNOQb9ruLGiNLxe8qrFtVJixywt1j/zxfMVW7jtIs="
+            expires:
+              type: string
+              format: date-time
+              example: "2024-04-21T15:42:02.3609868Z"
+    AuthByUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "phamVan@gmail.com"
+        password:
+          type: string
+          example: "12345"
+      xml:
+        name: authbyuser
+    UserCreationRequest:
+      type: object
+      properties:
+        fullname:
+          type: string
+          example: Nguyen1
+        email:
+          type: string
+          example: nguyen@gmail.com
+        password:
+          type: string
+          example: "12345@aA"
+        qr_admin:
+          type: object
+          example:
+            [
+              {
+                "nameAccout": "admin",
+                "nameBank": "Vietcombank",
+                "numberAccout": "123456789",
+                "qrcode": "https://www.qrcode-monkey.com/qrcode-api/?size=200&data=123456789",
+                "money": 1000000,
+              },
+              {
+                "nameAccout": "admin",
+                "nameBank": "Vietinbank",
+                "numberAccout": "123456789",
+                "qrcode": "https://www.qrcode-monkey.com/qrcode-api/?size=200&data=123456789",
+                "money": 1000000,
+              },
+            ]
+      required:
+        - fullname
+        - email
+        - password
+        - qr_admin
+    ChangePassword:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "phamVan"
+        oldPassword:
+          type: string
+          example: "12345"
+        newPassword:
+          type: string
+          example: "12345"
+      xml:
+        name: changePassword
+    GetUserList:
+      type: object
+      properties:
+        keyword:
+          type: string
+          example: "phamVan"
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+      xml:
+        name: getUserList
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        status_id:
+          type: integer
+          format: int64
+          example: 1
+        price:
+          type: integer
+          format: int64
+          example: 1000000
+        url_Demo:
+          type: string
+          example: "https://example.com/demo"
+        popular:
+          type: boolean
+          example: true
+        category:
+          type: array
+          items:
+            type: string
+          example: ["category1", "category2"]
+        description:
+          type: string
+          example: "This is a product description."
+        code_Discount:
+          type: string
+          example: "DISCOUNT123"
+        url_Download:
+          type: string
+          example: "https://example.com/download"
+        pre_order:
+          type: boolean
+          example: false
+        points:
+          type: integer
+          format: int64
+          example: 100
+        slug:
+          type: string
+          example: "product-slug"
+        technology:
+          type: array
+          items:
+            type: string
+          example: ["technology1", "technology2"]
+        created_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+        updated_at:
+          type: string
+          format: date
+          example: "2024-04-14"
+      required:
+        - user_id
+        - status_id
+        - price
+        - description
+        - sold
+        - created_at
+        - updated_at
+    ProductInput:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 2
+        user_id:
+          type: integer
+          format: int64
+          example: 5
+        name:
+          type: string
+          example: "dien thoai"
+        price:
+          type: integer
+          format: int64
+          example: 99000
+        url_Demo:
+          type: string
+          example: "https://example.com/demo"
+        category:
+          type: array
+          items:
+            type: string
+          example: ["WebDevelopment", "JavaScript"]
+        description:
+          type: string
+          example: "This is a product description"
+        url_Download:
+          type: string
+          example: "https://example.com/download"
+        technology:
+          type: array
+          items:
+            type: string
+          example: ["nodejs", "JavaScript"]
+      required:
+        - user_id
+        - name
+        - price
+        - description
+        - url_Download
+    SearchParamsProduct:
+      type: object
+      properties:
+        pagingParams:
+          type: object
+          properties:
+            orderBy:
+              type: string
+              example: "string"
+            keyword:
+              type: string
+              example: "string"
+            pageIndex:
+              type: integer
+              format: int32
+              example: 1
+            isPaging:
+              type: boolean
+              example: true
+            pageSize:
+              type: integer
+              format: int32
+              example: 20
+        filterParams:
+          type: object
+          properties:
+            userId:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]
+            categoryId:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]
+            popularProductId:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]
+    CategoryProductResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Lấy sản phẩm theo danh mục thành công!"
+        data:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 2
+                  user_id:
+                    type: integer
+                    format: int64
+                    example: 5
+                  status_id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  name:
+                    type: string
+                    example: "dien thoai"
+                  price:
+                    type: integer
+                    format: int64
+                    example: 99000
+                  url_Demo:
+                    type: string
+                    example: "https://example.com/demo"
+                  popular:
+                    type: integer
+                    format: int32
+                    example: 1
+                  category:
+                    type: array
+                    items:
+                      type: string
+                    example: ["WebDevelopment", "JavaScript"]
+                  description:
+                    type: string
+                    example: "This is a product description"
+                  sold:
+                    type: integer
+                    format: int64
+                    example: 0
+                  code_Discount:
+                    type: string
+                    example: ""
+                  url_Download:
+                    type: string
+                    example: "https://example.com/download"
+                  pre_order:
+                    type: integer
+                    format: int32
+                    example: 0
+                  points:
+                    type: integer
+                    format: int64
+                    example: 0
+                  slug:
+                    type: string
+                    example: "dien-thoai.prod-2445967813"
+                  technology:
+                    type: array
+                    items:
+                      type: string
+                    example: ["nodejs", "JavaScript"]
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: "2024-04-10T17:00:00.000Z"
+                  updated_at:
+                    type: string
+                    format: date-time
+                    example: "2024-04-14T17:00:00.000Z"
+            total_count:
+              type: integer
+              format: int32
+              example: 2
+            current_page:
+              type: integer
+              format: int32
+              example: 1
+            per_page:
+              type: integer
+              format: int32
+              example: 2
+    DiscountInput:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 5
+        start_discount:
+          type: string
+          format: date
+          example: "2024-04-11"
+        end_discount:
+          type: string
+          format: date
+          example: "2024-04-15"
+        persen_discount:
+          type: integer
+          example: 10
+        name_discount:
+          type: string
+          example: "Đại hạ giá"
+        discount_code:
+          type: string
+          example: "abc1234"
+      required:
+        - user_id
+        - start_discount
+        - end_discount
+        - persen_discount
+        - name_discount
+        - discount_code
+    SearchParamsDiscount:
+      type: object
+      properties:
+        pagingParams:
+          type: object
+          properties:
+            orderBy:
+              type: string
+              example: "string"
+            keyword:
+              type: string
+              example: "string"
+            pageIndex:
+              type: integer
+              format: int32
+              example: 1
+            isPaging:
+              type: boolean
+              example: true
+            pageSize:
+              type: integer
+              format: int32
+              example: 20
+        filterParams:
+          type: object
+          properties:
+            id:
+              type: array
+              items:
+                type: integer
+                format: int32
+              example: [0]

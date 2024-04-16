@@ -23,7 +23,9 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mysql2": "^3.9.3",
-    "speakingurl": "^14.0.1"
+    "speakingurl": "^14.0.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0",

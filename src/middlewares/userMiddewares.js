@@ -54,7 +54,7 @@ let userMiddlewares = {
                     const user = await UserModel.getUserByFullname(connection, value);
                     if (user) {
                         console.log(user); 
-                        throw new Error(USERS_MESSAGES.USERNAME_IS_EXISTED);
+                        throw new Error(USERS_MESSAGES.FULL_NAME_ALREADY_EXISTS);
                     }
                     return true;
                 },
@@ -103,11 +103,11 @@ let userMiddlewares = {
         },
     }, ['body'])),
     changePassword: validate(checkSchema({
-        username:{
+        fullname:{
             trim: true,
             custom: {
                 options: async (value, { req }) => {
-                    const user = await UserModel.getUserByUsername(connection, value);
+                    const user = await UserModel.getUserByFullname(connection, value);
                     if (!user) {
                         throw new Error(USERS_MESSAGES.USER_NOT_FOUND)
                     }

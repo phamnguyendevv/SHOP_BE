@@ -89,14 +89,14 @@ let ProductModel = {
         }
     },
 
-    deleteProduct: async (connection, body) => {
+    deleteProduct: async (connection, data) => {
         try {
-            const user = await connection.query('SELECT * FROM `product` WHERE id = ?', [body.id]);
+            const user = await connection.query('SELECT * FROM `product` WHERE id = ?', [data.id]);
             if (user.length === 0) {
                 throw new Error('Sản phẩm không tồn tại');
             }
             const query = `DELETE FROM product WHERE id = ?`;
-            const [result] = await connection.query(query, [body.id]);
+            const [result] = await connection.query(query, [data.id]);
             if (!result.affectedRows) {
                 throw new Error('Không xóa được sản phẩm');
             }

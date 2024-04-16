@@ -9,7 +9,6 @@ let UserModel = {
             `SELECT * FROM user WHERE email = ?`,
             [email]
         );
-
         return rows[0];
     },
 
@@ -56,7 +55,7 @@ let UserModel = {
                 ?,
                 ?,
                 ?,
-                1,
+                ?,
                 2,
                 0,
                 CURRENT_DATE, 
@@ -66,7 +65,8 @@ let UserModel = {
                 data.email,
                 data.fullname,
                 hashedPassword,
-                data.qr_admin
+                data.qr_admin,
+                data.status_id  || 1  
             ]
 
 
@@ -79,36 +79,30 @@ let UserModel = {
         if (rows.length === 0) {
             throw new Error('Không tạo được user');
         }
-
         // Trả về thông tin người dùng đầu tiên trong mảng rows (do có thể có nhiều người dùng có cùng email)
         return rows[0];
 
     },
 
     updateUserReferralCode: async (connection, referralCode, userId) => {
-        try {
+           const result =  await connection.execute('UPDATE `user` SET referral_code = ? WHERE id = ?', [referralCode, userId]);
+           if (result[0].affectedRows === 0) {
+               throw new Error('Không cập nhật được mã giới thiệu');
+           }
+           return  result;
 
-            return await connection.execute('UPDATE `user` SET referral_code = ? WHERE id = ?', [referralCode, userId]);
-        } catch (error) {
-            throw new Error('Không cập nhật được mã giới thiệu');
-        }
     },
 
 
     findAndUpdatePassword: async (connection, hashedPassword, username) => {
-        try {
-            return await connection.execute(
-                `UPDATE user SET password = ? WHERE username = ?`,
+            const result = await connection.execute(
+                `UPDATE user SET password = ? WHERE fullname = ?`,
                 [hashedPassword, username]
             );
-        } catch (error) {
-            throw new Error('Lỗi khi cập nhật mật khẩu');
-        }
-
-
-
-
-
+            if (result[0].affectedRows === 0) {
+                throw new Error('Không cập nhật được mật khẩu');
+            }
+            return result;
     }
 }
 
