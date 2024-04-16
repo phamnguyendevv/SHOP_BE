@@ -1088,7 +1088,7 @@ paths:
     post:
       tags:
         - Product
-      summary: Get list product
+      summary: chưa làm xong
       description: get product by user id
       operationId: getProductByUserId
       requestBody:
