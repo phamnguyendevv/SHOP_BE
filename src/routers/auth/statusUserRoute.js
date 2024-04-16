@@ -6,10 +6,10 @@ const router = express.Router()
 
 
 
-router.post('/addstatus',wrapAsync(statusUserController.addStatusController))
-router.get('/getstatus',wrapAsync(statusUserController.getStatusController))
-router.put('/updatestatus',wrapAsync(statusUserController.updateStatusController))
-router.delete('/deletestatus',wrapAsync(statusUserController.deleteStatusController))
+router.post('/status',wrapAsync(statusUserController.addStatusController))
+router.get('/status',wrapAsync(statusUserController.getStatusController))
+router.put('/status',wrapAsync(statusUserController.updateStatusController))
+router.delete('/status',wrapAsync(statusUserController.deleteStatusController))
 
 export default router;
 

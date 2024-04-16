@@ -5,10 +5,10 @@ import wrapAsync from '../../utils/handlers.js'
 const router = express.Router()
 
 
-router.post('/addCart', cartMiddlewares.addCartValidator, wrapAsync(cartController.addToCartController))
-router.post('/updateCart',wrapAsync(cartController.updateCartController))
-router.delete('/deleteCart', wrapAsync(cartController.removeFromCartController))
-router.get('/getCart', wrapAsync(cartController.getCartController))
+router.post('/cart', cartMiddlewares.addCartValidator, wrapAsync(cartController.addToCartController))
+router.put('/cart',wrapAsync(cartController.updateCartController))
+router.delete('/cart', wrapAsync(cartController.removeFromCartController))
+router.get('/cart', wrapAsync(cartController.getCartController))
 
 
 

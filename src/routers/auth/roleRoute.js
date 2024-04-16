@@ -6,13 +6,16 @@ const router = express.Router()
 
 
 
-router.get('/s', (req, res) => {
-    res.send('ssssssssssssss')
-})
 
-router.post('/addRole',wrapAsync(rolesController.addRoleController))
-router.get('/getRoles',wrapAsync(rolesController.getRolesController))
-router.post('/updateRole',wrapAsync(rolesController.updateRoleController))
+router.post('/role',wrapAsync(rolesController.addRoleController))
+router.get('/role',wrapAsync(rolesController.getRolesController))
+router.put('/role',wrapAsync(rolesController.updateRoleController))
+
+
+
+
+
+
 
 
 

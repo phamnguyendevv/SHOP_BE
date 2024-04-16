@@ -17,7 +17,7 @@ router.post('/user', userMiddlewares.loginValidator,wrapAsync(authController.log
 router.post('/token',wrapAsync(authController.authUserController))
 router.post('/refresh',wrapAsync(authController.refreshTokenController))
 router.post('/change-password',userMiddlewares.changePassword,wrapAsync(authController.changePassController))
-router.post('/confirm-password',userMiddlewares.changePassword,wrapAsync(authController.confirmPassController))
+// router.post('/confirm-password',userMiddlewares.changePassword,wrapAsync(authController.confirmPassController))
 
 
 

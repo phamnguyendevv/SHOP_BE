@@ -10,7 +10,7 @@ import discountRote from './products/discountRote.js'
 import cartRouter from './products/cartRote.js'
 const router = express.Router()
 
-router.get("/api/v0", (req, res) => {
+router.get("/", (req, res) => {
     res.send("Shope web here!");
 });
 
@@ -19,7 +19,7 @@ router.use('/api/v0/user',userRouter)
 
 
 router.use('/api/v0', statusUserRouter)
-router.use('/api/v0/role', roleRouter)
+router.use('/api/v0', roleRouter)
 router.use('/api/v0/category', cateRouter)
 router.use('/api/v0/product', productRouter)
 router.use('/api/v0/discount', discountRote)

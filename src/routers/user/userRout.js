@@ -4,7 +4,7 @@ import userController from '../../controllers/userController.js'
 const router = express.Router()
 
 
-router.post('/getList', wrapAsync(userController.getList))
+router.post('/get-list', wrapAsync(userController.getList))
 
 
 

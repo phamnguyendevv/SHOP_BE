@@ -22,7 +22,7 @@ tags:
     description: Category
   - name: Product
     description: Product
-  - name : Discount
+  - name: Discount
     description: Discount
 paths:
   /auth/token:
@@ -30,6 +30,7 @@ paths:
       tags:
         - Auth
       description: auth by token
+      summary: Auth by token
       operationId: auth
       requestBody:
         description: Auth by token
@@ -69,6 +70,7 @@ paths:
       tags:
         - Auth
       description: auth by password and email
+      summary: Auth by password and email
       requestBody:
         description: Auth by password and email
         content:
@@ -106,6 +108,7 @@ paths:
     post:
       tags:
         - Auth
+      summary: Register user
       requestBody:
         content:
           application/json:
@@ -207,6 +210,7 @@ paths:
       tags:
         - Auth
       description: register admin
+      summary: Register admin
       operationId: register
       requestBody:
         description: Register admin
@@ -255,6 +259,7 @@ paths:
       tags:
         - Auth
       description: refresh token
+
       operationId: refresh
       requestBody:
         description: Refresh token
@@ -294,6 +299,7 @@ paths:
       tags:
         - Auth
       description: change password
+      summary: Change password
       operationId: change
       requestBody:
         description: Change password
@@ -321,11 +327,12 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /role/addRole:
+  /role:
     post:
       tags:
         - Role
       description: add role
+      summary: Add role
       operationId: addRole
       requestBody:
         description: Add role
@@ -369,11 +376,12 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /role/getRoles:
+
     get:
       tags:
         - Role
       description: get role
+      summary: Get role
       operationId: getRole
       responses:
         "200":
@@ -407,11 +415,11 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /role/updateRole:
-    post:
+    put:
       tags:
         - Role
       description: update role
+      summary: Update role
       operationId: updateRole
       requestBody:
         description: Update role
@@ -467,9 +475,7 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
- 
- 
- 
+
   # /user/list:
   #   post:
   #     tags:
@@ -686,13 +692,11 @@ paths:
   #     #       - write:pets
   #     #       - read:pets
 
-
-
-
-  /category/addCategory:
+  /category:
     post:
       tags:
         - Category
+      summary: Add category
       description: add category
       operationId: addCategory
       requestBody:
@@ -743,11 +747,11 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /category/getAllCategories:
     get:
       tags:
         - Category
       description: get all categories
+      summary: Get all categories
       operationId: getAllCategories
       responses:
         "200":
@@ -799,11 +803,11 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /category/updateCategory:
-    post:
+    put:
       tags:
         - Category
       description: update category
+      summary: Update category
       operationId: updateCategory
       requestBody:
         description: Update category
@@ -865,11 +869,11 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /category/deleteCategory:
     delete:
       tags:
         - Category
       description: delete category
+      summary: Delete category
       operationId: deleteCategory
       requestBody:
         description: Delete category
@@ -914,10 +918,11 @@ paths:
       #       - write:pets
       #       - read:pets
 
-  /product/addProduct:
+  /product:
     post:
       tags:
         - Product
+      summary: Add product
       description: add product
       operationId: addProduct
       requestBody:
@@ -943,10 +948,10 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /product/updateProduct:
-    post:
+    put:
       tags:
         - Product
+      summary: Update product
       description: update product
       operationId: updateProduct
       requestBody:
@@ -973,10 +978,11 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /product/deleteProduct:
+
     delete:
       tags:
         - Product
+      summary: Delete product
       description: delete product
       operationId: deleteProduct
       requestBody:
@@ -1021,12 +1027,12 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /product/getOneProduct:
+  /product/get-by-id:
     post:
       tags:
         - Product
       description: get one product
-      operationId: getOneProduct
+      operationId: getO neProduct
       requestBody:
         description: Get one product
         content:
@@ -1082,6 +1088,7 @@ paths:
     post:
       tags:
         - Product
+      summary: Get list product
       description: get product by user id
       operationId: getProductByUserId
       requestBody:
@@ -1105,12 +1112,13 @@ paths:
                 $ref: "#/components/schemas/CategoryProductResponse"
         "400":
           description: Invalid ID supplied
-  /product/updatePopular:
+  /product/product-popular:
     post:
       tags:
         - Product
+      summary: Update popular
       description: update popular
-      operationId: updatePopular
+      operationId: update Popular
       requestBody:
         description: Update popular
         content:
@@ -1166,13 +1174,11 @@ paths:
       #       - write:pets
       #       - read:pets
 
-
-
-
-  /discount/adDDiscount:
+  /discount:
     post:
       tags:
         - Discount
+      summary: Add discount
       description: add discount
       operationId: addDiscount
       requestBody:
@@ -1198,10 +1204,11 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /discount/updateDiscount:
-    post:
+
+    put:
       tags:
         - Discount
+      summary: Update discount
       description: update discount
       operationId: updateDiscount
       requestBody:

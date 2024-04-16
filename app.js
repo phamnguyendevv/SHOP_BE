@@ -26,8 +26,14 @@ const options = {
         servers: [
             {
                 url: "http://localhost:8989/api/v0",
+                description: "Local development server"
+            },
+            {
+                url: "http://20.206.240.27:8090/api/v0",
+                description: "Production server"
             },
         ],
+
     },
     apis: ["./openapi/*.yaml"],
 };
