@@ -10,12 +10,12 @@ import discountRote from './products/discountRote.js'
 import cartRouter from './products/cartRote.js'
 const router = express.Router()
 
-router.get("/", (req, res) => {
+router.get("/api/v0", (req, res) => {
     res.send("Shope web here!");
 });
 
 router.use('/api/v0/auth', authRouter)
-router.use('/api/v0/user',userRouter)
+// router.use('/api/v0/user',userRouter)
 
 
 router.use('/api/v0', statusUserRouter)
