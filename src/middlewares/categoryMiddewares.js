@@ -13,7 +13,7 @@ let categoryMiddlewares = {
         user_id: {
             trim: true,
             isNumeric: {
-                errorMessage: 'Product id must be a number',
+                errorMessage: 'User id must be a number',
             },
             custom: {
                 options: async (value, { req }) => {
@@ -21,7 +21,6 @@ let categoryMiddlewares = {
                     if (!user) {
                         throw new Error('User not found');
                     }
-                    req.user = user;
                     return true;
                 },
             },
@@ -31,6 +30,15 @@ let categoryMiddlewares = {
             isLength: {
                 options: { min: 2 },
                 errorMessage: 'Name must be at least 2 characters long',
+            },
+            custom: {
+                options: async (value, { req }) => {
+                    const category = await CategoryModel.getCategoryByName(connection, value);
+                    if (category) {
+                        throw new Error('Category already exists');
+                    }
+                    return true;
+                },
             },
         },
         image: {
@@ -49,13 +57,10 @@ let categoryMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-
-
                     const category = await CategoryModel.getCategoryById(connection, value);
                     if (!category) {
                         throw new Error('Danh mục không tồn tại');
                     }
-
                     req.category = category;
                     return true;
                 },

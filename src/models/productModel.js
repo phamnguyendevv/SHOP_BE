@@ -133,6 +133,22 @@ let ProductModel = {
             throw new Error('Không tìm thấy sản phẩm với danh mục này');
         }
     },
+
+    getProductBySlug: async (connection, data) => {
+        try {
+            const query = `SELECT * FROM product WHERE slug = ?`;
+            const [result] = await connection.query(query, data.slug);
+            if (result.length === 0) {
+                throw new Error('Không tìm thấy sản phẩm với slug này');
+
+
+            }
+            return result[0];
+        } catch (error) {
+            throw new Error('Không tìm thấy sản phẩm với slug này');
+        }
+    },
+
     getOneProduct: async (connection, data) => {
         try {
             const query = `SELECT * FROM product WHERE id = ?`;

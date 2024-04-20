@@ -11,9 +11,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 import cors from 'cors';
 
-app.use(cors({
-    origin: '*'
-}));
+app.use(cors());
 
 const options = {
     swaggerDefinition: {

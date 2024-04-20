@@ -38,14 +38,13 @@ let productsController = {
             data: result
         })
     },
-    getOneProduct: async (req, res) => {
-        const result = await ProductServices.getOneProduct(req.body)
+    getProductBySlug: async (req, res) => {
+        const result = await ProductServices.getProductBySlug(req.body)
         return res.json({
             message: 'Lấy sản phẩm thành công!',
             result
         })
     },
-
 
 
 

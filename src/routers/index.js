@@ -15,7 +15,7 @@ router.get("/api/v0", (req, res) => {
 });
 
 router.use('/api/v0/auth', authRouter)
-// router.use('/api/v0/user',userRouter)
+router.use('/api/v0/user',userRouter)
 
 
 router.use('/api/v0', statusUserRouter)

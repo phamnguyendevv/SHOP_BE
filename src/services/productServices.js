@@ -41,10 +41,9 @@ let ProductServices = {
     const result = await ProductModel.getProductByCategory(connection, category, page, limit);
     return result;
   },
-
-  getOneProduct: async (data) => {
+  getProductBySlug: async (data) => {
     
-    const result = await ProductModel.getOneProduct(connection, data);
+    const result = await ProductModel.getProductBySlug(connection, data);
     return result;
   },
 

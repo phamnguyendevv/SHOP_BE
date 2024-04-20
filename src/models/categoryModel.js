@@ -23,6 +23,15 @@ let CategoryModel = {
       throw new Error('Không tìm thấy sản phẩm với slug này');
     }
   },
+  getCategoryByName: async (connection, name) => {
+    try {
+      const [rows] = await connection.execute('SELECT * FROM `category` WHERE name = ?', [name]);
+      return rows;
+    } catch (error) {
+      // Xử lý lỗi ở đây
+      throw new Error('Không tìm thấy sản phẩm với name này');
+    }
+  },
 
 
   // add new category

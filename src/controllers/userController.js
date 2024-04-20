@@ -5,7 +5,9 @@ let userController = {
     getList : async (req, res) => {
         const result = await userServices.getList(req.body)
         return res.json({
-            message: 'Get list user successfully!'
+            message: 'Get list user successfully!',
+            result
+
         })
     }
 }

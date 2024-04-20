@@ -5,13 +5,13 @@ import wrapAsync from '../../utils/handlers.js'
 const router = express.Router()
 
 
-router.post('/product', productMiddlewares.addProductValidator, wrapAsync(productController.addProductController))
-router.put('/product', productMiddlewares.updateProductValidator, wrapAsync(productController.updateProductController))
-router.delete('/product', wrapAsync(productController.deleteProductController))
+router.post('/', productMiddlewares.addProductValidator, wrapAsync(productController.addProductController))
+router.put('/', productMiddlewares.updateProductValidator, wrapAsync(productController.updateProductController))
+router.delete('/', wrapAsync(productController.deleteProductController))
 //get product by category
 router.get('/get-product-by-category', wrapAsync(productController.getProductByCategory))
 //get onet product
-router.get('/get-by-id', wrapAsync(productController.getOneProduct))
+router.get('/slug', wrapAsync(productController.getProductBySlug))
 
 
 
