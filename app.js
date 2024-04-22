@@ -1,16 +1,26 @@
 import express from 'express'
-import connection from './src/db/configMysql.js'
+import createDatabasePool from './src/db/configMysql.js'
 import indexRouter from './src/routers/index.js';
 import defaultErrorHandler from './src/middlewares/errorMiddewares.js'
+import checkExitsDB from './src/db/checkExistsDB.js'
 import dotenv from 'dotenv';
-dotenv.config();
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import cors from 'cors';
+
+
+
+dotenv.config();
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-import cors from 'cors';
+//check database and create if not exists
+checkExitsDB()
 
+
+
+// // connect to database
+createDatabasePool()
 app.use(cors());
 
 const options = {
@@ -42,9 +52,8 @@ app.use('/', indexRouter);
 
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-console.log('Server is starting...2')
-//handle error
 
+//handle error
 app.use(defaultErrorHandler)
 
 

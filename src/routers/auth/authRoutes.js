@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
 })
 
 router.post('/register',userMiddlewares.registerValidator,wrapAsync(authController.registerController))
-router.post('/register-admin',userMiddlewares.registerValidator,wrapAsync(authController.registerAdminController))
+router.post('/register-admin',wrapAsync(authController.registerAdminController))
 
 
 router.post('/user', userMiddlewares.loginValidator,wrapAsync(authController.loginController))

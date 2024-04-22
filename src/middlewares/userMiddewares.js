@@ -85,7 +85,7 @@ let userMiddlewares = {
         password: {
             trim: true,
             isLength: {
-                options: { min: 6 },
+                options: { min: 2},
                 errorMessage: USERS_MESSAGES.MATCH_PASSWORD,
             },
 
