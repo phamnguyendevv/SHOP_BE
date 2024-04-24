@@ -22,7 +22,9 @@ let statusUserController = {
         })
     },
     deleteStatusController: async (req, res) => {
-        const result = await statusUserService.deleteStatus(req.body)
+
+        const {id} =  req.params
+        const result = await statusUserService.deleteStatus(id)
         return res.json({
             message: 'Delete status successfully!',
             result

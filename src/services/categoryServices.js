@@ -53,9 +53,9 @@ let CategoryService = {
 
 
     //deleteCategory
-    deleteCategory: async (body) => {
+    deleteCategory: async (id) => {
         try {
-            const result = await CategoryModel.deleteCategory(connection, body);
+            const result = await CategoryModel.deleteCategory(connection, id);
             return result;
         } catch (error) {
             // Xử lý lỗi ở đây

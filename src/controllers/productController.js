@@ -26,7 +26,9 @@ let productsController = {
     },
 
     deleteProductController: async (req, res) => {
-        const result = await ProductServices.deleteProduct(req.body)
+
+        const {id} = req.params
+        const result = await ProductServices.deleteProduct(id)
         return res.json({
             message: 'Xóa sản phẩm thành công!',
         })

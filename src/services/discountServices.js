@@ -13,8 +13,8 @@ let discountServices = {
         const result = await DiscountModel.updateDiscount(connection, data);
         return result;
     },
-    deleteDiscount: async (data) => {
-        const result = await DiscountModel.deleteDiscount(connection, data);
+    deleteDiscount: async (id) => {
+        const result = await DiscountModel.deleteDiscount(connection, id);
         return result;
     },
     getDiscountByCode: async (data) => {
@@ -22,8 +22,8 @@ let discountServices = {
        
         return result;
     },
-    getDiscountById: async (data) => {
-        const result = await DiscountModel.getDiscountById(connection, data);
+    getDiscountById: async (id) => {
+        const result = await DiscountModel.getDiscountById(connection, id);
         return result;
     },
 }

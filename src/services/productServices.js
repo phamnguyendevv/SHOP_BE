@@ -30,8 +30,8 @@ let ProductServices = {
     const result = await ProductModel.updateProduct(connection, data);
     return result;
   },
-  deleteProduct: async (data) => {
-    const result = await ProductModel.deleteProduct(connection, data);
+  deleteProduct: async (id) => {
+    const result = await ProductModel.deleteProduct(connection, id);
     return result;
   },
   getProductByCategory: async (data) => {

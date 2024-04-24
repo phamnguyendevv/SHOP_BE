@@ -16,7 +16,7 @@ router.get('/', wrapAsync(categoryController.getAllCategories))
 router.put('/', categoryMiddlewares.updateCategoryValidator, wrapAsync(categoryController.updateCategory))
 
 //delete category
-router.delete('/', categoryMiddlewares.deleteCategoryValidator, wrapAsync(categoryController.deleteCategory))
+router.delete('/:id', categoryMiddlewares.deleteCategoryValidator, wrapAsync(categoryController.deleteCategory))
 
 // get category hot trend
 

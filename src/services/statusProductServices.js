@@ -29,10 +29,10 @@ let statusProductService = {
             throw new Error("Không cập nhật được trạng thái")
         }
     },
-    deleteStatus: async (body) => {
-        console.log(body)
+    deleteStatus: async (id) => {
+  
         try {
-            const result = await statusProductModel.deleteStatus(connection, body);
+            const result = await statusProductModel.deleteStatus(connection, id);
             return result;
         } catch (error) {
             throw new Error("Không xóa được trạng thái")

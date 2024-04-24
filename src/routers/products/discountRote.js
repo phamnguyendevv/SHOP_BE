@@ -5,10 +5,10 @@ import wrapAsync from '../../utils/handlers.js'
 const router = express.Router()
 
 
-router.post('/discount', discountMiddlewares.addDiscountValidator, wrapAsync(discountController.addDiscountController))
-router.put('/discount', discountMiddlewares.updateDiscountValidator,wrapAsync(discountController.updateDiscountController))
-router.delete('/discount', wrapAsync(discountController.deleteDiscountController))
+router.post('/', discountMiddlewares.addDiscountValidator, wrapAsync(discountController.addDiscountController))
+router.put('/', discountMiddlewares.updateDiscountValidator,wrapAsync(discountController.updateDiscountController))
+router.delete('/:id', wrapAsync(discountController.deleteDiscountController))
 router.get('/discount-by-code', wrapAsync(discountController.getDiscountByCode))
-router.get('/discount/:id', wrapAsync(discountController.getDiscountById))
+router.get('/:id', wrapAsync(discountController.getDiscountById))
 
 export default router;

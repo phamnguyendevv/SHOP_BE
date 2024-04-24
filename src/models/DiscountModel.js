@@ -1,6 +1,9 @@
 let DiscountModel = {
     addDiscount: async (connection, data) => {
         const result = await connection.query('INSERT INTO discount SET ?', data);
+        if (result[0].affectedRows  === 0) {
+            throw new Error("Thêm mã giảm giá không thành công")
+        }
         return result;
     },
     updateDiscount: async (connection, data) => {
@@ -15,6 +18,9 @@ let DiscountModel = {
     },
     deleteDiscount: async (connection, data) => {
         const result = await connection.query('DELETE FROM discount WHERE id = ?', data.id);
+        if (result[0].affectedRows  === 0) {
+            throw new Error("Xóa mã giảm giá không thành công")
+        }
         return result;
     },
     getDiscountByCode: async (connection, data) => {
@@ -27,6 +33,9 @@ let DiscountModel = {
     },
     getDiscountById: async (connection, id) => {
         const result = await connection.query('SELECT * FROM discount WHERE id = ?', id);
+        if (result[0].length === 0) {
+            throw new Error("Không tìm thấy mã giảm giá")
+        }
         return result[0];
     }
 
