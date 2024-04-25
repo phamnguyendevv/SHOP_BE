@@ -12,6 +12,8 @@ servers:
     description: Local server
 
 tags:
+  - name: Start
+    description: Start API
   - name: Auth
     description: Auth API
   - name: User
@@ -23,6 +25,38 @@ tags:
   - name: Discount
     description: Discount
 paths:
+  /:
+    get:
+      tags:
+        - Start
+      summary: Start API
+      description: Start API
+      operationId: start
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "Start API"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
   /auth/token:
     post:
       tags:

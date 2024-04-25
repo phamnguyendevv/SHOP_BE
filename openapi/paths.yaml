@@ -12,10 +12,10 @@ servers:
     description: Local server
 
 tags:
+  - name: Start
+    description: Start API
   - name: Auth
     description: Auth API
-  - name: Role
-    description: Role
   - name: User
     description: User
   - name: Category
@@ -25,6 +25,38 @@ tags:
   - name: Discount
     description: Discount
 paths:
+  /:
+    get:
+      tags:
+        - Start
+      summary: Start API
+      description: Start API
+      operationId: start
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "Start API"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+
   /auth/token:
     post:
       tags:
@@ -254,46 +286,6 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /auth/refresh:
-    post:
-      tags:
-        - Auth
-      description: refresh token
-
-      operationId: refresh
-      requestBody:
-        description: Refresh token
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Token"
-          application/xml:
-            schema:
-              $ref: "#/components/schemas/Token"
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: "#/components/schemas/Token"
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserResponse"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/UserResponse"
-        "400":
-          description: Invalid ID supplied
-        "404":
-          description: Token not found
-        "422":
-          description: Validation exception
-      # security:
-      #   - petstore_auth:
-      #       - write:pets
-      #       - read:pets
   /auth/change-password:
     post:
       tags:
@@ -327,10 +319,10 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /role:
+  /user/role:
     post:
       tags:
-        - Role
+        - User
       description: add role
       summary: Add role
       operationId: addRole
@@ -379,7 +371,7 @@ paths:
 
     get:
       tags:
-        - Role
+        - User
       description: get role
       summary: Get role
       operationId: getRole
@@ -415,11 +407,79 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-    put:
+  /user/get-list:
+    post:
       tags:
-        - Role
+        - User
+      description: get list user
+      operationId: list
+      summary: Get list user
+      requestBody:
+        description: Get list user
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetUserList"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/GetUserList"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/GetUserList"
+        required: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            userId:
+                              type: integer
+                            userName:
+                              type: string
+                            roles_id:
+                              type: integer
+                            updatedDate:
+                              type: string
+                              format: date-time
+
+                      meta:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                          totalPage:
+                            type: integer
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+  /user/update-role:
+    post:
+      tags:
+        - User
       description: update role
-      summary: Update role
       operationId: updateRole
       requestBody:
         description: Update role
@@ -428,41 +488,41 @@ paths:
             schema:
               type: object
               properties:
-                id:
+                userId:
                   type: integer
                   example: 1
-                name:
-                  type: string
-                  example: "admin"
+                roles_id:
+                  type: integer
+                  example: 1
               required:
-                - id
-                - name
+                - userId
+                - roles_id
           application/xml:
             schema:
               type: object
               properties:
-                id:
+                userId:
                   type: integer
                   example: 1
-                name:
-                  type: string
-                  example: "admin"
+                roles_id:
+                  type: integer
+                  example: 1
               required:
-                - id
-                - name
+                - userId
+                - roles_id
           application/x-www-form-urlencoded:
             schema:
               type: object
               properties:
-                id:
+                userId:
                   type: integer
                   example: 1
-                name:
-                  type: string
-                  example: "admin"
+                roles_id:
+                  type: integer
+                  example: 1
               required:
-                - id
-                - name
+                - userId
+                - roles_id
         required: true
       responses:
         "200":
@@ -475,222 +535,114 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
+  /user:
+    get:
+      tags:
+        - User
+      description: get user
+      operationId: getUser
+      summary: Get user by id
+      parameters:
+        - name: id
+          in: query
+          description: id user
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
 
-  # /user/list:
-  #   post:
-  #     tags:
-  #       - User
-  #     description: get list user
-  #     operationId: list
-  #     requestBody:
-  #       description: Get list user
-  #       content:
-  #         application/json:
-  #           schema:
-  #             $ref: "#/components/schemas/GetUserList"
-  #         application/xml:
-  #           schema:
-  #             $ref: "#/components/schemas/GetUserList"
-  #         application/x-www-form-urlencoded:
-  #           schema:
-  #             $ref: "#/components/schemas/GetUserList"
-  #       required: true
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 data:
-  #                   type: object
-  #                   properties:
-  #                     data:
-  #                       type: array
-  #                       items:
-  #                         type: object
-  #                         properties:
-  #                           userId:
-  #                             type: integer
-  #                           userName:
-  #                             type: string
-  #                           roles_id:
-  #                             type: integer
-  #                           updatedDate:
-  #                             type: string
-  #                             format: date-time
+    put:
+      tags:
+        - User
+      description: update user
+      operationId: update user
+      summary: Update user
+      requestBody:
+        description: Update user
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                username:
+                  type: string
+                  example: "admin"
 
-  #                     meta:
-  #                       type: object
-  #                       properties:
-  #                         total:
-  #                           type: integer
-  #                         totalPage:
-  #                           type: integer
-  #                 statusCode:
-  #                   type: integer
-  #                 message:
-  #                   type: string
+                fullname:
+                  type: string
+                  example: "admin"
+                email:
+                  type: string
+                  example: "nguen@gmail.com"
 
-  #       "400":
-  #         description: Invalid ID supplied
-  #       "404":
-  #         description: User not found
-  #       "422":
-  #         description: Validation exception
-  #     # security:
-  #     #   - petstore_auth:
-  #     #       - write:pets
-  #     #       - read:pets
-  # /user/update-role:
-  #   post:
-  #     tags:
-  #       - User
-  #     description: update role
-  #     operationId: updateRole
-  #     requestBody:
-  #       description: Update role
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               userId:
-  #                 type: integer
-  #                 example: 1
-  #               roles_id:
-  #                 type: integer
-  #                 example: 1
-  #             required:
-  #               - userId
-  #               - roles_id
-  #         application/xml:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               userId:
-  #                 type: integer
-  #                 example: 1
-  #               roles_id:
-  #                 type: integer
-  #                 example: 1
-  #             required:
-  #               - userId
-  #               - roles_id
-  #         application/x-www-form-urlencoded:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               userId:
-  #                 type: integer
-  #                 example: 1
-  #               roles_id:
-  #                 type: integer
-  #                 example: 1
-  #             required:
-  #               - userId
-  #               - roles_id
-  #       required: true
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #       "400":
-  #         description: Invalid ID supplied
-  #       "422":
-  #         description: Validation exception
-  #     # security:
-  #     #   - petstore_auth:
-  #     #       - write:pets
-  #     #       - read:pets
-  # /user/getUser:
-  #   get:
-  #     tags:
-  #       - User
-  #     description: get user
-  #     operationId: getUser
-  #     parameters:
-  #       - name: id
-  #         in: query
-  #         description: The name that needs to be fetched. Use user1 for testing.
-  #         required: true
-  #         schema:
-  #           type: integer
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #         content:
-  #           application/json:
-  #             schema:
-  #               $ref: "#/components/schemas/User"
-  #           application/xml:
-  #             schema:
-  #               $ref: "#/components/schemas/User"
-  #       "400":
-  #         description: Invalid ID supplied
-  #       "404":
-  #         description: User not found
-  #       "422":
-  #         description: Validation exception
-  #     # security:
-  #     #   - petstore_auth:
-  #     #       - write:pets
-  #     #       - read:pets
-  # /user/updateUser:
-  #   post:
-  #     tags:
-  #       - User
-  #     description: update user
-  #     operationId: updateUser
-  #     requestBody:
-  #       description: Update user
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               id:
-  #                 type: integer
-  #                 example: 1
-  #               username:
-  #                 type: string
-  #                 example: "admin"
-  #               balance:
-  #                 type: integer
-  #                 example: 1
-  #               fullname:
-  #                 type: string
-  #                 example: "admin"
-  #               email:
-  #                 type: string
-  #                 example: "nguen@gmail.com"
-  #               password:
-  #                 type: string
-  #                 example: "12345"
-  #               phone:
-  #                 type: integer
-  #                 example: 12345
-  #               sex:
-  #                 type: string
-  #                 example: "NAM"
-  #               avatar:
-  #                 type: string
-  #                 example: "admin"
-  #               birthday:
-  #                 type: string
-  #                 format: date
-  #                 example: "2024-04-14"
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #       "400":
-  #         description: Invalid ID supplied
-  #       "422":
-  #         description: Validation exception
-  #     # security:
-  #     #   - petstore_auth:
-  #     #       - write:pets
-  #     #       - read:pets
+                phone:
+                  type: integer
+                  example: 12345
+                sex:
+                  type: string
+                  example: "NAM"
+                avatar:
+                  type: string
+                  example: "admin"
+                birthday:
+                  type: string
+                  format: date
+                  example: "2024-04-14"
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "422":
+          description: Validation exception
+      # security:
+      #   - petstore_auth:
+      #       - write:pets
+      #       - read:pets
+    delete:
+      tags:
+        - User
+      description: delete user
+      operationId: deleteUser
+      summary: Delete user
+      parameters:
+        - name: id
+          in: query
+          description: id user
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: User not found
+        "422":
+          description: Validation exception
 
   /category:
     post:
@@ -784,17 +736,7 @@ paths:
                             updatedDate:
                               type: string
                               format: date-time
-                      meta:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                          totalPage:
-                            type: integer
-                  statusCode:
-                    type: integer
-                  message:
-                    type: string
+
         "400":
           description: Invalid ID supplied
         "422":
@@ -874,38 +816,15 @@ paths:
         - Category
       description: delete category
       summary: Delete category
+      parameters:
+        - name: id
+          in: query
+          description: id category
+          required: true
+          schema:
+            type: integer
+
       operationId: deleteCategory
-      requestBody:
-        description: Delete category
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-          application/xml:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-        required: true
       responses:
         "200":
           description: Successful operation
@@ -985,37 +904,13 @@ paths:
       summary: Delete product
       description: delete product
       operationId: deleteProduct
-      requestBody:
-        description: Delete product
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-          application/xml:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-        required: true
+      parameters:
+        - name: id
+          in: query
+          description: id product
+          required: true
+          schema:
+            type: integer
       responses:
         "200":
           description: Successful operation
@@ -1027,43 +922,19 @@ paths:
       #   - petstore_auth:
       #       - write:pets
       #       - read:pets
-  /product/get-by-id:
-    post:
+  /product/get-by-slug:
+    get:
       tags:
         - Product
       description: get one product
       operationId: getO neProduct
-      requestBody:
-        description: Get one product
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-          application/xml:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-              required:
-                - id
-        required: true
+      parameters:
+        - name: slug
+          in: query
+          description: id product
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Successful operation
@@ -1112,67 +983,6 @@ paths:
                 $ref: "#/components/schemas/CategoryProductResponse"
         "400":
           description: Invalid ID supplied
-  /product/product-popular:
-    post:
-      tags:
-        - Product
-      summary: Update popular
-      description: update popular
-      operationId: update Popular
-      requestBody:
-        description: Update popular
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-                popular:
-                  type: integer
-                  example: 1
-              required:
-                - id
-                - popular
-          application/xml:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-                popular:
-                  type: integer
-                  example: 1
-              required:
-                - id
-                - popular
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-                popular:
-                  type: integer
-                  example: 1
-              required:
-                - id
-                - popular
-        required: true
-      responses:
-        "200":
-          description: Successful operation
-        "400":
-          description: Invalid ID supplied
-        "422":
-          description: Validation exception
-      # security:
-      #   - petstore_auth:
-      #       - write:pets
-      #       - read:pets
 
   /discount:
     post:
@@ -1231,118 +1041,3 @@ paths:
           description: Invalid ID supplied
         "422":
           description: Validation exception
-      # security:
-      #   - petstore_auth:
-      #       - write:pets
-      #       - read:pets
-  # /discount/deleteDiscount:
-  #   delete:
-  #     tags:
-  #       - Discount
-  #     description: delete discount
-  #     operationId: deleteDiscount
-  #     requestBody:
-  #       description: Delete discount
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               id:
-  #                 type: integer
-  #                 example: 1
-  #             required:
-  #               - id
-  #         application/xml:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               id:
-  #                 type: integer
-  #                 example: 1
-  #             required:
-  #               - id
-  #         application/x-www-form-urlencoded:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               id:
-  #                 type: integer
-  #                 example: 1
-  #             required:
-  #               - id
-  #       required: true
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #       "400":
-  #         description: Invalid ID supplied
-  #       "422":
-  #         description: Validation exception
-  #     # security:
-  #     #   - petstore_auth:
-  #     #       - write:pets
-  #     #       - read:pets
-  # # /discount/getDiscount:
-  # #   post:
-  # #     tags:
-  # #       - Discount
-  # #     description: get discount
-  # #     operationId: getDiscount
-  # #     requestBody:
-  # #       description: Get discount
-  # #       content:
-  # #         application/json:
-  # #           schema:
-  # #             $ref: "#/components/schemas/SearchParamsDiscount"
-  # #         application/xml:
-  # #           schema:
-  # #             $ref: "#/components/schemas/SearchParamsDiscount"
-  # #         application/x-www-form-urlencoded:
-  # #           schema:
-  # #             $ref: "#/components/schemas/SearchParamsDiscount"
-  # #       required: true
-  # #     responses:
-  # #       "200":
-  # #         description: Successful operation
-  # #         content:
-  # #           application/json:
-  # #             schema:
-  # #               type: object
-  # #               properties:
-  # #                 data:
-  # #                   type: object
-  # #                   properties:
-  # #                     data:
-  # #                       type: array
-  # #                       items:
-  # #                         type: object
-  # #                         properties:
-  # #                           id:
-  # #                             type: integer
-  # #                           product_id:
-  # #                             type: integer
-  # #                           discount:
-  # #                             type: integer
-  # #                           updatedDate:
-  # #                             type: string
-  # #                             format: date-time
-  # #                     meta:
-  # #                       type: object
-  # #                       properties:
-  # #                         total:
-  # #                           type: integer
-  # #                         totalPage:
-  # #                           type: integer
-  # #                 statusCode:
-  # #                   type: integer
-  # #                 message:
-  # #                   type: string
-  # #       "400":
-  # #         description: Invalid ID supplied
-  # #       "422":
-  # #         description: Validation exception
-  # #     # security:
-  # #     #   - petstore_auth:
-  # #     #       - write:pets
-  # #     #       - read:pets
