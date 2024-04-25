@@ -2,7 +2,9 @@ import UserModel from '../models/userModel.js';
 import validate from '../utils/validate.js'; // Đảm bảo đường dẫn đúng
 import USERS_MESSAGES from '../constants/messages.js';
 import { checkSchema } from 'express-validator';
-import connection from '../db/configMysql.js';
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
+
 import passwordhandler from '../utils/password.js';
 import ErrorWithStatus from '../utils/error.js';
 import HTTP_STATUS from '../constants/httpStatus.js';
@@ -14,7 +16,7 @@ let discountMiddlewares = {
     //add discount validator
     addDiscountValidator: validate(checkSchema({
 
-        user_id:{
+        user_id: {
             trim: true,
             isNumeric: {
                 errorMessage: 'User id must be a number',
@@ -47,7 +49,7 @@ let discountMiddlewares = {
                 errorMessage: 'Discount must be a number',
             },
         },
-        name_discount: {    
+        name_discount: {
             trim: true,
             isLength: {
                 options: { min: 2 },
@@ -57,14 +59,14 @@ let discountMiddlewares = {
     }, ['body'])),
     // update discount validator
     updateDiscountValidator: validate(checkSchema({
-        id:{
+        id: {
             trim: true,
             isNumeric: {
                 errorMessage: 'Discount id must be a number',
             },
             custom: {
                 options: async (value, { req }) => {
-            
+
                     const discount = await DiscountModel.getDiscountById(connection, value);
                     if (!discount) {
                         throw new Error('Discount not found');
@@ -73,7 +75,7 @@ let discountMiddlewares = {
                 },
             },
         },
-        user_id:{
+        user_id: {
             trim: true,
             isNumeric: {
                 errorMessage: 'User id must be a number',
@@ -106,7 +108,7 @@ let discountMiddlewares = {
                 errorMessage: 'Discount must be a number',
             },
         },
-        name_discount: {    
+        name_discount: {
             trim: true,
             isLength: {
                 options: { min: 2 },

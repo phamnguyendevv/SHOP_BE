@@ -1,8 +1,10 @@
-import connection from '../db/configMysql.js';
+
 import CategoryModel from '../models/categoryModel.js';
 import ProductModel from '../models/productModel.js';
 import crypto from 'crypto';
 import getSlug from 'speakingurl'
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
 
 let CategoryService = {
     createSlug : async (name) => {
@@ -25,6 +27,7 @@ let CategoryService = {
         try {
             payload.slug = await CategoryService.createSlug(payload.name)
             const rows = await CategoryModel.addCategory(connection, payload);
+            return rows;
         } catch (err) {
             throw new Error("Không thêm được danh mục mới")
         }
@@ -43,7 +46,7 @@ let CategoryService = {
     //update category
     updateCategory: async (category) => {
         try {
-
+         
             const result = await CategoryModel.updateCategory(connection, category);
         } catch (error) {
             throw new Error("Không cập nhật được danh mục")

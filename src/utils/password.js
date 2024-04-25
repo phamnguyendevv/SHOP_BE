@@ -20,13 +20,10 @@ let passwordhandler = {
             return bcrypt.compare(password, hashedPassword);
         } catch (error) {
             // Xử lý lỗi ở đây
-            console.error('Error in comparePassword:', error);
+            console.error('Error in comparePassword', error);
             throw error;
         }
     }
-
-
-
 }
 export default passwordhandler;
 

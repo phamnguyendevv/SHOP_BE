@@ -29,8 +29,7 @@ const refreshTokens = async (user) => {
 
 
 const decoToken =  async (token) => {
-
-    return jwt.decode(token);
+    return  jwt.verify(token, JWT_ACCESS_KEY)
 };
 
 

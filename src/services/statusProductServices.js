@@ -1,8 +1,11 @@
 import statusProductModel from '../models/statusProductModel.js';
-import connection from '../db/configMysql.js';  
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
+
 import USERS_MESSAGES from  '../constants/messages.js';
 import HTTP_STATUS from '../constants/httpStatus.js';
 import ErrorWithStatus from '../utils/error.js';
+
 
 let statusProductService = {
     addStatus: async (status) => {

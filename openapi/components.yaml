@@ -1,3 +1,4 @@
+
 components:
   schemas:
     User:
@@ -223,9 +224,9 @@ components:
     ChangePassword:
       type: object
       properties:
-        fullname:
+        email:
           type: string
-          example: "phamVan"
+          example: "phamVan@gmail.com"
         oldPassword:
           type: string
           example: "12345@aA"
@@ -237,15 +238,24 @@ components:
     GetUserList:
       type: object
       properties:
-        keyword:
-          type: string
-          example: "phamVan"
-        page:
-          type: integer
-          example: 1
-        limit:
-          type: integer
-          example: 10
+        pagingParams:
+          type: object
+          properties:
+            orderby:
+              example: ""
+            keyword:
+              example: "User"
+            pageIndex:
+              example: 1
+            isPaging:
+              example: true
+            pageSize:
+              example: 2
+        filterParams:
+          type: object
+          properties:
+            user_id:
+              example: 3
       xml:
         name: getUserList
     Product:
@@ -318,7 +328,7 @@ components:
         - sold
         - created_at
         - updated_at
-    
+
     ProductInput:
       type: object
       properties:
@@ -330,6 +340,10 @@ components:
           type: integer
           format: int64
           example: 5
+        popular:
+          type: integer
+          format: int64
+          example: 1
         name:
           type: string
           example: "dien thoai"

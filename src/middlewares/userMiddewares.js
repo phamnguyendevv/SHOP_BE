@@ -2,8 +2,9 @@ import UserModel from '../models/userModel.js';
 import validate from '../utils/validate.js'; // Đảm bảo đường dẫn đúng
 import USERS_MESSAGES from '../constants/messages.js';
 import { checkSchema } from 'express-validator';
-import connection from '../db/configMysql.js';
 import passwordhandler from '../utils/password.js';
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
 
 
 let userMiddlewares = {
@@ -15,7 +16,7 @@ let userMiddlewares = {
             isEmail: {
                 errorMessage: USERS_MESSAGES.INVALID_EMAIL,
             },
-            matches:{
+            matches: {
 
                 options: [/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/],
                 errorMessage: USERS_MESSAGES.INVALID_EMAIL,
@@ -23,10 +24,11 @@ let userMiddlewares = {
             custom: {
                 options: async (value) => {
                     const user = await UserModel.getUserByEmail(connection, value);
-                    if (!user) {
-                        return true;
+                    if (user) {
+                        throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS);
                     }
-                    throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS);
+                    return true;
+                    
                 },
             },
         },
@@ -36,7 +38,7 @@ let userMiddlewares = {
                 options: { min: 6 },
                 errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_LONGER_THAN_6_CHARACTERS,
             },
-            matches:{
+            matches: {
                 options: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/],
                 errorMessage: USERS_MESSAGES.MATCH_PASSWORD,
             }
@@ -50,10 +52,10 @@ let userMiddlewares = {
             },
             custom: {
                 options: async (value) => {
-                   
+
                     const user = await UserModel.getUserByFullname(connection, value);
                     if (user) {
-                        console.log(user); 
+                        console.log(user);
                         throw new Error(USERS_MESSAGES.FULL_NAME_ALREADY_EXISTS);
                     }
                     return true;
@@ -72,12 +74,15 @@ let userMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
+                    
+             
                     const user = await UserModel.getUserByEmail(connection, value);
                     if (!user) {
                         throw new Error(USERS_MESSAGES.USER_NOT_FOUND)
                     }
                     // check ban hay ko 
                     req.user = user;
+    
                     return true;
                 },
             },
@@ -85,13 +90,13 @@ let userMiddlewares = {
         password: {
             trim: true,
             isLength: {
-                options: { min: 2},
+                options: { min: 2 },
                 errorMessage: USERS_MESSAGES.MATCH_PASSWORD,
             },
-
             custom: {
                 options: async (value, { req }) => {
                     const user = req.user;
+                    
                     const password = user.password;
                     const isMatch = await passwordhandler.comparePassword(value, password);
                     if (!isMatch) {
@@ -102,12 +107,26 @@ let userMiddlewares = {
             },
         },
     }, ['body'])),
+
+    updateValidator: validate(checkSchema({
+        id: {
+            custom: {
+                options: async (value) => {
+                    const user = await UserModel.getUserById(connection, value);
+                    if (!user) {
+                        throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
+                    }
+                    return true;
+                },
+            },
+        },
+    }, ['body'])),
     changePassword: validate(checkSchema({
-        fullname:{
+        email: {
             trim: true,
             custom: {
                 options: async (value, { req }) => {
-                    const user = await UserModel.getUserByFullname(connection, value);
+                    const user = await UserModel.getUserByEmail(connection, value);
                     if (!user) {
                         throw new Error(USERS_MESSAGES.USER_NOT_FOUND)
                     }
@@ -133,6 +152,25 @@ let userMiddlewares = {
                     if (!isMatch) {
                         throw new Error(USERS_MESSAGES.PASSWORD_NOT_MATCH);
                     }
+                    return true;
+                },
+            },
+        },
+    }, ['body'])),
+
+    forgotPassword: validate(checkSchema({
+        email: {
+            trim: true,
+            isEmail: {
+                errorMessage: USERS_MESSAGES.INVALID_EMAIL,
+            },
+            custom: {
+                options: async (value, {req}) => {
+                    const user = await UserModel.getUserByEmail(connection, value);
+                    if (!user) {
+                        throw new Error(USERS_MESSAGES.USER_NOT_FOUND)
+                    }
+                    req.user = user;
                     return true;
                 },
             },

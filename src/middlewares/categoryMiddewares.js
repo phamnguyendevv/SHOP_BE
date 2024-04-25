@@ -2,7 +2,9 @@ import UserModel from '../models/userModel.js';
 import validate from '../utils/validate.js';
 import USERS_MESSAGES from '../constants/messages.js';
 import { checkSchema } from 'express-validator';
-import connection from '../db/configMysql.js';
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
+
 import CategoryModel from '../models/categoryModel.js';
 import ProductModel from '../models/productModel.js';
 
@@ -82,19 +84,6 @@ let categoryMiddlewares = {
                 },
             },
         },
-        name: {
-            trim: true,
-            isLength: {
-                options: { min: 2 },
-                errorMessage: 'Name must be at least 2 characters long',
-            },
-        },
-        image: {
-            trim: true,
-            isURL: {
-                errorMessage: 'Image must be a URL',
-            },
-        }
     }, ['body'])),
 
     //delete category validator
@@ -118,7 +107,7 @@ let categoryMiddlewares = {
                 },
             },
         },
-    }, ['body'])),
+    }, ['query'])),
 }
 
 

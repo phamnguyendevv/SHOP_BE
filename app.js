@@ -1,5 +1,5 @@
 import express from 'express'
-import createDatabasePool from './src/db/configMysql.js'
+import Connection from './src/db/configMysql.js'
 import indexRouter from './src/routers/index.js';
 import defaultErrorHandler from './src/middlewares/errorMiddewares.js'
 import checkExitsDB from './src/db/checkExistsDB.js'
@@ -17,10 +17,12 @@ app.use(express.urlencoded({ extended: true }))
 //check database and create if not exists
 checkExitsDB()
 
+ Connection()
+
 
 
 // // connect to database
-createDatabasePool()
+
 app.use(cors());
 
 const options = {

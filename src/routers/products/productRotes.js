@@ -8,11 +8,11 @@ const router = express.Router()
 
 router.post('/', productMiddlewares.addProductValidator, wrapAsync(productController.addProductController))
 router.put('/', productMiddlewares.updateProductValidator, wrapAsync(productController.updateProductController))
-router.delete('/:id', wrapAsync(productController.deleteProductController))
+router.delete('/',productMiddlewares.deleteProductValidator, wrapAsync(productController.deleteProductController))
 //get product by category
 router.get('/get-product-by-category', wrapAsync(productController.getProductByCategory))
 //get onet product
-router.get('/slug', wrapAsync(productController.getProductBySlug))
+router.get('/get-by-slug', wrapAsync(productController.getProductBySlug))
 
 
 

@@ -1,6 +1,7 @@
 import CartModel from '../models/cartModel.js';
-import connection from '../db/configMysql.js';
 import ProductModel from '../models/productModel.js';
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
 
 let CartService = {
     addToCart: async (data) => {
@@ -27,7 +28,7 @@ let CartService = {
     updateCart: async (data) => {
         try {
             const { product_id, user_id, quanity } = data;
-          
+
             const cartUser = await CartModel.getCartByProductId(connection, product_id);
             if (!cartUser) {
                 throw new Error('Không tìm thấy sản phẩm trong giỏ hàng');
@@ -35,7 +36,7 @@ let CartService = {
             const newQuanity = quanity + cartUser.quanity;;
             if (newQuanity === 0) {
                 const updatedProductStatus = await CartModel.updateStatusProduct(connection, { status_id: 5, product_id });
-                const cart = await CartModel.deleteCart(connection, { product_id,user_id });
+                const cart = await CartModel.deleteCart(connection, { product_id, user_id });
             }
             const cart = await CartModel.updateQuanityCart(connection, { product_id, newQuanity });
             return cart;
@@ -47,14 +48,14 @@ let CartService = {
     removeFromCart: async (data) => {
         try {
             const { product_id, user_id } = data;
-       
+
             const cartUser = await CartModel.getCartByProductId(connection, product_id);
-           
+
             if (!cartUser) {
                 throw new Error('Không tìm thấy sản phẩm trong giỏ hàng');
             }
             const updatedProductStatus = await ProductModel.updateStatusProduct(connection, { status_id: 5, product_id });
-            const cart = await CartModel.deleteCart(connection, { product_id ,user_id});
+            const cart = await CartModel.deleteCart(connection, { product_id, user_id });
             return cart;
         } catch (error) {
             throw new Error('Không xóa được sản phẩm trong giỏ hàng');
@@ -90,7 +91,7 @@ let CartService = {
             throw new Error('Không lấy được giỏ hàng');
         }
     }
-    
+
 }
 
 export default CartService;

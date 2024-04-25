@@ -10,13 +10,20 @@ router.get('/', (req, res) => {
 })
 
 router.post('/register',userMiddlewares.registerValidator,wrapAsync(authController.registerController))
-router.post('/register-admin',wrapAsync(authController.registerAdminController))
-
-
+router.post('/register-admin', userMiddlewares.registerValidator, wrapAsync(authController.registerAdminController))
+//login with email
 router.post('/user', userMiddlewares.loginValidator,wrapAsync(authController.loginController))
-router.post('/token',wrapAsync(authController.authUserController))
-router.post('/refresh',wrapAsync(authController.refreshTokenController))
+//login with google
+router.get('/google',wrapAsync (authController.OauthController))
+router.post('/token',wrapAsync(authController.refreshTokenController))
 router.post('/change-password',userMiddlewares.changePassword,wrapAsync(authController.changePassController))
+
+router.post('/forgot-password',userMiddlewares.forgotPassword,wrapAsync(authController.forgotPassController))                
+
+
+
+
+
 // router.post('/confirm-password',userMiddlewares.changePassword,wrapAsync(authController.confirmPassController))
 
 

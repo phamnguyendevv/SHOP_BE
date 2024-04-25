@@ -2,9 +2,9 @@ import UserModel from '../models/userModel.js';
 import validate from '../utils/validate.js'; // Đảm bảo đường dẫn đúng
 import ProductModel from '../models/productModel.js';
 import { checkSchema } from 'express-validator';
-import connection from '../db/configMysql.js';
 import statusProductModel from '../models/statusProductModel.js';
-
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
 
 let cartMiddlewares = {
     addCartValidator: validate(checkSchema({
@@ -43,7 +43,7 @@ let cartMiddlewares = {
     }, ['body'])),
 
 
- 
+
 
 }
 

@@ -35,7 +35,7 @@ let ProductModel = {
             // Thực hiện truy vấn để chèn dữ liệu
             const [result] = await connection.query(query, [
                 data.user_id,
-                data.status_id || 5,
+                data.status_id || 1,
                 data.name,
                 data.price,
                 data.url_Demo,
@@ -58,27 +58,65 @@ let ProductModel = {
         }
     },
     updateProduct: async (connection, data) => {
+        const fieldsToUpdate = [];
+        const params = [];
 
-        const query = `UPDATE product 
-                        SET user_id = ?,  name = ?, price = ?, url_Demo = ?,  category = ?, description = ?, url_Download = ?, slug = ?, technology = ?, updated_at = CURDATE() 
-                        WHERE id = ?`;
+        if (data.user_id !== undefined) {
+            fieldsToUpdate.push('user_id = ?');
+            params.push(data.user_id);
+        }
+        if (data.name !== undefined) {
+            fieldsToUpdate.push('name = ?');
+            params.push(data.name);
+        }
+        if (data.price !== undefined) {
+            fieldsToUpdate.push('price = ?');
+            params.push(data.price);
+        }
+        if (data.url_Demo !== undefined) {
+            fieldsToUpdate.push('url_Demo = ?');
+            params.push(data.url_Demo);
+        }
+        if (data.category !== undefined) {
+            fieldsToUpdate.push('category = ?');
+            params.push(JSON.stringify(data.category));
+        }
+        if (data.description !== undefined) {
+            fieldsToUpdate.push('description = ?');
+            params.push(data.description);
+        }
+        if (data.url_Download !== undefined) {
+            fieldsToUpdate.push('url_Download = ?');
+            params.push(data.url_Download);
+        }
+        if (data.slug !== undefined) {
+            fieldsToUpdate.push('slug = ?');
+            params.push(data.slug);
+        }
+        if (data.technology !== undefined) {
+            fieldsToUpdate.push('technology = ?');
+            params.push(JSON.stringify(data.technology));
+        }
 
-        // Thực hiện truy vấn để cập nhật dữ liệu
-        const [result] = await connection.query(query, [
-            data.user_id,
-            data.name,
-            data.price,
-            data.url_Demo,
-            JSON.stringify(data.category),
-            data.description,
-            data.url_Download,
-            data.slug,
-            JSON.stringify(data.technology),
-            data.id
-        ]);
+        if (fieldsToUpdate.length === 0) {
+            throw new Error('Không có trường nào được cập nhật');
+        }
+
+        params.push(data.id);
+
+        const fieldsToUpdateString = fieldsToUpdate.join(', ');
+
+        const query = `UPDATE product SET ${fieldsToUpdateString}, updated_at = CURDATE() WHERE id = ?`;
+
+        const [result] = await connection.query(query, params);
+
+        if (result.affectedRows === 0) {
+            throw new Error('Không cập nhật được sản phẩm');
+        }
 
         return result;
     },
+
     updateStatusProduct: async (connection, data) => {
         try {
             const query = `UPDATE product SET status_id = ? WHERE id = ?`;
@@ -91,10 +129,6 @@ let ProductModel = {
 
     deleteProduct: async (connection, id) => {
         try {
-            const user = await connection.query('SELECT * FROM `product` WHERE id = ?', [id]);
-            if (user.length === 0) {
-                throw new Error('Sản phẩm không tồn tại');
-            }
             const query = `DELETE FROM product WHERE id = ?`;
             const [result] = await connection.query(query, [id]);
             if (!result.affectedRows) {
@@ -134,10 +168,10 @@ let ProductModel = {
         }
     },
 
-    getProductBySlug: async (connection, data) => {
+    getProductBySlug: async (connection, slug) => {
         try {
             const query = `SELECT * FROM product WHERE slug = ?`;
-            const [result] = await connection.query(query, data.slug);
+            const [result] = await connection.query(query, slug);
             if (result.length === 0) {
                 throw new Error('Không tìm thấy sản phẩm với slug này');
 
@@ -161,19 +195,6 @@ let ProductModel = {
         } catch (error) {
             throw new Error('Không tìm thấy sản phẩm với id này');
         }
-    },
-    updateProductPopular: async (connection, data) => {
-        const query = `UPDATE product 
-                        SET popular = ?, updated_at = CURDATE() 
-                        WHERE id = ?`;
-
-        // Thực hiện truy vấn để cập nhật dữ liệu
-        const [result] = await connection.query(query, [
-            data.popular,
-            data.id
-        ]);
-
-        return result;
     },
     getProductPopularByCategory: async (connection, category, page, limit, popular) => {
         try {

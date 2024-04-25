@@ -1,5 +1,8 @@
-import connection from '../db/configMysql.js';
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
+
 import DiscountModel from '../models/DiscountModel.js';
+
 
 
 let discountServices = {

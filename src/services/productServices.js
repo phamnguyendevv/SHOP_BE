@@ -1,7 +1,10 @@
-import connection from '../db/configMysql.js';
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
+
 import ProductModel from '../models/productModel.js';
 import getSlug from 'speakingurl';
 import crypto from 'crypto';
+
 
 
 let ProductServices = {
@@ -20,13 +23,14 @@ let ProductServices = {
 
   //addProduct 
   addProduct: async (data) => {
-  
+    
     data.slug = await ProductServices.createSlug(data.name);
     const result = await ProductModel.addProduct(connection, data);
     return result;
   },
   updateProduct: async (data) => {
     data.slug = await ProductServices.createSlug(data.name);
+
     const result = await ProductModel.updateProduct(connection, data);
     return result;
   },
@@ -41,9 +45,9 @@ let ProductServices = {
     const result = await ProductModel.getProductByCategory(connection, category, page, limit);
     return result;
   },
-  getProductBySlug: async (data) => {
-    
-    const result = await ProductModel.getProductBySlug(connection, data);
+  getProductBySlug: async (slug) => {
+      
+    const result = await ProductModel.getProductBySlug(connection, slug);
     return result;
   },
 

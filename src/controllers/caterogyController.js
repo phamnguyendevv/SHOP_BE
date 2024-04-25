@@ -24,6 +24,7 @@ let categoryController = {
 
     //update category
     updateCategory: async (req, res) => {
+    
         const result = await CategoryService.updateCategory(req.body)
         return res.json({
             message: `Danh mục có id ${req.body.id} đã được cập nhật`
@@ -31,7 +32,7 @@ let categoryController = {
     },
     //deleteCategory
     deleteCategory: async (req, res) => {
-        const { id } = req.params
+        const { id } = req.query
         const result = await CategoryService.deleteCategory(id)
         return res.json({
             message: 'Delete category successfully!',

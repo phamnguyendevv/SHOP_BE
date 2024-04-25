@@ -1,5 +1,8 @@
 import UserModel from "../models/userModel.js";
-import connection from "../db/configMysql.js";
+import Connection from '../db/configMysql.js';
+const connection = await Connection();
+
+
 
 let userServices = {
     getList: async (data) => {
@@ -59,6 +62,20 @@ let userServices = {
         };
 
         return { data: rows, meta: meta };
+    },
+    getUserById: async (id) => {
+        const user  = await UserModel.getUserById(connection, id);
+        return user
+    },
+    updateUser: async (data) => {
+
+        const result = await UserModel.updateUser(connection, data);
+        return result
+    },
+    deleteUser: async (id) => {
+        const user = await UserModel.getUserById(connection,id)
+        const result = await UserModel.deleteUser(connection, id);
+        return result
     }
 
 }

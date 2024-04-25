@@ -13,7 +13,7 @@ const USERS_MESSAGES = {
     INVALID_PHONE_NUMBER                            : 'Invalid phone number',
     INVALID_QR_ADMIN                                : 'Invalid qr admin',
     FULL_NAME_ALREADY_EXISTS                        : 'Full name already exists',
-
+    SEND_EMAIL_FAILED                               : 'Send email failed',
 
 
 

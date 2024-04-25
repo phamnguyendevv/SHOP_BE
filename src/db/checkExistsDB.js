@@ -30,8 +30,7 @@ const checkAndCreateDatabase = async () => {
 
     return true;
   } catch (error) {
-    console.error('Error:', error);
-    throw error;
+    throw new Error('Error while checking and creating database:', error);
   }
 };
 
@@ -71,7 +70,7 @@ const checkExitsDB = async () => {
       await connection.end(); // Đóng kết nối ở đúng chỗ này
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error while checking and creating database:', error);
   }
 };
 

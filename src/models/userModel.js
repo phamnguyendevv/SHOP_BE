@@ -1,14 +1,15 @@
-import connection from '../db/configMysql.js';
+
 import ErrorWithStatus from '../utils/error.js';
 import USERS_MESSAGES from '../constants/messages.js';
 import HTTP_STATUS from '../constants/httpStatus.js';
 
 let UserModel = {
     getUserByEmail: async (connection, email) => {
-        const [rows, fields] = await connection.execute(
+        const [rows, fields]= await connection.execute(
             `SELECT * FROM user WHERE email = ?`,
             [email]
         );
+      
         return rows[0];
     },
 
@@ -37,7 +38,7 @@ let UserModel = {
 
 
 
-    createUser: async (connection, data, hashedPassword) => {
+    createUser: async (connection, data, hashed) => {
         const user = await connection.execute(
             `
             INSERT INTO user (
@@ -64,7 +65,7 @@ let UserModel = {
             [
                 data.email,
                 data.fullname,
-                hashedPassword,
+                hashed,
                 data.qr_admin,
                 data.status_id  || 1  
             ]
@@ -94,16 +95,75 @@ let UserModel = {
     },
 
 
-    findAndUpdatePassword: async (connection, hashedPassword, username) => {
+    findAndUpdatePassword: async (connection, hashedPassword, email) => {
             const result = await connection.execute(
-                `UPDATE user SET password = ? WHERE fullname = ?`,
-                [hashedPassword, username]
+                `UPDATE user SET password = ? WHERE email = ?`,
+                [hashedPassword, email]
             );
             if (result[0].affectedRows === 0) {
                 throw new Error('Không cập nhật được mật khẩu');
             }
             return result;
-    }
+    },
+    updateUser: async (connection, data) => {
+        const fieldsToUpdate = [];
+        const params = [];
+    
+        if (data.fullname !== undefined) {
+            fieldsToUpdate.push('fullname = ?');
+            params.push(data.fullname);
+        }
+        if (data.username !== undefined) {
+            fieldsToUpdate.push('username = ?');
+            params.push(data.username);
+        }
+        if (data.avatar !== undefined) {
+            fieldsToUpdate.push('avatar = ?');
+            params.push(data.avatar);
+        }
+        if (data.phone !== undefined) {
+            fieldsToUpdate.push('phone = ?');
+            params.push(data.phone);
+        }
+        if (data.birthday !== undefined) {
+            fieldsToUpdate.push('birthday = ?');
+            params.push(data.birthday);
+        }
+        if (data.sex !== undefined) {
+            fieldsToUpdate.push('sex = ?');
+            params.push(data.sex);
+        }
+    
+        if (fieldsToUpdate.length === 0) {
+            throw new Error('Không có trường nào được cập nhật');
+        }
+    
+        params.push(data.id);
+    
+        const fieldsToUpdateString = fieldsToUpdate.join(', ');
+    
+        const query = `UPDATE user SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
+    
+        const result = await connection.execute(query, params);
+    
+        if (result[0].affectedRows === 0) {
+            throw new Error('Không cập nhật được user');
+        }
+    
+        return result;
+    },
+    deleteUser: async (connection, id) => {
+        const result = await connection.execute(
+            `DELETE FROM user WHERE id = ?`,
+            [id]
+        );
+        if (result[0].affectedRows === 0) {
+            throw new Error('Không xóa được user');
+        }
+        return result;
+    },
+    
+    
 }
 
 export default UserModel;
