@@ -19,7 +19,8 @@ router.post('/token',wrapAsync(authController.refreshTokenController))
 router.post('/change-password',userMiddlewares.changePassword,wrapAsync(authController.changePassController))
 
 router.post('/forgot-password',userMiddlewares.forgotPassword,wrapAsync(authController.forgotPassController))                
-
+//send email to user to change password
+router.post('/reset-password',userMiddlewares.forgotPassword,wrapAsync(authController.resetPassController))
 
 
 

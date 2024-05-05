@@ -24,9 +24,11 @@ let userMiddlewares = {
             custom: {
                 options: async (value) => {
                     const user = await UserModel.getUserByEmail(connection, value);
+                   
                     if (user) {
                         throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS);
                     }
+
                     return true;
                     
                 },
@@ -35,16 +37,12 @@ let userMiddlewares = {
         password: {
             trim: true,
             isLength: {
-                options: { min: 6 },
-                errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_LONGER_THAN_6_CHARACTERS,
+                options: { min: 3 },
+                errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_LONGER_THAN_3_CHARACTERS,
             },
-            matches: {
-                options: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/],
-                errorMessage: USERS_MESSAGES.MATCH_PASSWORD,
-            }
 
         },
-        fullname: {
+        full_name: {
             trim: true,
             isLength: {
                 options: { min: 6 },
@@ -55,7 +53,6 @@ let userMiddlewares = {
 
                     const user = await UserModel.getUserByFullname(connection, value);
                     if (user) {
-                        console.log(user);
                         throw new Error(USERS_MESSAGES.FULL_NAME_ALREADY_EXISTS);
                     }
                     return true;
@@ -74,15 +71,14 @@ let userMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-                    
-             
                     const user = await UserModel.getUserByEmail(connection, value);
-                    if (!user) {
-                        throw new Error(USERS_MESSAGES.USER_NOT_FOUND)
+                    const isBan = user.status_id === 3;
+                    if (isBan) {
+                        throw new Error(USERS_MESSAGES.ACCOUNT_IS_BANNED);
                     }
-                    // check ban hay ko 
+
+
                     req.user = user;
-    
                     return true;
                 },
             },
@@ -90,13 +86,12 @@ let userMiddlewares = {
         password: {
             trim: true,
             isLength: {
-                options: { min: 2 },
+                options: { min: 3 },
                 errorMessage: USERS_MESSAGES.MATCH_PASSWORD,
             },
             custom: {
                 options: async (value, { req }) => {
                     const user = req.user;
-                    
                     const password = user.password;
                     const isMatch = await passwordhandler.comparePassword(value, password);
                     if (!isMatch) {
@@ -113,14 +108,12 @@ let userMiddlewares = {
             custom: {
                 options: async (value) => {
                     const user = await UserModel.getUserById(connection, value);
-                    if (!user) {
-                        throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
-                    }
                     return true;
                 },
             },
         },
     }, ['body'])),
+
     changePassword: validate(checkSchema({
         email: {
             trim: true,

@@ -6,7 +6,6 @@ import AuthService from '../services/authServices.js'
 
 let authController = {
     registerController: async (req, res) => {
-      
         const result = await AuthService.register(req.body)
         return res.json({
             message: 'User created',
@@ -23,9 +22,11 @@ let authController = {
 
 
     loginController: async (req, res) => {
+        const {user} = req.user
+        console.log(user)
         const result = await AuthService.login(req.body)
         return res.json({
-            message: 'login successfull',
+            message: 'Đăng nhập thành công',
             result
         })
     },
@@ -33,14 +34,22 @@ let authController = {
     refreshTokenController: async (req, res) => {
         const result = await AuthService.refreshToken(req.body)
         return res.json({
-            message: 'refreshToken successfull',
+            message: 'Lấy token thành công',
             result
         })
     },  
     changePassController: async (req, res) =>{
         const result = await AuthService.changePassword(req.body)
         return res.json({
-            message: 'change password successfull'
+            message: 'Thay đổi mật khẩu thành công'
+
+        })
+    },
+
+    resetPassController: async (req, res) =>{
+        const result = await AuthService.resetPassword(req.body)
+        return res.json({
+            message: 'Cập nhật mật khẩu thành công'
 
         })
     },

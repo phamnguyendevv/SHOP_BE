@@ -71,6 +71,14 @@ let productsController = {
 
     },
 
+    getList: async (req, res) => {
+        const result = await ProductServices.getList(req.body)
+        return res.json({
+            message: 'Lấy danh sách sản phẩm thành công!',
+            result
+        })
+    },
+
 
 }
 

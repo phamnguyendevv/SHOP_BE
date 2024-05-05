@@ -1,7 +1,4 @@
 
-import ErrorWithStatus from '../utils/error.js';
-import USERS_MESSAGES from '../constants/messages.js';
-import HTTP_STATUS from '../constants/httpStatus.js';
 
 let UserModel = {
     getUserByEmail: async (connection, email) => {
@@ -20,16 +17,16 @@ let UserModel = {
             [id]
         );
         if (rows.length === 0) {
-            throw new Error('Không tìm thấy user');
+            throw new Error('Người dùng không tồn tại');
         }
         return rows[0];
     },
     getUserByFullname: async (connection, fullname) => {
         const [rows, fields] = await connection.execute(
-            `SELECT * FROM user WHERE fullname = ?`,
+            `SELECT * FROM user WHERE full_name = ?`,
             [fullname]
         );
-
+    
         return rows[0];
     },
 
@@ -39,11 +36,12 @@ let UserModel = {
 
 
     createUser: async (connection, data, hashed) => {
-        const user = await connection.execute(
+        
+        const [rows, fields] = await connection.execute(
             `
             INSERT INTO user (
                 email,
-                fullname,
+                full_name,
                 password,
                 qr_admin,
                 status_id,
@@ -57,33 +55,25 @@ let UserModel = {
                 ?,
                 ?,
                 ?,
-                2,
+                2, -- Đã sửa ở đây để sử dụng dữ liệu từ 'data'
                 0,
-                CURRENT_DATE, 
+                CURRENT_DATE,
                 CURRENT_DATE
             )`,
             [
                 data.email,
-                data.fullname,
+                data.full_name,
                 hashed,
                 data.qr_admin,
-                data.status_id  || 1  
+                data.status_id || 1,
+             
             ]
-
-
         );
-        // Nếu không có lỗi, trả về thông tin người dùng vừa được tạo
-        const [rows] = await connection.execute(
-            `SELECT * FROM user WHERE email = ?`,
-            [data.email]
-        );
-        if (rows.length === 0) {
-            throw new Error('Không tạo được user');
-        }
         // Trả về thông tin người dùng đầu tiên trong mảng rows (do có thể có nhiều người dùng có cùng email)
+       
         return rows[0];
-
     },
+    
 
     updateUserReferralCode: async (connection, referralCode, userId) => {
            const result =  await connection.execute('UPDATE `user` SET referral_code = ? WHERE id = ?', [referralCode, userId]);

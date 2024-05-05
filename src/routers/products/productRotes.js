@@ -25,8 +25,7 @@ router.get('/get-product-popular-by-category', wrapAsync(productController.getPr
 
 
 
-
-
+router.post('/get-list', wrapAsync(productController.getList))
 
 
 

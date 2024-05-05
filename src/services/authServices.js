@@ -4,27 +4,35 @@ import password from '../utils/password.js';
 import { generateToken, refreshTokens, decoToken } from '../utils/jwt.js';
 import USERS_MESSAGES from '../constants/messages.js';
 import Connection from '../db/configMysql.js';
-import emails from '../utils/email.js';
+import {sendEmail} from '../utils/email.js';
 const connection = await Connection();
 
 import axios from 'axios';
 import crypto from 'crypto';
+const code = crypto
+  .randomBytes(10)
+  .toString("hex")
+  .slice(0, 5)
+  .toUpperCase();
 
 let AuthService = {
-
+  
   register: async (data) => {
-    const code = crypto
-      .randomBytes(10)
-      .toString("hex")
-      .slice(0, 5)
-      .toUpperCase();
-
-    const hashed = await password.hashPassword(data.password);
-    const userNew = await UserModel.createUser(connection, data, hashed);
-    const referralCode = `${userNew.id}${code}`;
-    const userId = userNew.id;
-    await UserModel.updateUserReferralCode(connection, referralCode, userId);
-    return userNew;
+    try {
+      const hashed = await password.hashPassword(data.password);
+      
+      const user = await UserModel.createUser(connection, data, hashed);
+      if (!user) {
+        throw new Error(USERS_MESSAGES.REGISTER_FAILED)
+      }
+      const referralCode = `${user.id}${code}`;
+      const userId = user.id;
+      await UserModel.updateUserReferralCode(connection, referralCode, userId);
+      return user;
+    }
+    catch (error) {
+      
+    }
   },
 
 
@@ -65,18 +73,28 @@ let AuthService = {
   },
 
   forgotPassword: async (user) => {
-    const forgotPasswordToken = await generateToken(user);
     const email = user.email;
-    
     try {
-      await emails.sendEmail(email,
-        'Reset password link',
-        `${process.env.HOST_DEVERLOPMENT}/api/v0/reset_password/${forgotPasswordToken}`)
+      
+      await sendEmail(email, 'Gửi mã Xác nhận', 'Mã xác nhận của bạn là: `' + code + '`');
+      console.log('Gửi mã xác nhận thành công')
+      return { message: 'Gửi mã xác nhận thành công' }
     } catch (error) {
-
-      throw new Error(error)
+      throw new Error(error);
     }
   },
+
+  resetPassword: async (data) => {
+    const { token, newPassword } = data;
+    const decod = await decoToken(token);
+    const user = await UserModel.getUserById(connection, decod.id);
+    const hashedPassword = await password.hashPassword(newPassword);
+    const result = UserModel.findAndUpdatePassword(connection, hashedPassword, user.email)
+    if (!result) {
+      throw new Error(USERS_MESSAGES.RESET_PASSWORD_FAILED)
+    }
+  },
+  
 
   Oauth: async (code) => {
     //get token from google 

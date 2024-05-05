@@ -1,46 +1,41 @@
-import nodemailer from 'nodemailer'
 
-let emails = {
-    checkEmail: async (email) => {
-        try {
-            const re = /\S+@\S+\.\S+/;
-            return re.test(email);
-        } catch (error) {
-            throw error;
-        }
-    },
-    // send email
-    sendEmail: async (email, subject, text) => {
-        console.log(email, subject, text)
+import dotenv from 'dotenv';
+import sgMail from '@sendgrid/mail';
 
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                type: 'OAuth2',
-                user: email,
-                clientId: process.env.GOOGLE_MAILER_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_MAILER_CLIENT_SECRET,
-                refresh_token: GOOGLE_MAILER_REFRESH_TOKEN,
-                accessToken: myAccessToken
+
+dotenv.config();
+
+
+
+export const sendEmail = async (email, subject, text) => {
+    // Set SendGrid API key
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    // Configure mail options
+    const mailOptions = {
+        from: {
+            name: "Pham Trung Nguyen",
+            email: "Phamtrungnguyen2288@gmail.com",
+        },
+        to: email,
+        subject: subject,
+        text: text,
+        mailSettings: {
+            spamCheck: {
+                enable: true,
+                threshold: 1,
+                postToUrl: 'https://example.com/post'
             }
-        });
-        const mailOptions = {
-            from: 'Shop web admin',
-            to: email,
-            subject: subject,
-            text: text
         }
-        try {
-            const result = await transporter.sendMail(mailOptions)
-            return result
-        } catch (error) {
-            throw new Error(error)
-        }
+    };
 
+    try {
+        // Send email
+        const result = await sgMail.send(mailOptions);
+        console.log('Email sent:', result);
+        return result;
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw new Error("Error sending email");
     }
-    // verify email
-
-
-}
-
-export default emails;
+};

@@ -1,31 +1,35 @@
 
+
 CREATE TABLE role (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    name_role VARCHAR(255),
+    created_at DATE,
+    updated_at DATE
 );
 
 CREATE TABLE status_product (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name  VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    created_at DATE,
+    updated_at DATE
 );
 
 CREATE TABLE status_cart (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name  VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    created_at DATE,
+    updated_at DATE
 );
 
 CREATE TABLE status_user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    created_at DATE,
+    updated_at DATE
 );
+
+
+-- Tạo bảng User
 
 CREATE TABLE user (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -35,103 +39,122 @@ CREATE TABLE user (
   FOREIGN KEY (role_id) REFERENCES role(id),
   balance INT,
   email VARCHAR(255),
-  fullname VARCHAR(255),
-  username VARCHAR(255),
+  full_name VARCHAR(255),
+  user_name VARCHAR(255),
   password VARCHAR(255),
   avatar VARCHAR(255),
   phone INT,
   points INT,
   qr_admin JSON,
-  birthday DATETIME,
+  birthday DATE,
   sex VARCHAR(10),
-  isOnline BOOLEAN,
-  offlineAt DATETIME,
+  is_online BOOLEAN,
+  off_line_at DATE,
   referrer_id INT,
   referral_code VARCHAR(255),
-  created_at DATETIME,
-  updated_at DATETIME
+  created_at DATE,
+  updated_at DATE
 );
 
+
+-- Tạo bảng Seller
 CREATE TABLE seller (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),
     description VARCHAR(255),
-    date_join_seller DATETIME,
-    created_at DATETIME,
-    updated_at DATETIME
+    date_join_seller DATE,
+    created_at DATE,
+    updated_at DATE
 );
+
 
 CREATE TABLE payment (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),
-    nameBank VARCHAR(255),
-    bankAccount VARCHAR(255),
-    bank_AccountName VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    name_bank VARCHAR(255),
+    bank_account VARCHAR(255),
+    name_bank_account VARCHAR(255),
+    created_at DATE,
+    updated_at DATE
 );
 
+
+
+-- Tạo bảng Announcement
 CREATE TABLE announcement (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),
     title VARCHAR(255),
-    isRead VARCHAR(255),
+    is_read VARCHAR(255),
     content VARCHAR(255),
-    image VARCHAR(255),
-    url VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    image_anno VARCHAR(255),
+    url_anno VARCHAR(255),
+    created_at DATE,
+    updated_at DATE
 );
 
+
+
+
+
+-- Tạo bảng Product
 CREATE TABLE product (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),
     status_id INT,
     FOREIGN KEY (status_id) REFERENCES status_product(id),
+    name_product VARCHAR(255),
     price INT,
-    url_Demo VARCHAR(255),
-    popular BOOLEAN,
+    url_demo VARCHAR(255),
+    popular_product BOOLEAN,
     category JSON,
     description TEXT,
     sold INT,
-    code_Discount VARCHAR(255),
-    url_Download VARCHAR(255),
+    code_discount VARCHAR(255),
     pre_order BOOLEAN,
     points INT,
-    slug TEXT,
+    slug_product TEXT,
     technology JSON,
-    created_at DATETIME,
-    updated_at DATETIME
+    created_at DATE,
+    updated_at DATE
 );
 
-CREATE TABLE category (
+
+CREATE TABLE  classify (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT,
+    FOREIGN KEY (product_id) REFERENCES product(id),
+    name_classify VARCHAR(255),
+    image_classify VARCHAR(255),
+    url_dowload VARCHAR(255),
+    created_at DATE,
+    updated_at DATE
+
+);
+
+
+
+-- Tạo bảng categories
+CREATE TABLE categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
     product_id INT,
     FOREIGN KEY (product_id) REFERENCES product(id),
     name VARCHAR(255),
-    slug TEXT,
-    popular BOOLEAN,
-    image VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    slug_categories TEXT,
+    popular_categories BOOLEAN,
+    image_categories VARCHAR(255),
+    created_at DATE,
+    updated_at DATE
 );
 
-CREATE TABLE  classify (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    gia  INT,
-    image VARCHAR(255),
-    urldowload VARCHAR(255),
-    product_id INT,
-    FOREIGN KEY (product_id) REFERENCES product(id),
-    created_at DATETIME,
-    updated_at DATETIME
 
-);
 
+
+-- Tạo bảng Review
 CREATE TABLE review (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
@@ -140,11 +163,16 @@ CREATE TABLE review (
     FOREIGN KEY (product_id) REFERENCES product(id),
     star INT,
     content TEXT,
-    image VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    image_review VARCHAR(255),
+    created_at DATE,
+    updated_at DATE
 );
 
+
+
+
+
+-- Tạo bảng ProductCart
 CREATE TABLE product_cart (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
@@ -154,9 +182,11 @@ CREATE TABLE product_cart (
     status_id INT,
     FOREIGN KEY (status_id)  REFERENCES status_product(id),
     code_discount VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
+    created_at DATE,
+    updated_at DATE
 );
+
+-- Tạo bảng Discount
 CREATE TABLE discount (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
@@ -165,8 +195,8 @@ CREATE TABLE discount (
     end_discount DATE,
     persen_discount INT,
     name_discount INT,
-    created_at DATETIME,
-    updated_at DATETIME
+    created_at DATE,
+    updated_at DATE
 );
 
 CREATE TABLE discount_used (
@@ -175,11 +205,15 @@ CREATE TABLE discount_used (
     FOREIGN KEY (user_id) REFERENCES user(id),
     discount_id INT,
     FOREIGN KEY (discount_id) REFERENCES discount(id),
-    created_at DATETIME,
-    updated_at DATETIME
+    created_at DATE,
+    updated_at DATE
+
 );
 
-INSERT INTO role (name, created_at, updated_at) VALUES
+
+
+
+INSERT INTO role (name_role, created_at, updated_at) VALUES
 ('admin', CURDATE(), CURDATE()),
 ('user', CURDATE(), CURDATE());
 
@@ -199,7 +233,7 @@ INSERT INTO status_user (name, created_at, updated_at) VALUES
 ('NotVerify', CURDATE(), CURDATE()),
 ('Ban', CURDATE(), CURDATE());
 
-INSERT INTO user (fullname, email, password, role_id, status_id, qr_admin, balance, created_at, updated_at) 
+INSERT INTO user (full_name, email, password, role_id, status_id, qr_admin, balance, created_at, updated_at) 
 VALUES 
 (
   'admin', 
@@ -213,7 +247,7 @@ VALUES
   CURDATE() 
 );
 
-INSERT INTO user (fullname, email, password, role_id, status_id, qr_admin, balance, created_at, updated_at) 
+INSERT INTO user (full_name, email, password, role_id, status_id, qr_admin, balance, created_at, updated_at) 
 VALUES 
 (
   'user', 
