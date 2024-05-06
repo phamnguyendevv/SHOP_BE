@@ -8,13 +8,15 @@ let authController = {
     registerController: async (req, res) => {
         const result = await AuthService.register(req.body)
         return res.json({
-            message: 'User created',
+            message: 'Tạo tài khoản thành công',
+           
         })
     },
+
     registerAdminController: async (req, res) => {
         const result = await AuthService.register(req.body)
         return res.json({
-            message: 'Admin created',
+            message: 'Tạo tài khoản admin thành công',
         })
     },
 
@@ -22,9 +24,9 @@ let authController = {
 
 
     loginController: async (req, res) => {
-        const {user} = req.user
-        console.log(user)
-        const result = await AuthService.login(req.body)
+        const user = req.user
+       
+        const result = await AuthService.login(user)
         return res.json({
             message: 'Đăng nhập thành công',
             result

@@ -72,13 +72,15 @@ let userMiddlewares = {
             custom: {
                 options: async (value, { req }) => {
                     const user = await UserModel.getUserByEmail(connection, value);
+                    if (!user) {
+                        throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
+                    }
                     const isBan = user.status_id === 3;
                     if (isBan) {
                         throw new Error(USERS_MESSAGES.ACCOUNT_IS_BANNED);
                     }
-
-
                     req.user = user;
+                   
                     return true;
                 },
             },

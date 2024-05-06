@@ -35,7 +35,7 @@ let UserModel = {
 
 
 
-    createUser: async (connection, data, hashed) => {
+    createUser: async (connection, data, hashed,code) => {
         
         const [rows, fields] = await connection.execute(
             `
@@ -47,6 +47,7 @@ let UserModel = {
                 status_id,
                 role_id,
                 balance,
+                referral_code,
                 created_at,
                 updated_at
             ) VALUES (
@@ -55,8 +56,9 @@ let UserModel = {
                 ?,
                 ?,
                 ?,
-                2, -- Đã sửa ở đây để sử dụng dữ liệu từ 'data'
-                0,
+                2,  -- Assuming this is a constant value for role_id
+                0,  -- Assuming this is a constant value for balance
+                ?,  -- Referral code
                 CURRENT_DATE,
                 CURRENT_DATE
             )`,
@@ -66,24 +68,15 @@ let UserModel = {
                 hashed,
                 data.qr_admin,
                 data.status_id || 1,
+                code
              
             ]
         );
-        // Trả về thông tin người dùng đầu tiên trong mảng rows (do có thể có nhiều người dùng có cùng email)
        
-        return rows[0];
+        const user = await UserModel.getUserByEmail(connection, data.email);
+        return user;
     },
     
-
-    updateUserReferralCode: async (connection, referralCode, userId) => {
-           const result =  await connection.execute('UPDATE `user` SET referral_code = ? WHERE id = ?', [referralCode, userId]);
-           if (result[0].affectedRows === 0) {
-               throw new Error('Không cập nhật được mã giới thiệu');
-           }
-           return  result;
-
-    },
-
 
     findAndUpdatePassword: async (connection, hashedPassword, email) => {
             const result = await connection.execute(

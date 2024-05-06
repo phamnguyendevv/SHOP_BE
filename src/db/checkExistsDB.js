@@ -66,7 +66,7 @@ const checkExitsDB = async () => {
         await runSQLFile(connection, './src/db/shopeweb-database.sql');
         console.log('SQL file executed successfully.');
       } 
-      console.log('Database is ready to use.');
+      console.log(`Database ${process.env.DB_DATABASE} is ready to use.`);
       await connection.end(); // Đóng kết nối ở đúng chỗ này
     }
   } catch (error) {

@@ -3,29 +3,29 @@
 CREATE TABLE role (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name_role VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 CREATE TABLE status_product (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name  VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 CREATE TABLE status_cart (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name  VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 CREATE TABLE status_user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 
@@ -46,14 +46,14 @@ CREATE TABLE user (
   phone INT,
   points INT,
   qr_admin JSON,
-  birthday DATE,
+  birthday DATETIME,
   sex VARCHAR(10),
   is_online BOOLEAN,
-  off_line_at DATE,
+  off_line_at DATETIME,
   referrer_id INT,
   referral_code VARCHAR(255),
-  created_at DATE,
-  updated_at DATE
+  created_at DATETIME,
+  updated_at DATETIME
 );
 
 
@@ -63,9 +63,9 @@ CREATE TABLE seller (
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),
     description VARCHAR(255),
-    date_join_seller DATE,
-    created_at DATE,
-    updated_at DATE
+    date_join_seller DATETIME,
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 
@@ -76,8 +76,8 @@ CREATE TABLE payment (
     name_bank VARCHAR(255),
     bank_account VARCHAR(255),
     name_bank_account VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 
@@ -92,8 +92,8 @@ CREATE TABLE announcement (
     content VARCHAR(255),
     image_anno VARCHAR(255),
     url_anno VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 
@@ -119,8 +119,8 @@ CREATE TABLE product (
     points INT,
     slug_product TEXT,
     technology JSON,
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 
@@ -131,8 +131,8 @@ CREATE TABLE  classify (
     name_classify VARCHAR(255),
     image_classify VARCHAR(255),
     url_dowload VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 
 );
 
@@ -147,8 +147,8 @@ CREATE TABLE categories (
     slug_categories TEXT,
     popular_categories BOOLEAN,
     image_categories VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 
@@ -164,8 +164,8 @@ CREATE TABLE review (
     star INT,
     content TEXT,
     image_review VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 
@@ -182,8 +182,8 @@ CREATE TABLE product_cart (
     status_id INT,
     FOREIGN KEY (status_id)  REFERENCES status_product(id),
     code_discount VARCHAR(255),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 -- Tạo bảng Discount
@@ -191,12 +191,12 @@ CREATE TABLE discount (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),
-    start_discount DATE,
-    end_discount DATE,
+    start_discount DATETIME,
+    end_discount DATETIME,
     persen_discount INT,
     name_discount INT,
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
 CREATE TABLE discount_used (
@@ -205,8 +205,8 @@ CREATE TABLE discount_used (
     FOREIGN KEY (user_id) REFERENCES user(id),
     discount_id INT,
     FOREIGN KEY (discount_id) REFERENCES discount(id),
-    created_at DATE,
-    updated_at DATE
+    created_at DATETIME,
+    updated_at DATETIME
 
 );
 

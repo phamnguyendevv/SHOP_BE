@@ -12,5 +12,3 @@ router.put('/',wrapAsync(statusUserController.updateStatusController))
 router.delete('/:id',wrapAsync(statusUserController.deleteStatusController))
 
 export default router;
-
-

@@ -9,12 +9,15 @@ router.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
+
 router.post('/register',userMiddlewares.registerValidator,wrapAsync(authController.registerController))
 router.post('/register-admin', userMiddlewares.registerValidator, wrapAsync(authController.registerAdminController))
 //login with email
 router.post('/user', userMiddlewares.loginValidator,wrapAsync(authController.loginController))
 //login with google
 router.get('/google',wrapAsync (authController.OauthController))
+
+
 router.post('/token',wrapAsync(authController.refreshTokenController))
 router.post('/change-password',userMiddlewares.changePassword,wrapAsync(authController.changePassController))
 

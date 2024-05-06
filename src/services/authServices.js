@@ -18,33 +18,26 @@ const code = crypto
 let AuthService = {
   
   register: async (data) => {
-    try {
+
       const hashed = await password.hashPassword(data.password);
-      
-      const user = await UserModel.createUser(connection, data, hashed);
+      const referral_code = `${data.id}${code}`;
+      const user = await UserModel.createUser(connection, data, hashed,code);
       if (!user) {
         throw new Error(USERS_MESSAGES.REGISTER_FAILED)
       }
-      const referralCode = `${user.id}${code}`;
-      const userId = user.id;
-      await UserModel.updateUserReferralCode(connection, referralCode, userId);
-      return user;
-    }
-    catch (error) {
-      
-    }
-  },
-
+  
+    },
 
   //login
-  login: async (data) => {
-    const { email } = data;
-    const user = await UserModel.getUserByEmail(connection, email);
+  login: async (user) => {
     const { password, created_at, updated_at, ...usercustom } = user;
+
     const accessToken = await generateToken(user);
+   
     const refreshToken = await refreshTokens(user);
     const decod = await decoToken(accessToken);
-    const exp = await decod.exp;
+    
+    const exp =  decod.exp;
     const Token = { accessToken, refreshToken, exp }
     return { usercustom, Token };
 
@@ -57,7 +50,7 @@ let AuthService = {
     const { password, created_at, updated_at, ...usercustom } = user;
     const newaccessToken = await generateToken(user);
     const expNewaccessToken = await decoToken(newaccessToken);
-    const exp = await expNewaccessToken.exp;
+    const exp =  expNewaccessToken.exp;
     const Token = { accessToken: newaccessToken, refreshToken, exp }
     return { usercustom, Token };
   },
@@ -75,7 +68,6 @@ let AuthService = {
   forgotPassword: async (user) => {
     const email = user.email;
     try {
-      
       await sendEmail(email, 'Gửi mã Xác nhận', 'Mã xác nhận của bạn là: `' + code + '`');
       console.log('Gửi mã xác nhận thành công')
       return { message: 'Gửi mã xác nhận thành công' }
