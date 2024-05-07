@@ -23,100 +23,22 @@ let ProductServices = {
 
   //addProduct 
   addProduct: async (data) => {
-
-    data.slug = await ProductServices.createSlug(data.name);
-    const result = await ProductModel.addProduct(connection, data);
-
-
-
-//     // Thêm sản phẩm mới với nhiều phân loại
-// function addProduct(productData, classifyDataArray) {
-//   return new Promise((resolve, reject) => {
-//     connection.beginTransaction((err) => {
-//       if (err) {
-//         reject(err);
-//         return;
-//       }
-
-//       // Thêm dữ liệu vào bảng product
-//       connection.query('INSERT INTO product SET ?', productData, (err, result) => {
-//         if (err) {
-//           connection.rollback(() => {
-//             reject(err);
-//           });
-//           return;
-//         }
-
-//         const productId = result.insertId;
-
-//         // Thêm dữ liệu vào bảng classify cho mỗi phân loại
-//         const insertClassifyPromises = classifyDataArray.map((classifyData) => {
-//           classifyData.product_id = productId;
-//           return new Promise((resolve, reject) => {
-//             connection.query('INSERT INTO classify SET ?', classifyData, (err) => {
-//               if (err) {
-//                 reject(err);
-//                 return;
-//               }
-//               resolve();
-//             });
-//           });
-//         });
-
-//         // Thực hiện tất cả các truy vấn thêm phân loại và commit giao dịch
-//         Promise.all(insertClassifyPromises)
-//           .then(() => {
-//             connection.commit((err) => {
-//               if (err) {
-//                 connection.rollback(() => {
-//                   reject(err);
-//                 });
-//                 return;
-//               }
-//               resolve(`Product added successfully with ID ${productId}`);
-//             });
-//           })
-//           .catch((err) => {
-//             connection.rollback(() => {
-//               reject(err);
-//             });
-//           });
-//       });
-//     });
-//   });
-// }
-
-// // Sử dụng hàm addProduct
-// const productData = {
-//   user_id: 1,
-//   status_id: 1,
-//   name: 'Product Name',
-//   price: 100,
-//   url_Demo: 'https://example.com/demo',
-//   popular: true,
-//   // Thêm dữ liệu khác của sản phẩm ở đây
-// };
-
-// const classifyDataArray = [
-//   {
-//     name: 'Classification 1',
-//     image: 'https://example.com/image1',
-//     urldownload: 'https://example.com/download1',
-//     // Thêm dữ liệu khác của classification ở đây
-//   },
-//   {
-//     name: 'Classification 2',
-//     image: 'https://example.com/image2',
-//     urldownload: 'https://example.com/download2',
-//     // Thêm dữ liệu khác của classification ở đây
-//   }
-// ];
-
-// addProduct(productData, classifyDataArray)
-//   .then((message) => console.log(message))
-//   .catch((error) => console.error(error));
-
-    return result;
+    const {productData,classifyData} = data;
+    const slug_product = await ProductServices.createSlug(productData.name_product);
+    data.slug_product = slug_product
+    const new_product = await ProductModel.addProduct(connection, productData);
+    const productId = new_product.insertId;
+    const classifyDataArray = classifyData.map((classifyData) => {
+      classifyData.product_id = productId;
+      return classifyData;
+    }
+    );
+    const insertClassifyPromises = classifyDataArray.map((classifyData) => {
+      return ProductModel.addClassify(connection, classifyData);
+    }
+    );
+    await Promise.all(insertClassifyPromises);
+    return new_product;
   },
 
 

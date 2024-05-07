@@ -4,7 +4,7 @@ import password from '../utils/password.js';
 import { generateToken, refreshTokens, decoToken } from '../utils/jwt.js';
 import USERS_MESSAGES from '../constants/messages.js';
 import Connection from '../db/configMysql.js';
-import {sendEmail} from '../utils/email.js';
+import { sendEmail } from '../utils/email.js';
 const connection = await Connection();
 
 import axios from 'axios';
@@ -14,30 +14,29 @@ const code = crypto
   .toString("hex")
   .slice(0, 5)
   .toUpperCase();
+const tempCodes = {};
 
 let AuthService = {
-  
+
   register: async (data) => {
 
-      const hashed = await password.hashPassword(data.password);
-      const referral_code = `${data.id}${code}`;
-      const user = await UserModel.createUser(connection, data, hashed,code);
-      if (!user) {
-        throw new Error(USERS_MESSAGES.REGISTER_FAILED)
-      }
-  
-    },
+    const hashed = await password.hashPassword(data.password);
+    const referral_code = `${data.id}${code}`;
+    const user = await UserModel.createUser(connection, data, hashed, code);
+    if (!user) {
+      throw new Error(USERS_MESSAGES.REGISTER_FAILED)
+    }
+
+  },
 
   //login
   login: async (user) => {
     const { password, created_at, updated_at, ...usercustom } = user;
 
     const accessToken = await generateToken(user);
-   
     const refreshToken = await refreshTokens(user);
     const decod = await decoToken(accessToken);
-    
-    const exp =  decod.exp;
+    const exp = decod.exp;
     const Token = { accessToken, refreshToken, exp }
     return { usercustom, Token };
 
@@ -50,43 +49,42 @@ let AuthService = {
     const { password, created_at, updated_at, ...usercustom } = user;
     const newaccessToken = await generateToken(user);
     const expNewaccessToken = await decoToken(newaccessToken);
-    const exp =  expNewaccessToken.exp;
+    const exp = expNewaccessToken.exp;
     const Token = { accessToken: newaccessToken, refreshToken, exp }
     return { usercustom, Token };
   },
 
-
-  changePassword: async (data) => {
-    const { newPassword, email } = data
-    const hashedPassword = await password.hashPassword(newPassword)
-    const result = UserModel.findAndUpdatePassword(connection, hashedPassword, email)
-    if (!result) {
-      throw new Error(USERS_MESSAGES.CHANGE_PASSWORD_FAILED)
-    }
-  },
-
   forgotPassword: async (user) => {
     const email = user.email;
+    const code_verify = `${user.id}${code}`
+    tempCodes[email] = code_verify;
+
     try {
-      await sendEmail(email, 'Gửi mã Xác nhận', 'Mã xác nhận của bạn là: `' + code + '`');
+      await sendEmail(email, 'Gửi mã Xác nhận', 'Mã xác nhận của bạn là: ' + code_verify + '');
       console.log('Gửi mã xác nhận thành công')
-      return { message: 'Gửi mã xác nhận thành công' }
+      return { code_verify }
     } catch (error) {
       throw new Error(error);
     }
   },
 
   resetPassword: async (data) => {
-    const { token, newPassword } = data;
-    const decod = await decoToken(token);
-    const user = await UserModel.getUserById(connection, decod.id);
-    const hashedPassword = await password.hashPassword(newPassword);
-    const result = UserModel.findAndUpdatePassword(connection, hashedPassword, user.email)
-    if (!result) {
-      throw new Error(USERS_MESSAGES.RESET_PASSWORD_FAILED)
+    const { email, code, newPassword } = data;
+    if (!email || !code || !newPassword) {
+      throw new Error('Vui lòng nhập đầy đủ thông tin')
     }
+    if (tempCodes[email] !== code) {
+      throw new Error('Mã xác nhận không chính xác')
+    }
+    delete tempCodes[email];
+    const hashedPassword = await password.hashPassword(newPassword);
+    const result = UserModel.findAndUpdatePassword(connection, hashedPassword, email);
+    if (!result) {
+      throw new Error('Cập nhật mật khẩu thất bại')
+    }
+
   },
-  
+
 
   Oauth: async (code) => {
     //get token from google 

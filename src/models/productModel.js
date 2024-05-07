@@ -15,39 +15,33 @@ let ProductModel = {
     },
     // find data by slug
     findProductBySlug: async (connection, fullSlug) => {
-        try {
-
-            const [rows] = await connection.execute('SELECT * FROM `product` WHERE slug = ?', [fullSlug]);
+            const [rows] = await connection.execute('SELECT * FROM `product` WHERE slug_product = ?', [fullSlug]);
             return rows;
-        } catch (error) {
-            // Xử lý lỗi ở đây
-            throw new Error('Không tìm thấy sản phẩm với slug này');
-        }
+       
     },
 
     // add new data 
-    addProduct: async (connection, data) => {
+    addProduct: async (connection, productData) => {
         try {
             const query = `INSERT INTO product 
-                            (user_id, status_id, name, price, url_Demo, popular, category, description, sold, code_Discount, url_Download, pre_order, points, slug, technology, created_at, updated_at) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, CURDATE(), CURDATE())`;
+                            (user_id, status_id, name_product, price, url_Demo, popular_product, category, description, sold, code_Discount, pre_order, points, slug_product, technology, created_at, updated_at) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, CURDATE(), CURDATE())`;
 
             // Thực hiện truy vấn để chèn dữ liệu
             const [result] = await connection.query(query, [
-                data.user_id,
-                data.status_id || 1,
-                data.name,
-                data.price,
-                data.url_Demo,
-                data.popular || false,
-                JSON.stringify(data.category),
-                data.description,
-                data.code_Discount || "",
-                data.url_Download,
-                data.pre_order || false,
-                data.points || 0,
-                data.slug || "",
-                JSON.stringify(data.technology)
+                productData.user_id,
+                productData.status_id || 1,
+                productData.name_product,
+                productData.price,
+                productData.url_Demo,
+                productData.popular_product || false,
+                JSON.stringify(productData.category),
+                productData.description,
+                productData.code_Discount || "",
+                productData.pre_order || false,
+                productData.points || 0,
+                productData.slug_product || "",
+                JSON.stringify(productData.technology)
             ]);
 
             return result;
@@ -57,6 +51,12 @@ let ProductModel = {
             throw new Error('Không thêm được sản phẩm');
         }
     },
+    addClassify: async (connection, classifyData) => {
+        const query = `INSERT INTO classify (product_id, name_classify,image_classify,url_dowload,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
+        const [result] = await connection.query(query, [classifyData.product_id, classifyData.name_classify, classifyData.image_classify, classifyData.url_dowload]);
+        return result;
+    },
+
     updateProduct: async (connection, data) => {
         const fieldsToUpdate = [];
         const params = [];

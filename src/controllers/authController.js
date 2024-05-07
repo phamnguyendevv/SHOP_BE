@@ -40,13 +40,17 @@ let authController = {
             result
         })
     },  
-    changePassController: async (req, res) =>{
-        const result = await AuthService.changePassword(req.body)
+    forgotPassController: async (req, res) =>{
+        const user = req.user
+        const result = await AuthService.forgotPassword(user)
         return res.json({
-            message: 'Thay đổi mật khẩu thành công'
+            message: 'Gửi mã xác nhận thành công',
+            result
 
         })
     },
+
+
 
     resetPassController: async (req, res) =>{
         const result = await AuthService.resetPassword(req.body)
@@ -66,14 +70,15 @@ let authController = {
     },
 
 
-    forgotPassController: async (req, res) =>{
-        const user = req.user
-        const result = await AuthService.forgotPassword(user)
-        return res.json({
-            message: 'forgot password successfull'
 
+
+    verifyCodeController: async (req, res) =>{
+        const result = await AuthService.verifyCode(req.body)
+        return res.json({
+            message: 'Xác thực mã thành công',
+            result
         })
-    },
+    }
 }
 
 

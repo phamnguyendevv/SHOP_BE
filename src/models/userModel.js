@@ -79,14 +79,11 @@ let UserModel = {
     
 
     findAndUpdatePassword: async (connection, hashedPassword, email) => {
-            const result = await connection.execute(
+            const [rows, fields] = await connection.execute(
                 `UPDATE user SET password = ? WHERE email = ?`,
                 [hashedPassword, email]
             );
-            if (result[0].affectedRows === 0) {
-                throw new Error('Không cập nhật được mật khẩu');
-            }
-            return result;
+            return rows[0];
     },
     updateUser: async (connection, data) => {
         const fieldsToUpdate = [];

@@ -5,56 +5,119 @@ import { checkSchema } from 'express-validator';
 import Connection from '../db/configMysql.js';
 const connection = await Connection();
 
+const productDataSchema = {
+    user_id: {
+        in: ['body'],
+        isInt: true,
+        errorMessage: 'User id là số',
+    },
+    name_product: {
+        in: ['body'],
+        trim: true,
+        isLength: {
+            options: { min: 1 },
+            errorMessage: 'Tên sản phẩm không được để trống',
+        },
+    },
+    price: {
+        in: ['body'],
+        isFloat: {
+            options: { min: 0 },
+            errorMessage: 'Giá sản phẩm phải là số dương',
+        },
+    },
+    url_Demo: {
+        in: ['body'],
+        isURL: {
+            options: { require_protocol: true },
+            errorMessage: 'Định dạng URL demo không hợp lệ',
+        },
+    },
+    category: {
+        in: ['body'],
+        isArray: {
+            errorMessage: 'Category must be an array',
+        },
+        custom: {
+            options: (value) => Array.isArray(value) && value.length > 0,
+            errorMessage: 'Phải chọn ít nhất một danh mục',
+        },
+    },
+    description: {
+        in: ['body'],
+        trim: true,
+        isLength: {
+            options: { min: 1 },
+            errorMessage: 'Mô tả sản phẩm không được để trống',
+        },
+    },
+    technology: {
+        in: ['body'],
+        isArray: {
+            errorMessage: 'Technology must be an array',
+        },
+        custom: {
+            options: (value) => Array.isArray(value) && value.length > 0,
+            errorMessage: 'Phải chọn ít nhất một công nghệ',
+        },
+    },
+};
 
+// Define validation schema for classify data
+const classifyDataSchema = {
+    name_classify: {
+        in: ['body', 'classifyData'],
+        trim: true,
+        isLength: {
+            options: { min: 1 },
+            errorMessage: 'Tên phân loại sản phẩm không được để trống',
+        },
+    },
+    image_classify: {
+        in: ['body', 'classifyData'],
+        isURL: {
+            options: { require_protocol: true },
+            errorMessage: 'Định dạng URL hình ảnh không hợp lệ',
+        },
+    },
+    url_dowload: {
+        in: ['body', 'classifyData'],
+        isURL: {
+            options: { require_protocol: true },
+            errorMessage: 'Định dạng URL tải xuống không hợp lệ',
+        },
+    },
+};
 
 
 let productMiddlewares = {
     //add product validator
-    addProductValidator: validate(checkSchema({
-        user_id: {
-            trim: true,
-            isNumeric: {
-                errorMessage: 'User id must be a number',
-            },
+    addProductValidator: validate({
+        productData: {
+            in: ['body'],
             custom: {
-                options: async (value, { req }) => {
-                    const user = await UserModel.getUserById(connection, value);
-                    if (!user) {
-                        throw new Error('User not found');
-                    }
-                    return true;
+                options: (value) => {
+                    return checkSchema(productDataSchema)(value);
                 },
             },
         },
-        price: {
-            trim: true,
-            isNumeric: {
-                errorMessage: 'Price must be a number',
+        classifyData: {
+            in: ['body'],
+            isArray: {
+                errorMessage: 'Classify data must be an array',
+            },
+            custom: {
+                options: (value) => {
+                    const errors = value.map((classifyItem) => checkSchema(classifyDataSchema)(classifyItem)).filter((itemErrors) => itemErrors.length > 0);
+                    return errors.length === 0;
+                },
+                errorMessage: 'Invalid classify data',
             },
         },
+    }),
 
-        url_Demo: {
-            trim: true,
-            isURL: {
-                errorMessage: 'URL Demo must be a URL',
-            },
-        },
+  
 
-        description: {
-            trim: true,
-            isLength: {
-                options: { min: 2 },
-                errorMessage: 'Description must be at least 2 characters long',
-            },
-        },
-
-        url_Download: {
-            trim: true,
-            isURL: {
-                errorMessage: 'URL Download must be a URL',
-            },
-        },
-    }, ['body'])),
 
 
     //update product validator

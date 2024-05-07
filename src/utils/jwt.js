@@ -14,6 +14,7 @@ const generateToken = async (user) => {
             expiresIn: "2h",
         }
     );
+
 }
 
 //REFRESH TOKEN
@@ -28,8 +29,8 @@ const refreshTokens = async (user) => {
 }
 
 
-const decoToken =  async (token) => {
-    return  jwt.verify(token, JWT_ACCESS_KEY)
+const decoToken = async (token) => {
+    return jwt.verify(token, JWT_ACCESS_KEY)
 };
 
 
@@ -37,4 +38,4 @@ const decoToken =  async (token) => {
 
 
 
-export { generateToken ,refreshTokens,decoToken};
+export { generateToken, refreshTokens, decoToken };
