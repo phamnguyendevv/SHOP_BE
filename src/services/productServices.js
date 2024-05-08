@@ -23,9 +23,9 @@ let ProductServices = {
 
   //addProduct 
   addProduct: async (data) => {
-    const {productData,classifyData} = data;
+    const { productData, classifyData } = data;
     const slug_product = await ProductServices.createSlug(productData.name_product);
-    data.slug_product = slug_product
+    productData.slug_product = slug_product
     const new_product = await ProductModel.addProduct(connection, productData);
     const productId = new_product.insertId;
     const classifyDataArray = classifyData.map((classifyData) => {
@@ -41,18 +41,31 @@ let ProductServices = {
     return new_product;
   },
 
-
   updateProduct: async (data) => {
-    
-    data.slug = await ProductServices.createSlug(data.name);
+    const { productData, classifyData } = data;
+    const update_product = await ProductModel.updateProduct(connection, productData);
+    const productId = productData.id;
+    const classifyDataArray = classifyData.map((classifyData) => {
+      classifyData.product_id = productId;
+      return classifyData;
+    }
+    );
+    const insertClassifyPromises = classifyDataArray.map((classifyData) => {
+      return ProductModel.updateClassify(connection, classifyData);
+    }
+    );
+    await Promise.all(insertClassifyPromises);
+    return update_product;
 
-    const result = await ProductModel.updateProduct(connection, data);
-    return result;
+
   },
+
   deleteProduct: async (id) => {
+
     const result = await ProductModel.deleteProduct(connection, id);
     return result;
   },
+
   getProductByCategory: async (data) => {
     const { category, limit, page } = data
 
@@ -60,9 +73,11 @@ let ProductServices = {
     const result = await ProductModel.getProductByCategory(connection, category, page, limit);
     return result;
   },
-  getProductBySlug: async (slug) => {
-      
-    const result = await ProductModel.getProductBySlug(connection, slug);
+  getProductBySlug: async (slug_product) => {
+
+    const product = await ProductModel.getProductBySlug(connection, slug_product);
+    const classify = await ProductModel.getClassifyByProduct(connection, product.id);
+    const result = { product, classify };
     return result;
   },
 
@@ -73,69 +88,58 @@ let ProductServices = {
     return result;
   },
   getProductPopularByCategory: async (data) => {
-    const { category, limit, page, popular} = data
-  
+    const { category, limit, page, popular } = data
+
     const result = await ProductModel.getProductPopularByCategory(connection, category, limit, page, popular);
     return result;
   },
 
   getList: async (data) => {
-      const { pagingParams, filterParams } = data;
-      const { orderBy, keyword, pageIndex, pageSize } = pagingParams;
-      const {category } = filterParams;
+    const { pagingParams, filterParams } = data;
+    const { orderBy, keyword, pageIndex, isPaging, pageSize, priceRange } = pagingParams;
+    const { categories, technology, is_popular } = filterParams;
 
-      const page = (parseInt(pageIndex) || 1) - 1;
-      const limit = parseInt(pageSize) || 20; // Giới hạn mặc định là 20
+    // Construct the SQL query
+    let query = 'SELECT * FROM product WHERE ';
+    let conditions = [];
 
-      // Tạo câu truy vấn SQL để tính tổng số lượng bản ghi
-      let sql = `SELECT COUNT(*) AS total FROM product`;
-      ì
-      if (user_id && user_id.length > 0) {
-          sql += ` WHERE id IN (${user_id.join(',')})`;
-      }
+    // Add conditions for filtering
+    if (categories && categories.length > 0) {
+      conditions.push(`JSON_CONTAINS(categories, JSON_ARRAY(${categories.map(cat => connection.escape(cat)).join(',')}))`);
+    }
+    if (technology && technology.length > 0) {
+      conditions.push(`JSON_CONTAINS(technology, JSON_ARRAY(${technology.map(tec => connection.escape(tec)).join(',')}))`);
+    }
+    if (keyword) {
+      conditions.push(`name_product LIKE '%${keyword}%'`);
+    }
+    if (priceRange) {
+      conditions.push(`price >= ${priceRange.minPrice} AND price <= ${priceRange.maxPrice}`);
+    }
+    if (is_popular === 1) {
+      conditions.push(`is_popular = 1`);
+    }
+    // Apply conditions
+    if (conditions.length > 0) {
+      query += conditions.join(' AND ');
+    } else {
+      // If no filters are applied, select all products
+      query += '1';
+    }
+    // Apply ordering
+    if (orderBy) {
+      query += ` ORDER BY ${orderBy}`;
+    }
+    // Apply paging
+    if (isPaging) {
+      const offset = (pageIndex - 1) * pageSize;
+      query += ` LIMIT ${pageSize} OFFSET ${offset}`;
+    }
+    console.log(query);
+    const [rows, fields] = await connection.query(query);
 
-      if (keyword) {
-          if (user_id && user_id.length > 0) {
-              sql += ` AND fullname LIKE '%${keyword}%'`;
-          } else {
-              sql += ` WHERE fullname LIKE '%${keyword}%'`;
-          }
-      }
-      const [totalRows] = await connection.query(sql);
-      const total = totalRows[0].total;
 
-      const totalPages = Math.ceil(total / pageSize);
-
-      // Tạo câu truy vấn SQL để lấy dữ liệu phân trang
-      let query = `SELECT * FROM user`;
-
-      if (user_id && user_id.length > 0) {
-          query += ` WHERE id IN (${user_id.join(',')})`;
-      }
-
-      if (keyword) {
-          if (user_id && user_id.length > 0) {
-              query += ` AND fullname LIKE '%${keyword}%'`;
-          } else {
-              query += ` WHERE fullname LIKE '%${keyword}%'`;
-          }
-      }
-
-      if (orderBy) {
-          query += ` ORDER BY ${orderBy}`;
-      }
-
-      query += ` LIMIT ${limit} OFFSET ${page * limit}`;
-
-      // Thực hiện truy vấn SQL để lấy dữ liệu phân trang
-      const [rows, fields] = await connection.query(query);
-
-      const meta = {
-          total: total,
-          totalPage: totalPages
-      };
-
-      return { data: rows, meta: meta };
+    return { data: rows };
   },
 
 

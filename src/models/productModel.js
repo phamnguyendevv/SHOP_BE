@@ -15,16 +15,17 @@ let ProductModel = {
     },
     // find data by slug
     findProductBySlug: async (connection, fullSlug) => {
-            const [rows] = await connection.execute('SELECT * FROM `product` WHERE slug_product = ?', [fullSlug]);
-            return rows;
-       
+        const [rows] = await connection.execute('SELECT * FROM `product` WHERE slug_product = ?', [fullSlug]);
+        return rows;
+
     },
 
     // add new data 
     addProduct: async (connection, productData) => {
+
         try {
             const query = `INSERT INTO product 
-                            (user_id, status_id, name_product, price, url_Demo, popular_product, category, description, sold, code_Discount, pre_order, points, slug_product, technology, created_at, updated_at) 
+                            (user_id, status_id, name_product, price, url_Demo, is_popular, categories, description, sold, code_Discount, pre_order, points, slug_product, technology, created_at, updated_at) 
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, CURDATE(), CURDATE())`;
 
             // Thực hiện truy vấn để chèn dữ liệu
@@ -34,13 +35,13 @@ let ProductModel = {
                 productData.name_product,
                 productData.price,
                 productData.url_Demo,
-                productData.popular_product || false,
-                JSON.stringify(productData.category),
+                productData.is_popular || false,
+                JSON.stringify(productData.categories),
                 productData.description,
                 productData.code_Discount || "",
                 productData.pre_order || false,
                 productData.points || 0,
-                productData.slug_product || "",
+                productData.slug_product,
                 JSON.stringify(productData.technology)
             ]);
 
@@ -57,52 +58,48 @@ let ProductModel = {
         return result;
     },
 
-    updateProduct: async (connection, data) => {
+    updateProduct: async (connection, productData) => {
         const fieldsToUpdate = [];
         const params = [];
 
-        if (data.user_id !== undefined) {
+        if (productData.user_id !== undefined) {
             fieldsToUpdate.push('user_id = ?');
-            params.push(data.user_id);
+            params.push(productData.user_id);
         }
-        if (data.name !== undefined) {
-            fieldsToUpdate.push('name = ?');
-            params.push(data.name);
+        if (productData.name_product !== undefined) {
+            fieldsToUpdate.push('name_product = ?');
+            params.push(productData.name_product);
         }
-        if (data.price !== undefined) {
+        if (productData.price !== undefined) {
             fieldsToUpdate.push('price = ?');
-            params.push(data.price);
+            params.push(productData.price);
         }
-        if (data.url_Demo !== undefined) {
+        if (productData.is_popular !== undefined) {
+            fieldsToUpdate.push('is_popular = ?');
+            params.push(productData.is_popular);
+        }
+        if (productData.url_Demo !== undefined) {
             fieldsToUpdate.push('url_Demo = ?');
-            params.push(data.url_Demo);
+            params.push(productData.url_Demo);
         }
-        if (data.category !== undefined) {
+        if (productData.categories !== undefined) {
             fieldsToUpdate.push('category = ?');
-            params.push(JSON.stringify(data.category));
+            params.push(JSON.stringify(productData.categories));
         }
-        if (data.description !== undefined) {
+        if (productData.description !== undefined) {
             fieldsToUpdate.push('description = ?');
-            params.push(data.description);
+            params.push(productData.description);
         }
-        if (data.url_Download !== undefined) {
-            fieldsToUpdate.push('url_Download = ?');
-            params.push(data.url_Download);
-        }
-        if (data.slug !== undefined) {
+        if (productData.slug_product !== undefined) {
             fieldsToUpdate.push('slug = ?');
-            params.push(data.slug);
+            params.push(productData.slug_product);
         }
-        if (data.technology !== undefined) {
+        if (productData.technology !== undefined) {
             fieldsToUpdate.push('technology = ?');
-            params.push(JSON.stringify(data.technology));
+            params.push(JSON.stringify(productData.technology));
         }
 
-        if (fieldsToUpdate.length === 0) {
-            throw new Error('Không có trường nào được cập nhật');
-        }
-
-        params.push(data.id);
+        params.push(productData.id);
 
         const fieldsToUpdateString = fieldsToUpdate.join(', ');
 
@@ -110,10 +107,45 @@ let ProductModel = {
 
         const [result] = await connection.query(query, params);
 
-        if (result.affectedRows === 0) {
-            throw new Error('Không cập nhật được sản phẩm');
-        }
+        return result;
+    },
+    updateClassify: async (connection, classifyData) => {
+        const fieldsToUpdate = [];
+        const params = [];
 
+        if (classifyData.name_classify !== undefined) {
+            fieldsToUpdate.push('name_classify = ?');
+            params.push(classifyData.name_classify);
+        }
+        if (classifyData.image_classify !== undefined) {
+            fieldsToUpdate.push('image_classify = ?');
+            params.push(classifyData.image_classify);
+        }
+        if (classifyData.url_download !== undefined) {
+            fieldsToUpdate.push('url_download = ?');
+            params.push(classifyData.url_download);
+        }
+        params.push(classifyData.id);
+
+        const fieldsToUpdateString = fieldsToUpdate.join(', ');
+
+        const query = `UPDATE classify SET ${fieldsToUpdateString}, updated_at = CURDATE() WHERE id = ? `;
+
+        const [result] = await connection.query(query, params);
+
+        return result;
+    },
+    getProductBySlug: async (connection, slug_product) => {
+
+        const query = `SELECT * FROM product WHERE slug_product = ?`;
+        const [result] = await connection.query(query, slug_product);
+        return result[0];
+
+    },
+    getClassifyByProduct: async (connection, product_id) => {
+
+        const query = `SELECT * FROM classify WHERE product_id = ?`;
+        const [result] = await connection.query(query, product_id);
         return result;
     },
 
@@ -129,14 +161,16 @@ let ProductModel = {
 
     deleteProduct: async (connection, id) => {
         try {
-            const query = `DELETE FROM product WHERE id = ?`;
-            const [result] = await connection.query(query, [id]);
-            if (!result.affectedRows) {
-                throw new Error('Không xóa được sản phẩm');
-            }
-            return result;
+            const queryClassify = `DELETE FROM classify WHERE product_id = ?`;
+
+            const [resultClassify] = await connection.query(queryClassify, [id]);
+
+            const queryProduct = `DELETE FROM product WHERE id = ?`;
+
+            const [resultProduct] = await connection.query(queryProduct, [id]);
         } catch (error) {
             // Xử lý lỗi ở đây
+            console.error('Không xóa được sản phẩm: ', error);
             throw new Error('Không tìm thấy sản phẩm với id này');
         }
     },
@@ -168,20 +202,7 @@ let ProductModel = {
         }
     },
 
-    getProductBySlug: async (connection, slug) => {
-        try {
-            const query = `SELECT * FROM product WHERE slug = ?`;
-            const [result] = await connection.query(query, slug);
-            if (result.length === 0) {
-                throw new Error('Không tìm thấy sản phẩm với slug này');
 
-
-            }
-            return result[0];
-        } catch (error) {
-            throw new Error('Không tìm thấy sản phẩm với slug này');
-        }
-    },
 
     getOneProduct: async (connection, data) => {
         try {

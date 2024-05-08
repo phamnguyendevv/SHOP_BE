@@ -13,9 +13,6 @@ const HTTP_STATUS = {
     NOT_IMPLEMENTED: 501,
     SERVICE_UNAVAILABLE: 503,
     GATEWAY_TIMEOUT: 504,
-
-
-
 }
 
 export default  HTTP_STATUS;
