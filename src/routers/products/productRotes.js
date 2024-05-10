@@ -9,25 +9,11 @@ const router = express.Router()
 router.post('/',wrapAsync(productController.addProductController))
 router.patch('/', wrapAsync(productController.updateProductController))
 router.delete('/:id', wrapAsync(productController.deleteProductController))
-//get product by category
+
+
 
 router.get('/:slug_product', wrapAsync(productController.getProductBySlug))
-
 router.post('/get-list', wrapAsync(productController.getList))
-
-
-
-// ---------------------------------------- Popular product----------------------------------------
-//update product Popular
-router.post('/product-popular', wrapAsync(productController.updateProductPopularController))
-
-//get prodtuct Popular by category
-router.get('/get-product-popular-by-category', wrapAsync(productController.getProductPopularByCategory))
-
-
-
-
-
 
 
 

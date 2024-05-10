@@ -135,9 +135,9 @@ let ProductServices = {
       const offset = (pageIndex - 1) * pageSize;
       query += ` LIMIT ${pageSize} OFFSET ${offset}`;
     }
-    console.log(query);
-    const [rows, fields] = await connection.query(query);
 
+
+    const [rows, fields] = await connection.query(query);
 
     return { data: rows };
   },
