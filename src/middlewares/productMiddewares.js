@@ -114,7 +114,7 @@ let productMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-                    console.log(value);
+
                     const user = await UserModel.getUserById(connection, value);
                     if (!user) {
                         throw new Error('Người dùng không tồn tại');
@@ -138,7 +138,7 @@ let productMiddlewares = {
                 errorMessage: 'Giá sản phẩm phải là số dương',
             },
         },
-        'productData.url_Demo': {
+        'productData.url_demo': {
             in: ['body'],
             isURL: {
                 options: { require_protocol: true },
@@ -150,22 +150,12 @@ let productMiddlewares = {
             isArray: {
                 errorMessage: 'Danh mục sản phẩm phải là mảng',
             },
+
             custom: {
-                options: async (value) => {
-                    console.log(value);
-                    // Check if category name already exists
-                    const existingCategories = await CategoryModel.getCategoryByName(connection,value); 
-                    const categoryNames = existingCategories.map(category => category.name);
-                    const categoryNamesSet = new Set(categoryNames);
-                    for (const category of value) {
-                        if (!categoryNamesSet.has(category)) {
-                            throw new Error(`Danh mục ${category} không tồn tại`);
-                        }
-                    }
-                    return true;
-                },
-                errorMessage: 'Danh mục không hợp lệ',
+                options: (value) => Array.isArray(value) && value.length > 0,
+                errorMessage: 'Phải chọn ít nhất một danh mục ',
             },
+
         },
         'productData.description': {
             in: ['body'],
@@ -187,7 +177,7 @@ let productMiddlewares = {
         },
 
 
-        'classifyData.name_classify': {
+        'classifyData.*.name_classify': {
             in: ['body'],
             trim: true,
             isLength: {
@@ -195,19 +185,13 @@ let productMiddlewares = {
                 errorMessage: 'Tên sản phẩm không được để trống',
             },
         },
-        'classifyData.image_classify': {
+        'classifyData.*.image_classify': {
             in: ['body'],
-            isURL: {
-                options: { require_protocol: true },
-                errorMessage: 'Định dạng URL demo không hợp lệ',
-            },
+            trim: true,
         },
-        'classifyData.url_download': {
+        'classifyData.*.url_download': {
             in: ['body'],
-            isURL: {
-                options: { require_protocol: true },
-                errorMessage: 'Định dạng URL demo không hợp lệ',
-            },
+            trim: true,
         },
     })),
     //update product validator
@@ -219,7 +203,6 @@ let productMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-                    console.log(value);
                     const user = await ProductModel.findProductById(connection, value);
                     if (!user) {
                         throw new Error('Sản phảm không tồn tại');
@@ -235,7 +218,7 @@ let productMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-                    console.log(value);
+                  
                     const user = await UserModel.getUserById(connection, value);
                     if (!user) {
                         throw new Error('Người dùng không tồn tại');
@@ -257,7 +240,7 @@ let productMiddlewares = {
                 errorMessage: 'Giá sản phẩm phải là số dương',
             },
         },
-        'productData.url_Demo': {
+        'productData.url_demo': {
             isURL: {
                 options: { require_protocol: true },
                 errorMessage: 'Định dạng URL demo không hợp lệ',
@@ -289,25 +272,42 @@ let productMiddlewares = {
             },
         },
 
+
         
-        'classifyData.name_classify': {
+        'classifyData.*.id': {
+            in: ['body'],
+            trim: true,
+
+            isNumeric: {
+                errorMessage: 'Mã sản phẩm phải là số',
+            },
+            custom: {
+                options: async (value, { req }) => {
+                    const classify = await ProductModel.findClassifyById(connection, value);
+                    if (!classify) {
+                        throw new Error('Không tìm thấy loại sản phẩm');
+                    }
+                    return true;
+                },
+            },
+            
+
+        },
+        'classifyData.*.name_classify': {
+            in: ['body'],
             trim: true,
             isLength: {
                 options: { min: 1 },
                 errorMessage: 'Tên sản phẩm không được để trống',
             },
         },
-        'classifyData.image_classify': {
-            isURL: {
-                options: { require_protocol: true },
-                errorMessage: 'Định dạng URL demo không hợp lệ',
-            },
+        'classifyData.*.image_classify': {
+            in: ['body'],
+            trim: true,
         },
-        'classifyData.url_download': {
-            isURL: {
-                options: { require_protocol: true },
-                errorMessage: 'Định dạng URL demo không hợp lệ',
-            },
+        'classifyData.*.url_download': {
+            in: ['body'],
+            trim: true,
         },
     }, ['body'])),
     //delete product validator

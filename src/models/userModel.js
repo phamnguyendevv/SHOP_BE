@@ -86,6 +86,14 @@ let UserModel = {
         const fieldsToUpdate = [];
         const params = [];
     
+        if (data.status_id !== undefined) {
+            fieldsToUpdate.push('status_id = ?');
+            params.push(data.status_id);
+        }
+        if (data.role_id !== undefined) {
+            fieldsToUpdate.push('role_id = ?');
+            params.push(data.role_id);
+        }
         if (data.fullname !== undefined) {
             fieldsToUpdate.push('fullname = ?');
             params.push(data.fullname);
@@ -127,16 +135,6 @@ let UserModel = {
             throw new Error('Không cập nhật được user');
         }
     
-        return result;
-    },
-    deleteUser: async (connection, id) => {
-        const result = await connection.execute(
-            `DELETE FROM user WHERE id = ?`,
-            [id]
-        );
-        if (result[0].affectedRows === 0) {
-            throw new Error('Không xóa được user');
-        }
         return result;
     },
     

@@ -5,7 +5,7 @@ let userController = {
     getList : async (req, res) => {
         const result = await userServices.getList(req.body)
         return res.json({
-            message: 'Get list user successfully!',
+            message: 'Lấy danh sách người dùng thành công!',
             result
 
         })
@@ -14,7 +14,7 @@ let userController = {
         const {id } = req.query
         const result = await userServices.getUserById(id)
         return res.json({
-            message: 'Get user by id successfully!',
+            message: 'Lấy thông tin người dùng thành công!',
             result
 
         })
@@ -22,16 +22,9 @@ let userController = {
     updateUser : async (req, res) => {
         const result = await userServices.updateUser(req.body)
         return res.json({
-            message: 'Update user successfully!',
+            message: 'Câp nhật thông tin người dùng thành công!',
         })
     },
-    deleteUser : async (req, res) => {
-        const {id } = req.query
-        const result = await userServices.deleteUser(id)
-        return res.json({
-            message: 'Delete user successfully!',
-        })
-    }
 
 }
 

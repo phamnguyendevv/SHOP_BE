@@ -12,7 +12,7 @@ let statusProductModel = {
     },
     
     getStatus: async (connection, status) => {
-        const [rows] = await connection.execute('SELECT * FROM status_product');
+        const [rows, fields] = await connection.execute('SELECT * FROM status_product');
         return rows;
     },
     updateStatus: async (connection, status) => {

@@ -44,29 +44,31 @@ let ProductServices = {
   updateProduct: async (data) => {
     const { productData, classifyData } = data;
     const update_product = await ProductModel.updateProduct(connection, productData);
-    const productId = productData.id;
-    const classifyDataArray = classifyData.map((classifyData) => {
-      classifyData.product_id = productId;
-      return classifyData;
-    }
-    );
-    const insertClassifyPromises = classifyDataArray.map((classifyData) => {
-      return ProductModel.updateClassify(connection, classifyData);
-    }
-    );
-    await Promise.all(insertClassifyPromises);
+    for (const classifyItem of classifyData) {
+      // Kiểm tra xem classifyItem có id không
+      if (classifyItem.id) {
+          // Nếu có id, thực hiện cập nhật
+          await ProductModel.updateClassify(connection, classifyItem);
+      } else {
+          // Nếu không có id, có thể xử lý tùy ý, ví dụ: bỏ qua hoặc tạo mới
+          // Ở đây tôi sẽ bỏ qua phần tử không có id
+          console.warn('Phần tử classifyData không có id, sẽ bỏ qua:', classifyItem);
+      }
+  }
     return update_product;
-
-
   },
 
   deleteProduct: async (id) => {
-
+    try {
     const result = await ProductModel.deleteProduct(connection, id);
     const resultClassify = await ProductModel.deleteClassify(connection, id);
+    } catch (error) {
+      console.error('Không xóa được sản phẩm: ', error);
+      throw new Error('Không tìm thấy sản phẩm với id này');
+    }
+
     return {message: 'Xóa sản thành công'}
   },
-
 
   getProductBySlug: async (slug_product) => {
 

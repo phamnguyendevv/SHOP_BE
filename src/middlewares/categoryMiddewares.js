@@ -15,13 +15,13 @@ let categoryMiddlewares = {
         user_id: {
             trim: true,
             isNumeric: {
-                errorMessage: 'User id must be a number',
+                errorMessage: 'Mã người dùng phải là số',
             },
             custom: {
                 options: async (value, { req }) => {
                     const user = await UserModel.getUserById(connection, value);
                     if (!user) {
-                        throw new Error('User not found');
+                        throw new Error('Người dùng không tồn tại');
                     }
                     return true;
                 },
@@ -31,22 +31,22 @@ let categoryMiddlewares = {
             trim: true,
             isLength: {
                 options: { min: 2 },
-                errorMessage: 'Name must be at least 2 characters long',
+                errorMessage: 'Tên danh mục phải có ít nhất 2 ký tự',
             },
             custom: {
                 options: async (value, { req }) => {
                     const category = await CategoryModel.getCategoryByName(connection, value);
                     if (category) {
-                        throw new Error('Category already exists');
+                        throw new Error('Danh mục đã tồn tại');
                     }
                     return true;
                 },
             },
         },
-        image: {
+        image_categories: {
             trim: true,
             isURL: {
-                errorMessage: 'Image must be a URL',
+                errorMessage: 'Ảnh danh mục không hợp lệ',
             },
         }
     }, ['body'])),
@@ -55,7 +55,7 @@ let categoryMiddlewares = {
         id: {
             trim: true,
             isNumeric: {
-                errorMessage: 'Id must be a number',
+                errorMessage: 'Mã danh mục phải là số',
             },
             custom: {
                 options: async (value, { req }) => {
@@ -64,22 +64,6 @@ let categoryMiddlewares = {
                         throw new Error('Danh mục không tồn tại');
                     }
                     req.category = category;
-                    return true;
-                },
-            },
-        },
-        user_id: {
-            trim: true,
-            isNumeric: {
-                errorMessage: 'Product id must be a number',
-            },
-            custom: {
-                options: async (value, { req }) => {
-                    const user = await UserModel.getUserById(connection, value);
-                    if (!user) {
-                        throw new Error('User not found');
-                    }
-                    req.user = user;
                     return true;
                 },
             },

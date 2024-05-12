@@ -1,10 +1,6 @@
 
 import ProductServices from '../services/productServices.js'
 
-
-
-
-
 let productsController = {
 
     // add product
@@ -33,13 +29,6 @@ let productsController = {
             result
         })
     },
-    getProductByCategory: async (req, res) => {
-        const result = await ProductServices.getProductByCategory(req.body)
-        return res.json({
-            message: 'Lấy sản phẩm theo danh mục thành công!',
-            data: result
-        })
-    },
     getProductBySlug: async (req, res) => {
         const {slug_product} = req.params
         const result = await ProductServices.getProductBySlug(slug_product)
@@ -47,28 +36,6 @@ let productsController = {
             message: 'Lấy sản phẩm thành công!',
             result
         })
-    },
-
-
-
-
-
-
-    // --------------------------------------------product Popular--------------------------------------------
-    updateProductPopularController: async (req, res) => {
-        const result = await ProductServices.updateProductPopular(req.body)
-        return res.json({
-            message: 'Cập nhật sản phẩm thành công!',
-            result
-        })
-    },
-    getProductPopularByCategory: async (req, res) => {
-        const result = await ProductServices.getProductPopularByCategory(req.body)
-        return res.json({
-            message: 'Lấy sản phẩm phổ biến theo danh mục thành công!',
-            result
-        })
-
     },
 
     getList: async (req, res) => {

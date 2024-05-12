@@ -14,8 +14,9 @@ let CategoryModel = {
   
   },
   getCategoryByName: async (connection, name) => {
+    
       const [rows, fields] = await connection.execute('SELECT * FROM `category` WHERE name = ?', [name]);
-      return rows[0];
+      return rows;
 
   },
 

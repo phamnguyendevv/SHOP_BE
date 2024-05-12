@@ -20,6 +20,4 @@ router.delete('/', categoryMiddlewares.deleteCategoryValidator, wrapAsync(catego
 
 // get category hot trend
 
-
-
 export default router;

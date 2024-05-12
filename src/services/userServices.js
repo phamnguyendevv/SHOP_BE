@@ -72,11 +72,7 @@ let userServices = {
         const result = await UserModel.updateUser(connection, data);
         return result
     },
-    deleteUser: async (id) => {
-        const user = await UserModel.getUserById(connection,id)
-        const result = await UserModel.deleteUser(connection, id);
-        return result
-    }
+  
 
 }
 

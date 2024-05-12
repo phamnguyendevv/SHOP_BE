@@ -1,17 +1,12 @@
 
 
 let ProductModel = {
-
-
     // find data by id
     findProductById: async (connection, id) => {
-        try {
-            const [rows] = await connection.execute('SELECT * FROM `product` WHERE id = ?', [id]);
-            return rows;
-        } catch (error) {
-            // Xử lý lỗi ở đây
-            throw new Error('Không tìm thấy sản phẩm với id này');
-        }
+        const [rows] = await connection.execute('SELECT * FROM `product` WHERE id = ?', [id]);
+        console.log(rows);
+        return rows;
+
     },
     // find data by slug
     findProductBySlug: async (connection, fullSlug) => {
@@ -25,8 +20,8 @@ let ProductModel = {
 
         try {
             const query = `INSERT INTO product 
-                            (user_id, status_id, name_product, price, url_Demo, is_popular, categories, description, sold, code_Discount, pre_order, points, slug_product, technology, created_at, updated_at) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, CURDATE(), CURDATE())`;
+                            (user_id, status_id, name_product, price, url_demo, is_popular, categories, description, sold, code_Discount, pre_order, points, slug_product, technology, created_at, updated_at) 
+                            VALUES (?, ?, ?, ?, ?, 0, ?, ?, 0, ?, ?, ?, ?, ?, CURDATE(), CURDATE())`;
 
             // Thực hiện truy vấn để chèn dữ liệu
             const [result] = await connection.query(query, [
@@ -34,12 +29,11 @@ let ProductModel = {
                 productData.status_id || 1,
                 productData.name_product,
                 productData.price,
-                productData.url_Demo,
-                productData.is_popular || false,
+                productData.url_demo,
                 JSON.stringify(productData.categories),
                 productData.description,
                 productData.code_Discount || "",
-                productData.pre_order || false,
+                productData.pre_order || 0,
                 productData.points || 0,
                 productData.slug_product,
                 JSON.stringify(productData.technology)
@@ -52,11 +46,6 @@ let ProductModel = {
             throw new Error('Không thêm được sản phẩm');
         }
     },
-    addClassify: async (connection, classifyData) => {
-        const query = `INSERT INTO classify (product_id, name_classify,image_classify,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
-        const [result] = await connection.query(query, [classifyData.product_id, classifyData.name_classify, classifyData.image_classify, classifyData.url_dowload]);
-        return result;
-    },
 
     updateProduct: async (connection, productData) => {
         const fieldsToUpdate = [];
@@ -65,6 +54,10 @@ let ProductModel = {
         if (productData.user_id !== undefined) {
             fieldsToUpdate.push('user_id = ?');
             params.push(productData.user_id);
+        }
+        if (productData.status_id !== undefined) {
+            fieldsToUpdate.push('status_id = ?');
+            params.push(productData.status_id);
         }
         if (productData.name_product !== undefined) {
             fieldsToUpdate.push('name_product = ?');
@@ -78,9 +71,9 @@ let ProductModel = {
             fieldsToUpdate.push('is_popular = ?');
             params.push(productData.is_popular);
         }
-        if (productData.url_Demo !== undefined) {
-            fieldsToUpdate.push('url_Demo = ?');
-            params.push(productData.url_Demo);
+        if (productData.url_demo !== undefined) {
+            fieldsToUpdate.push('url_demo = ?');
+            params.push(productData.url_demo);
         }
         if (productData.categories !== undefined) {
             fieldsToUpdate.push('categories = ?');
@@ -93,6 +86,14 @@ let ProductModel = {
         if (productData.slug_product !== undefined) {
             fieldsToUpdate.push('slug = ?');
             params.push(productData.slug_product);
+        }
+        if (productData.points !== undefined) {
+            fieldsToUpdate.push('points = ?');
+            params.push(productData.points);
+        }
+        if (productData.pre_order !== undefined) {
+            fieldsToUpdate.push('pre_order = ?');
+            params.push(productData.pre_order);
         }
         if (productData.technology !== undefined) {
             fieldsToUpdate.push('technology = ?');
@@ -109,7 +110,59 @@ let ProductModel = {
 
         return result;
     },
+
+    getProductBySlug: async (connection, slug_product) => {
+        const query = `SELECT * FROM product WHERE slug_product = ?`;
+        const [result] = await connection.query(query, slug_product);
+        return result[0];
+
+    },
+
+    updateStatusProduct: async (connection, data) => {
+            const query = `UPDATE product SET status_id = ? WHERE id = ?`;
+            const [rows, fields] = await connection.query(query, [data.status_id, data.product_id]);
+            return rows;
+      
+    },
+
+    deleteProduct: async (connection, id) => {
+        try {
+            const queryClassify = `DELETE FROM classify WHERE product_id = ?`;
+
+            const [resultClassify] = await connection.query(queryClassify, [id]);
+
+            const queryProduct = `DELETE FROM product WHERE id = ?`;
+
+            const [resultProduct] = await connection.query(queryProduct, [id]);
+        } catch (error) {
+            // Xử lý lỗi ở đây
+            console.error('Không xóa được sản phẩm: ', error);
+            throw new Error('Không tìm thấy sản phẩm với id này');
+        }
+    },
+
+
+
+
+    //--------------------------- classify ------------------------------
+
+    findClassifyById: async (connection, id) => {
+        const [rows, fields] = await connection.execute('SELECT * FROM `classify` WHERE id = ?', [id]);
+        return rows[0];
+
+    },
+
+    addClassify: async (connection, classifyData) => {
+
+        const query = `INSERT INTO classify (product_id, name_classify,image_classify,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
+        const [result] = await connection.query(query, [classifyData.product_id, classifyData.name_classify, classifyData.image_classify, classifyData.url_download]);
+        return result;
+    },
+
     updateClassify: async (connection, classifyData) => {
+        console.log(classifyData);
+
+        console.log("--------------------")
         const fieldsToUpdate = [];
         const params = [];
 
@@ -135,44 +188,13 @@ let ProductModel = {
 
         return result;
     },
-    getProductBySlug: async (connection, slug_product) => {
 
-        const query = `SELECT * FROM product WHERE slug_product = ?`;
-        const [result] = await connection.query(query, slug_product);
-        return result[0];
 
-    },
     getClassifyByProduct: async (connection, product_id) => {
 
         const query = `SELECT * FROM classify WHERE product_id = ?`;
         const [result] = await connection.query(query, product_id);
         return result;
-    },
-
-    updateStatusProduct: async (connection, data) => {
-        try {
-            const query = `UPDATE product SET status_id = ? WHERE id = ?`;
-            const [result] = await connection.query(query, [data.status_id, data.product_id]);
-            return result;
-        } catch (error) {
-            throw new Error('Không cập nhật được trạng thái sản phẩm');
-        }
-    },
-
-    deleteProduct: async (connection, id) => {
-        try {
-            const queryClassify = `DELETE FROM classify WHERE product_id = ?`;
-
-            const [resultClassify] = await connection.query(queryClassify, [id]);
-
-            const queryProduct = `DELETE FROM product WHERE id = ?`;
-
-            const [resultProduct] = await connection.query(queryProduct, [id]);
-        } catch (error) {
-            // Xử lý lỗi ở đây
-            console.error('Không xóa được sản phẩm: ', error);
-            throw new Error('Không tìm thấy sản phẩm với id này');
-        }
     },
 
     deleteClassify: async (connection, id) => {
@@ -182,21 +204,6 @@ let ProductModel = {
         return result;
     },
 
-
-
-    getOneProduct: async (connection, data) => {
-        try {
-            const query = `SELECT * FROM product WHERE id = ?`;
-            const [result] = await connection.query(query, data.id);
-            console.log(result);
-            if (result.length === 0) {
-                throw new Error('Không tìm thấy sản phẩm với id này');
-            }
-            return result[0];
-        } catch (error) {
-            throw new Error('Không tìm thấy sản phẩm với id này');
-        }
-    },
 
 
 
