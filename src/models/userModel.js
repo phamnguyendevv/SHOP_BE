@@ -16,9 +16,6 @@ let UserModel = {
             `SELECT * FROM user WHERE id = ?`,
             [id]
         );
-        if (rows.length === 0) {
-            throw new Error('Người dùng không tồn tại');
-        }
         return rows[0];
     },
     getUserByFullname: async (connection, fullname) => {

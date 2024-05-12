@@ -53,7 +53,7 @@ let ProductModel = {
         }
     },
     addClassify: async (connection, classifyData) => {
-        const query = `INSERT INTO classify (product_id, name_classify,image_classify,url_dowload,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
+        const query = `INSERT INTO classify (product_id, name_classify,image_classify,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
         const [result] = await connection.query(query, [classifyData.product_id, classifyData.name_classify, classifyData.image_classify, classifyData.url_dowload]);
         return result;
     },
@@ -83,7 +83,7 @@ let ProductModel = {
             params.push(productData.url_Demo);
         }
         if (productData.categories !== undefined) {
-            fieldsToUpdate.push('category = ?');
+            fieldsToUpdate.push('categories = ?');
             params.push(JSON.stringify(productData.categories));
         }
         if (productData.description !== undefined) {
@@ -174,32 +174,12 @@ let ProductModel = {
             throw new Error('Không tìm thấy sản phẩm với id này');
         }
     },
-    getProductByCategory: async (connection, category, page, limit) => {
-        try {
-            const categoryJSON = JSON.stringify(category);
-            console.log(categoryJSON);
-            const offset = (page - 1) * limit;
 
-            const query = `
-            SELECT * 
-            FROM product 
-            WHERE JSON_CONTAINS(category, ?)
-            LIMIT ? OFFSET ?
-          `;
-            const [result] = await connection.query(query, [categoryJSON, limit, offset]);
+    deleteClassify: async (connection, id) => {
 
-            // Lấy tổng số sản phẩm trong danh mục
-            const total_count = result.length;
-
-            return {
-                data: result,
-                total_count: total_count,
-                current_page: page,
-                per_page: limit
-            };
-        } catch (error) {
-            throw new Error('Không tìm thấy sản phẩm với danh mục này');
-        }
+        const query = `DELETE FROM classify WHERE product_id = ?`;
+        const [result] = await connection.query(query, id);
+        return result;
     },
 
 
@@ -215,33 +195,6 @@ let ProductModel = {
             return result[0];
         } catch (error) {
             throw new Error('Không tìm thấy sản phẩm với id này');
-        }
-    },
-    getProductPopularByCategory: async (connection, category, page, limit, popular) => {
-        try {
-            const categoryJSON = JSON.stringify(category);
-            const offset = (page - 1) * limit;
-
-            const query = `
-            SELECT * 
-            FROM product 
-            WHERE JSON_CONTAINS(category, ?) AND popular = 1
-            LIMIT ? OFFSET ?
-          `;
-
-            const [result] = await connection.query(query, [categoryJSON, limit, offset]);
-            console.log(result);
-            // Lấy tổng số sản phẩm phổ biến trong danh mục
-            const total_count = result.length;
-
-            return {
-                data: result,
-                total_count: total_count,
-                current_page: page,
-                per_page: limit
-            };
-        } catch (error) {
-            throw new Error('Không tìm thấy sản phẩm phổ biến với danh mục này');
         }
     },
 

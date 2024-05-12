@@ -63,16 +63,11 @@ let ProductServices = {
   deleteProduct: async (id) => {
 
     const result = await ProductModel.deleteProduct(connection, id);
-    return result;
+    const resultClassify = await ProductModel.deleteClassify(connection, id);
+    return {message: 'Xóa sản thành công'}
   },
 
-  getProductByCategory: async (data) => {
-    const { category, limit, page } = data
 
-
-    const result = await ProductModel.getProductByCategory(connection, category, page, limit);
-    return result;
-  },
   getProductBySlug: async (slug_product) => {
 
     const product = await ProductModel.getProductBySlug(connection, slug_product);
@@ -82,18 +77,7 @@ let ProductServices = {
   },
 
   // --------------------------------------------product Popular--------------------------------------------
-
-  updateProductPopular: async (data) => {
-    const result = await ProductModel.updateProductPopular(connection, data);
-    return result;
-  },
-  getProductPopularByCategory: async (data) => {
-    const { category, limit, page, popular } = data
-
-    const result = await ProductModel.getProductPopularByCategory(connection, category, limit, page, popular);
-    return result;
-  },
-
+  
   getList: async (data) => {
     const { pagingParams, filterParams } = data;
     const { orderBy, keyword, pageIndex, isPaging, pageSize, priceRange } = pagingParams;
@@ -141,13 +125,6 @@ let ProductServices = {
 
     return { data: rows };
   },
-
-
-
-
-
-
-
 
 }
 

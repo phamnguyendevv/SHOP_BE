@@ -4,33 +4,19 @@ import ErrorWithStatus from '../utils/error.js';
 let CategoryModel = {
   //get category by id
   getCategoryById: async (connection, id) => {
-
-    try {
-      const [rows] = await connection.execute('SELECT * FROM `category` WHERE id = ?', [id]);
-      return rows;
-    } catch (error) {
-      // Xử lý lỗi ở đây
-      throw new Error('Không tìm thấy sản phẩm với id này');
-    }
+      const [rows, fields] = await connection.execute('SELECT * FROM `category` WHERE id = ?', [id]);
+      return rows[0];
   },
   //get category by slug
   getCategoryBySlug: async (connection, slug) => {
-    try {
-      const [rows] = await connection.execute('SELECT * FROM `category` WHERE slug = ?', [slug]);
-      return rows;
-    } catch (error) {
-      // Xử lý lỗi ở đây
-      throw new Error('Không tìm thấy sản phẩm với slug này');
-    }
+      const [rows, fields] = await connection.execute('SELECT * FROM `category` WHERE slug = ?', [slug]);
+      return rows[0];
+  
   },
   getCategoryByName: async (connection, name) => {
-    try {
       const [rows, fields] = await connection.execute('SELECT * FROM `category` WHERE name = ?', [name]);
       return rows[0];
-    } catch (error) {
-      // Xử lý lỗi ở đây
-      throw new Error('Không tìm thấy sản phẩm với name này');
-    }
+
   },
 
 

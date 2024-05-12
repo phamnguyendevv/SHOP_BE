@@ -30,7 +30,7 @@ let productsController = {
        
         const result = await ProductServices.deleteProduct(id)
         return res.json({
-            message: 'Xóa sản phẩm thành công!',
+            result
         })
     },
     getProductByCategory: async (req, res) => {
