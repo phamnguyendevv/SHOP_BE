@@ -60,6 +60,16 @@ let authController = {
         })
     },
 
+    changePasswordController: async (req, res) =>{
+
+        const result = await AuthService.changePassword(req.body)
+        return res.json({
+            message: 'Cập nhật mật khẩu thành công'
+        })
+    },
+
+    
+
     OauthController: async (req, res) =>{
         const code = req.query.code
         const result = await AuthService.Oauth(code)

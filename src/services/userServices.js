@@ -22,9 +22,9 @@ let userServices = {
 
         if (keyword) {
             if (user_id && user_id.length > 0) {
-                sql += ` AND fullname LIKE '%${keyword}%'`;
+                sql += ` AND full_name LIKE '%${keyword}%'`;
             } else {
-                sql += ` WHERE fullname LIKE '%${keyword}%'`;
+                sql += ` WHERE full_name LIKE '%${keyword}%'`;
             }
         }
         const [totalRows] = await connection.query(sql);
@@ -41,9 +41,9 @@ let userServices = {
 
         if (keyword) {
             if (user_id && user_id.length > 0) {
-                query += ` AND fullname LIKE '%${keyword}%'`;
+                query += ` AND full_name LIKE '%${keyword}%'`;
             } else {
-                query += ` WHERE fullname LIKE '%${keyword}%'`;
+                query += ` WHERE full_name LIKE '%${keyword}%'`;
             }
         }
 
@@ -65,7 +65,8 @@ let userServices = {
     },
     getUserById: async (id) => {
         const user  = await UserModel.getUserById(connection, id);
-        return user
+        const { password, created_at, updated_at, ...usercustom } = user;
+        return usercustom
     },
     updateUser: async (data) => {
 

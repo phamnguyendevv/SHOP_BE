@@ -4,8 +4,8 @@ let ProductModel = {
     // find data by id
     findProductById: async (connection, id) => {
         const [rows] = await connection.execute('SELECT * FROM `product` WHERE id = ?', [id]);
-        console.log(rows);
-        return rows;
+       
+        return rows[0]
 
     },
     // find data by slug

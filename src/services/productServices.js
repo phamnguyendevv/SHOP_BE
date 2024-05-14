@@ -60,8 +60,9 @@ let ProductServices = {
 
   deleteProduct: async (id) => {
     try {
-    const result = await ProductModel.deleteProduct(connection, id);
+      console.log('id', id);
     const resultClassify = await ProductModel.deleteClassify(connection, id);
+    const result = await ProductModel.deleteProduct(connection, id);
     } catch (error) {
       console.error('Không xóa được sản phẩm: ', error);
       throw new Error('Không tìm thấy sản phẩm với id này');
@@ -84,7 +85,7 @@ let ProductServices = {
     const { pagingParams, filterParams } = data;
     const { orderBy, keyword, pageIndex, isPaging, pageSize, priceRange } = pagingParams;
     const { categories, technology, is_popular } = filterParams;
-
+    
     // Construct the SQL query
     let query = 'SELECT * FROM product WHERE ';
     let conditions = [];
@@ -123,9 +124,18 @@ let ProductServices = {
     }
 
 
+    const totalCountQuery = 'SELECT COUNT(*) as totalCount FROM product WHERE ' + (conditions.length > 0 ? conditions.join(' AND ') : '1');
+    const [totalCountRows, totalCountFields] = await connection.query(totalCountQuery);
+    const totalCount = totalCountRows[0].totalCount;
+
+    // Calculate total pages
+    const totalPage = Math.ceil(totalCount / pageSize);
+
+    // Execute main query to get data
     const [rows, fields] = await connection.query(query);
 
-    return { data: rows };
+    return { data: rows, meta: { total: totalCount, totalPage: totalPage } };
+
   },
 
 }

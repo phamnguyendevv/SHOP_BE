@@ -316,13 +316,18 @@ let productMiddlewares = {
         id: {
             trim: true,
             isNumeric: {
-                errorMessage: 'Product id must be a number',
+                errorMessage: 'Mã sản phẩm phải là số',
             },
             custom: {
                 options: async (value, { req }) => {
                     const product = await ProductModel.findProductById(connection, value);
+                    console.log(product)
                     if (!product) {
-                        throw new Error('Product not found');
+                        throw new Error('Không tìm thầy sản phẩm');
+                    }
+                    const classify = await ProductModel.findClassifyById(connection, value);
+                    if (!classify) {
+                        throw new Error('Không tìm thầy loại sản phẩm');
                     }
                     return true;
                 },

@@ -36,7 +36,7 @@ let categoryMiddlewares = {
             custom: {
                 options: async (value, { req }) => {
                     const category = await CategoryModel.getCategoryByName(connection, value);
-                    if (category) {
+                    if (category.length > 0) {
                         throw new Error('Danh mục đã tồn tại');
                     }
                     return true;
@@ -60,6 +60,7 @@ let categoryMiddlewares = {
             custom: {
                 options: async (value, { req }) => {
                     const category = await CategoryModel.getCategoryById(connection, value);
+                    
                     if (!category) {
                         throw new Error('Danh mục không tồn tại');
                     }

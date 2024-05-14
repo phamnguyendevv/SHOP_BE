@@ -4,6 +4,7 @@ import ProductModel from '../models/productModel.js';
 import crypto from 'crypto';
 import getSlug from 'speakingurl'
 import Connection from '../db/configMysql.js';
+import e from 'express';
 const connection = await Connection();
 
 let CategoryService = {
@@ -16,8 +17,7 @@ let CategoryService = {
             fullSlug = `${slug}.cat-${randomInt}`;
             
          existingCategory = await CategoryModel.getCategoryBySlug(connection, fullSlug);
-
-        } while (!existingCategory);
+        } while (existingCategory);
     
         return fullSlug;
     },
@@ -25,7 +25,8 @@ let CategoryService = {
     // add new category
     addCategory: async (payload) => {
         try {
-            payload.slug = await CategoryService.createSlug(payload.name)
+            payload.slug_categories = await CategoryService.createSlug(payload.name)
+            
             const rows = await CategoryModel.addCategory(connection, payload);
             return rows;
         } catch (err) {

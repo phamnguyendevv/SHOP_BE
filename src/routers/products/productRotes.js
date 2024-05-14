@@ -8,9 +8,9 @@ const router = express.Router()
 
 router.post('/',productMiddlewares.addProductValidator,wrapAsync(productController.addProductController))
 router.patch('/',productMiddlewares.updateProductValidator, wrapAsync(productController.updateProductController))
-router.delete('/:id', wrapAsync(productController.deleteProductController))
+router.delete('/',productMiddlewares.deleteProductValidator, wrapAsync(productController.deleteProductController))
 
-router.get('/:slug_product', wrapAsync(productController.getProductBySlug))
+router.get('/', wrapAsync(productController.getProductBySlug))
 router.post('/get-list', wrapAsync(productController.getList))
 
 

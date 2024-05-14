@@ -22,7 +22,7 @@ let productsController = {
     },
 
     deleteProductController: async (req, res) => {
-        const {id} = req.params
+        const {id} = req.query
        
         const result = await ProductServices.deleteProduct(id)
         return res.json({
@@ -30,7 +30,9 @@ let productsController = {
         })
     },
     getProductBySlug: async (req, res) => {
-        const {slug_product} = req.params
+        const {slug_product} = req.query
+
+        
         const result = await ProductServices.getProductBySlug(slug_product)
         return res.json({
             message: 'Lấy sản phẩm thành công!',

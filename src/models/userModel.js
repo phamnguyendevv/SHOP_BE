@@ -80,7 +80,7 @@ let UserModel = {
                 `UPDATE user SET password = ? WHERE email = ?`,
                 [hashedPassword, email]
             );
-            return rows[0];
+            return rows;
     },
     updateUser: async (connection, data) => {
         const fieldsToUpdate = [];

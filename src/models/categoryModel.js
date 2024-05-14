@@ -9,13 +9,13 @@ let CategoryModel = {
   },
   //get category by slug
   getCategoryBySlug: async (connection, slug) => {
-      const [rows, fields] = await connection.execute('SELECT * FROM `category` WHERE slug = ?', [slug]);
+      const [rows, fields] = await connection.execute('SELECT * FROM `categories` WHERE slug_categories = ?', [slug]);
       return rows[0];
   
   },
   getCategoryByName: async (connection, name) => {
     
-      const [rows, fields] = await connection.execute('SELECT * FROM `category` WHERE name = ?', [name]);
+      const [rows, fields] = await connection.execute('SELECT * FROM `categories` WHERE name = ?', [name]);
       return rows;
 
   },
@@ -23,17 +23,18 @@ let CategoryModel = {
 
   // add new category
   addCategory: async (connection, category) => {
+
     // Thực hiện truy vấn INSERT
     try {
 
       const [rows, fields] = await connection.execute(
-        'INSERT INTO category (user_id, name, slug, popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_DATE)',
+        'INSERT INTO categories (product_id, name, slug_categories, popular_categories, image_categories, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_DATE)',
         [
-          category.user_id,
+          category.product_id,
           category.name,
-          category.slug || null, // Sử dụng null nếu giá trị không được chỉ định
-          category.popular || false,
-          category.image,
+          category.slug_categories || null, // Sử dụng null nếu giá trị không được chỉ định
+          category.popular_categories || false,
+          category.image_categories,
         ]
       );
       return rows[0];

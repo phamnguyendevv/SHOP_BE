@@ -24,13 +24,13 @@ let userMiddlewares = {
             custom: {
                 options: async (value) => {
                     const user = await UserModel.getUserByEmail(connection, value);
-                   
+
                     if (user) {
                         throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS);
                     }
 
                     return true;
-                    
+
                 },
             },
         },
@@ -80,7 +80,7 @@ let userMiddlewares = {
                         throw new Error(USERS_MESSAGES.ACCOUNT_IS_BANNED);
                     }
                     req.user = user;
-                   
+
                     return true;
                 },
             },
@@ -135,10 +135,9 @@ let userMiddlewares = {
         oldPassword: {
             trim: true,
             isLength: {
-                options: { min: 6 },
+                options: { min: 3 },
                 errorMessage: USERS_MESSAGES.MATCH_PASSWORD,
             },
-
             custom: {
                 options: async (value, { req }) => {
                     const user = req.user;
@@ -160,7 +159,7 @@ let userMiddlewares = {
                 errorMessage: USERS_MESSAGES.INVALID_EMAIL,
             },
             custom: {
-                options: async (value, {req}) => {
+                options: async (value, { req }) => {
                     const user = await UserModel.getUserByEmail(connection, value);
                     if (!user) {
                         throw new Error(USERS_MESSAGES.USER_NOT_FOUND)

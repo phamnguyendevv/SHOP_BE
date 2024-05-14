@@ -67,6 +67,18 @@ let AuthService = {
       throw new Error(error);
     }
   },
+  changePassword: async (data) => {
+    const { email, oldPassword, newPassword } = data;
+    if (!email || !oldPassword || !newPassword) {
+      throw new Error('Vui lòng nhập đầy đủ thông tin')
+    }
+    const hashedPassword = await password.hashPassword(newPassword);
+
+    const result = await UserModel.findAndUpdatePassword(connection, hashedPassword, email);
+    if (result.affectedRows== 0) {
+      throw new Error('Cập nhật mật khẩu thất bại')
+    }
+  },
 
   resetPassword: async (data) => {
     const { email, code, newPassword } = data;
