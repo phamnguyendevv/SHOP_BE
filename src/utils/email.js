@@ -1,40 +1,28 @@
 
-import dotenv from 'dotenv';
-import sgMail from '@sendgrid/mail';
+import nodemailer from "nodemailer";
 
 
-dotenv.config();
+// Khởi tạo transporter để gửi email
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "phamtrungnguyenvx99@gmail.com",
+    pass: "jquv uecu futl rocg",
+  },
+});
+
 
 
 
 export const sendEmail = async (email, subject, text) => {
-    // Set SendGrid API key
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-    // Configure mail options
     const mailOptions = {
-        from: {
-            name: "Pham Trung Nguyen",
-            email: "Phamtrungnguyen2288@gmail.com",
-        },
+        from: "phamtrungnguyenvx99@gmail.com",
         to: email,
         subject: subject,
-        text: text,
-        mailSettings: {
-            spamCheck: {
-                enable: true,
-                threshold: 1,
-                postToUrl: 'https://example.com/post'
-            }
-        }
-    };
-
-    try {
-        // Send email
-        const result = await sgMail.send(mailOptions);
-        return result;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw new Error("Error sending email");
-    }
+        html:text,
+      };
+      await transporter.sendMail(mailOptions);
 };

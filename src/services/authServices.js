@@ -61,7 +61,6 @@ let AuthService = {
 
     try {
       await sendEmail(email, 'Gửi mã Xác nhận', 'Mã xác nhận của bạn là: ' + code_verify + '');
-      console.log('Gửi mã xác nhận thành công')
       return { code_verify }
     } catch (error) {
       throw new Error(error);

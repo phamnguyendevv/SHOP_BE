@@ -20,8 +20,6 @@ let rolesServices = {
         try {
             const roles = await RoleModel.getRoles(connection);
             return roles;
-
-
         } catch (error) {
             throw new Error("Không lấy được role");
         }
