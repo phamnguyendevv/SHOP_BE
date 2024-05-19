@@ -179,21 +179,21 @@ components:
       properties:
         email:
           type: string
-          example: "phamVan@gmail.com"
+          example: "user12@gmail.com"
         password:
           type: string
-          example: "12345"
+          example: "12345@aA"
       xml:
         name: authbyuser
     UserCreationRequest:
       type: object
       properties:
-        fullname:
+        full_name:
           type: string
-          example: Nguyen1
+          example: phamnguyen
         email:
           type: string
-          example: nguyen@gmail.com
+          example: user1@gmail.com
         password:
           type: string
           example: "12345@aA"
@@ -329,54 +329,127 @@ components:
         - created_at
         - updated_at
 
-    ProductInput:
+    CombinedData:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 2
-        user_id:
-          type: integer
-          format: int64
-          example: 5
-        popular:
-          type: integer
-          format: int64
-          example: 1
-        name:
-          type: string
-          example: "dien thoai"
-        price:
-          type: integer
-          format: int64
-          example: 99000
-        url_Demo:
-          type: string
-          example: "https://example.com/demo"
-        category:
+        productData:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              format: int64
+              example: 5
+            name_product:
+              type: string
+              example: "may tinh cùi"
+            price:
+              type: integer
+              format: int64
+              example: 200
+            url_demo:
+              type: string
+              example: "https://example.com/demo"
+            categories:
+              type: array
+              items:
+                type: string
+              example: ["WebDevelopment", "JavaScript"]
+            description:
+              type: string
+              example: "This is a product description"
+            technology:
+              type: array
+              items:
+                type: string
+              example: ["nodejs", "JavaScript"]
+          required:
+            - user_id
+            - name_product
+            - price
+            - description
+        classifyData:
           type: array
           items:
-            type: string
-          example: ["WebDevelopment", "JavaScript"]
-        description:
-          type: string
-          example: "This is a product description"
-        url_Download:
-          type: string
-          example: "https://example.com/download"
-        technology:
+            type: object
+            properties:
+              name_classify:
+                type: string
+                example: "Classification 1"
+              image_classify:
+                type: string
+                example: "https://example.com/image1"
+              url_download:
+                type: string
+                example: "https://example.com/demo"
+            required:
+              - name_classify
+              - image_classify
+              - url_download
+    CombinedDataUpdate:
+      type: object
+      properties:
+        productData:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 5
+            user_id:
+              type: integer
+              format: int64
+              example: 5
+            name_product:
+              type: string
+              example: "may tinh cùi"
+            price:
+              type: integer
+              format: int64
+              example: 200
+            url_demo:
+              type: string
+              example: "https://example.com/demo"
+            categories:
+              type: array
+              items:
+                type: string
+              example: ["WebDevelopment", "JavaScript"]
+            description:
+              type: string
+              example: "This is a product description"
+            technology:
+              type: array
+              items:
+                type: string
+              example: ["nodejs", "JavaScript"]
+          required:
+            - user_id
+            - name_product
+            - price
+            - description
+        classifyData:
           type: array
           items:
-            type: string
-          example: ["nodejs", "JavaScript"]
-      required:
-        - user_id
-        - name
-        - price
-        - description
-        - url_Download
-    SearchParamsProduct:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int64
+                example: 5
+              name_classify:
+                type: string
+                example: "Classification 1"
+              image_classify:
+                type: string
+                example: "https://example.com/image1"
+              url_download:
+                type: string
+                example: "https://example.com/demo"
+            required:
+              - name_classify
+              - image_classify
+              - url_download
+    InputData:
       type: object
       properties:
         pagingParams:
@@ -384,10 +457,8 @@ components:
           properties:
             orderBy:
               type: string
-              example: "string"
             keyword:
               type: string
-              example: "string"
             pageIndex:
               type: integer
               format: int32
@@ -398,28 +469,39 @@ components:
             pageSize:
               type: integer
               format: int32
-              example: 20
+              example: 4
+            priceRange:
+              type: object
+              properties:
+                minPrice:
+                  type: integer
+                  format: int64
+                  example: 100
+                maxPrice:
+                  type: integer
+                  format: int64
+                  example: 200
         filterParams:
           type: object
           properties:
-            userId:
+            user_id:
+              type: integer
+              format: int64
+              example: 4
+            categories:
               type: array
               items:
-                type: integer
-                format: int32
-              example: [0]
-            categoryId:
+                type: string
+              example: ["WebDevelopment"]
+            technology:
               type: array
               items:
-                type: integer
-                format: int32
-              example: [0]
-            popularProductId:
-              type: array
-              items:
-                type: integer
-                format: int32
-              example: [0]
+                type: string
+              example: ["nodejs"]
+            is_popular:
+              type: integer
+              format: int32
+              example: 0
     CategoryProductResponse:
       type: object
       properties:
