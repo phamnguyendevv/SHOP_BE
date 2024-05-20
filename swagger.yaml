@@ -1352,15 +1352,15 @@ components:
               name_classify:
                 type: string
                 example: "Classification 1"
-              image_classify:
-                type: string
-                example: "https://example.com/image1"
+              price_classify:
+                type: integer
+                example: 555
               url_download:
                 type: string
                 example: "https://example.com/demo"
             required:
               - name_classify
-              - image_classify
+              - price_classify
               - url_download
     CombinedDataUpdate:
       type: object
@@ -1416,15 +1416,15 @@ components:
               name_classify:
                 type: string
                 example: "Classification 1"
-              image_classify:
-                type: string
-                example: "https://example.com/image1"
+              price_classify:
+                type: integer
+                example: 555
               url_download:
                 type: string
                 example: "https://example.com/demo"
             required:
               - name_classify
-              - image_classify
+              - price_classify
               - url_download
     InputData:
       type: object

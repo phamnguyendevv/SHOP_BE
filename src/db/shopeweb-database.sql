@@ -129,7 +129,7 @@ CREATE TABLE  classify (
     product_id INT,
     FOREIGN KEY (product_id) REFERENCES product(id),
     name_classify VARCHAR(255),
-    image_classify VARCHAR(255),
+    price_classify VARCHAR(255),
     url_dowload VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME

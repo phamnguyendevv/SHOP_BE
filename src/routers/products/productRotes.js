@@ -14,7 +14,6 @@ router.get('/', wrapAsync(productController.getProductBySlug))
 router.post('/get-list', wrapAsync(productController.getList))
 
 
-
 router.post('/status',wrapAsync(statusProductController.addStatusController))
 router.get('/status',wrapAsync(statusProductController.getStatusController))
 router.put('/status',wrapAsync(statusProductController.updateStatusController))

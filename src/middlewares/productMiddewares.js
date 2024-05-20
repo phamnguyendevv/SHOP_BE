@@ -87,7 +87,7 @@ const classifyDataSchema = {
             errorMessage: 'Tên phân loại sản phẩm không được để trống',
         },
     },
-    image_classify: {
+    price_classify: {
         in: ['body', 'classifyData'],
         isURL: {
             options: { require_protocol: true },
@@ -185,7 +185,7 @@ let productMiddlewares = {
                 errorMessage: 'Tên sản phẩm không được để trống',
             },
         },
-        'classifyData.*.image_classify': {
+        'classifyData.*.price_classify': {
             in: ['body'],
             trim: true,
         },
@@ -301,7 +301,7 @@ let productMiddlewares = {
                 errorMessage: 'Tên sản phẩm không được để trống',
             },
         },
-        'classifyData.*.image_classify': {
+        'classifyData.*.price_classify': {
             in: ['body'],
             trim: true,
         },

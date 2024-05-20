@@ -154,8 +154,8 @@ let ProductModel = {
 
     addClassify: async (connection, classifyData) => {
 
-        const query = `INSERT INTO classify (product_id, name_classify,image_classify,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
-        const [result] = await connection.query(query, [classifyData.product_id, classifyData.name_classify, classifyData.image_classify, classifyData.url_download]);
+        const query = `INSERT INTO classify (product_id, name_classify,price_classify,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
+        const [result] = await connection.query(query, [classifyData.product_id, classifyData.name_classify, classifyData.price_classify, classifyData.url_download]);
         return result;
     },
 
@@ -170,9 +170,9 @@ let ProductModel = {
             fieldsToUpdate.push('name_classify = ?');
             params.push(classifyData.name_classify);
         }
-        if (classifyData.image_classify !== undefined) {
-            fieldsToUpdate.push('image_classify = ?');
-            params.push(classifyData.image_classify);
+        if (classifyData.price_classify !== undefined) {
+            fieldsToUpdate.push('price_classify = ?');
+            params.push(classifyData.price_classify);
         }
         if (classifyData.url_download !== undefined) {
             fieldsToUpdate.push('url_download = ?');
