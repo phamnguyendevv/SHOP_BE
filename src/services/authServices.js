@@ -5,6 +5,7 @@ import { generateToken, refreshTokens, decoToken } from '../utils/jwt.js';
 import USERS_MESSAGES from '../constants/messages.js';
 import Connection from '../db/configMysql.js';
 import { sendEmail } from '../utils/email.js';
+import ErrorWithStatus from '../utils/error.js';
 const connection = await Connection();
 
 import axios from 'axios';
@@ -24,7 +25,7 @@ let AuthService = {
     const referral_code = `${data.id}${code}`;
     const user = await UserModel.createUser(connection, data, hashed, code);
     if (!user) {
-      throw new Error(USERS_MESSAGES.REGISTER_FAILED)
+      throw new ErrorWithStatus({"looi":400})
     }
 
   },

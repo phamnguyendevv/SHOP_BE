@@ -11,12 +11,12 @@ class ErrorWithStatus {
   }
 }
 
-class EntityError extends ErrorWithStatus {
-  constructor({ _message_ = USERS_MESSAGES.VALIDATION_ERROR, _errors_ }) {
-    super(_message_, HTTP_STATUS.UNPROCESSABLE_ENTITY);
-    this.errors = _errors_;
-  }
-}
+// class EntityError extends ErrorWithStatus {
+//   constructor({ _message_ = USERS_MESSAGES.VALIDATION_ERROR, _errors_ }) {
+//     super(_message_, HTTP_STATUS.UNPROCESSABLE_ENTITY);
+//     this.errors = _errors_;
+//   }
+// }
 
-export default EntityError;
+export default ErrorWithStatus;
 
