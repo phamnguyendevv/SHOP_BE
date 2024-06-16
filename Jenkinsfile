@@ -37,7 +37,7 @@ pipeline {
                     try {
                         def imageName = "myapp"
                         def imageTag = "v1.0"
-                        echo "Building Docker image..."
+                        echo "Building Docker image...."
                         // Change directory to where the Dockerfile is located
                         bat 'cd /d C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\demo-pipeline'
                         bat "docker build -t ${imageName}:${imageTag} ."
