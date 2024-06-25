@@ -1,6 +1,15 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKERHUB_USERNAME = "enestars"
+        DOCKERHUB_PASSWORD = "nguyen123"
+        IMAGE_NAME = "nguyendeptrai"
+        IMAGE_TAG = "v1.0"
+        DOCKERHUB_REPO = "${DOCKERHUB_USERNAME}/${IMAGE_NAME}"
+        DOCKERHUB_TAG = "${DOCKERHUB_REPO}:${IMAGE_TAG}"
+    }
+
     stages {
         stage('Check Docker') {
             steps {
@@ -17,34 +26,45 @@ pipeline {
             }
         }
 
-        stage('Clone') {
-            steps {
-                script {
-                    try {
-                        git branch: 'main', credentialsId: 'github-credentials', url: 'https://github.com/Enestar-28/SHOP_BE.git'
-                    } catch (Exception e) {
-                        echo "Failed to clone repository: ${e.message}"
-                        currentBuild.result = 'FAILURE'
-                        error "Stopping pipeline because the repository could not be cloned."
-                    }
-                }
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
                 script {
                     try {
-                        def imageName = "myapp"
-                        def imageTag = "v1.0"
-                        echo "Building Docker image...."
-                        // Change directory to where the Dockerfile is located
+                        echo "Building Docker image..."
                         bat 'cd /d C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\demo-pipeline'
-                        bat "docker build -t ${imageName}:${imageTag} ."
+                        bat "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                        
                     } catch (Exception e) {
                         echo "Failed to build Docker image: ${e.message}"
                         currentBuild.result = 'FAILURE'
                         error "Stopping pipeline because the Docker image build failed."
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    try {
+                        // Login to Docker Hub
+                        bat "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                        
+                        // Tag the local image with Docker Hub repository
+                        bat "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_TAG}"
+                        
+                        // Push the image to Docker Hub
+                        bat "docker push ${DOCKERHUB_TAG}"
+                        
+                        // Remove the local image after pushing to Docker Hub
+                        bat "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+                        
+                        echo "Docker image ${DOCKERHUB_TAG} pushed to Docker Hub and removed locally."
+                    } catch (Exception e) {
+                        echo "Failed to push Docker image to Docker Hub: ${e.message}"
+                        currentBuild.result = 'FAILURE'
+                        error "Stopping pipeline because the Docker image push failed."
                     }
                 }
             }
