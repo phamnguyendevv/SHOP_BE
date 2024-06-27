@@ -2,7 +2,7 @@
 import HTTP_STATUS from '../constants/httpStatus.js';
 import ErrorWithStatus from '../utils/error.js';
 import _ from 'lodash';
-import MyLogger from '../../loggers/myLogger.js';
+import MyLogger from '../loggers/myLogger.js';
 
 const myLogger = new MyLogger();
 

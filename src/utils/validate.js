@@ -1,7 +1,7 @@
 import { validationResult } from 'express-validator';
 import HTTP_STATUS from '../constants/httpStatus.js';
 import EntityError from './error.js';
-import MyLogger from '../../loggers/myLogger.js';
+import MyLogger from '../loggers/myLogger.js';
 
 const myLogger = new MyLogger();
 

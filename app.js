@@ -1,9 +1,17 @@
 import express from 'express'
+
+
+const publisher = require("./pub");
+const subscriber = require("./sub");
+
+
+
+
 import Connection from './src/db/configMysql.js'
 import indexRouter from './src/routers/index.js';
 import defaultErrorHandler from './src/middlewares/errorMiddewares.js'
 import checkExitsDB from './src/db/checkExistsDB.js'
-import MyLogger from './loggers/myLogger.js'
+import MyLogger from './src/loggers/myLogger.js'
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import cors from 'cors';
