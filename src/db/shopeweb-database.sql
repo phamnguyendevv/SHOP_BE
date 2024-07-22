@@ -130,7 +130,6 @@ CREATE TABLE  classify (
 -- Tạo bảng categories
 CREATE TABLE categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    product_id INT,
     name VARCHAR(255),
     slug TEXT,
     popular BOOLEAN,
