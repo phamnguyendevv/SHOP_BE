@@ -14,13 +14,6 @@ CREATE TABLE status_product (
     updated_at DATETIME
 );
 
-CREATE TABLE status_cart (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name  VARCHAR(255),
-    created_at DATETIME,
-    updated_at DATETIME
-);
-
 CREATE TABLE status_user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255),
@@ -90,7 +83,7 @@ CREATE TABLE announcement (
     title VARCHAR(255),
     is_read VARCHAR(255),
     content VARCHAR(255),
-    image_anno VARCHAR(255),
+    image VARCHAR(255),
     url_anno VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
@@ -107,11 +100,10 @@ CREATE TABLE product (
     FOREIGN KEY (user_id) REFERENCES user(id),
     status_id INT,
     FOREIGN KEY (status_id) REFERENCES status_product(id),
-    name_product VARCHAR(255),
+    name VARCHAR(255),
     price INT,
     url_demo VARCHAR(255),
     popular_product BOOLEAN,
-    category JSON,
     description TEXT,
     sold INT,
     code_discount VARCHAR(255),
@@ -128,8 +120,8 @@ CREATE TABLE  classify (
     id INT PRIMARY KEY AUTO_INCREMENT,
     product_id INT,
     FOREIGN KEY (product_id) REFERENCES product(id),
-    name_classify VARCHAR(255),
-    price_classify VARCHAR(255),
+    name VARCHAR(255),
+    price VARCHAR(255),
     url_dowload VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
@@ -144,9 +136,9 @@ CREATE TABLE categories (
     product_id INT,
     FOREIGN KEY (product_id) REFERENCES product(id),
     name VARCHAR(255),
-    slug_categories TEXT,
-    popular_categories BOOLEAN,
-    image_categories VARCHAR(255),
+    slug TEXT,
+    popular BOOLEAN,
+    image VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
 );
@@ -163,7 +155,7 @@ CREATE TABLE review (
     FOREIGN KEY (product_id) REFERENCES product(id),
     star INT,
     content TEXT,
-    image_review VARCHAR(255),
+    image VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
 );
@@ -181,7 +173,7 @@ CREATE TABLE product_cart (
     FOREIGN KEY (product_id) REFERENCES product(id),
     status_id INT,
     FOREIGN KEY (status_id)  REFERENCES status_product(id),
-    code_discount VARCHAR(255),
+    code VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
 );
@@ -191,10 +183,10 @@ CREATE TABLE discount (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),
-    start_discount DATETIME,
-    end_discount DATETIME,
-    persen_discount INT,
-    name_discount INT,
+    start DATETIME,
+    end DATETIME,
+    persen INT,
+    name INT,
     created_at DATETIME,
     updated_at DATETIME
 );
@@ -209,6 +201,14 @@ CREATE TABLE discount_used (
     updated_at DATETIME
 
 );
+
+CREATE TABLE categories_products (
+    categories_id INT ,
+    products_id INT ,
+    FOREIGN KEY (categories_id) REFERENCES categories(id),
+    FOREIGN KEY (products_id) REFERENCES product(id)
+);
+
 
 
 

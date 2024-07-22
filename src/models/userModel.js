@@ -28,10 +28,6 @@ let UserModel = {
     },
 
 
-
-
-
-
     createUser: async (connection, data, hashed,code) => {
         
         const [rows, fields] = await connection.execute(
