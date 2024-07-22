@@ -90,9 +90,6 @@ CREATE TABLE announcement (
 );
 
 
-
-
-
 -- Tạo bảng Product
 CREATE TABLE product (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -134,7 +131,6 @@ CREATE TABLE  classify (
 CREATE TABLE categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
     product_id INT,
-    FOREIGN KEY (product_id) REFERENCES product(id),
     name VARCHAR(255),
     slug TEXT,
     popular BOOLEAN,
