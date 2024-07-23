@@ -4,7 +4,7 @@ import CategoryService from '../services/categoryServices.js';
 let categoryController = {
     // add new category
     addCategory: async (req, res) => {
-      
+        
         const result = await CategoryService.addCategory(req.body)
         return res.json({
             message: 'Add new category successfully!',

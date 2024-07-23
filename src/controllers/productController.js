@@ -13,6 +13,7 @@ let productsController = {
     },
     //update product 
     updateProductController: async (req, res) => {
+        console.log("controller",req.body)
         const result = await ProductServices.updateProduct(req.body)
         return res.json({
             message: 'Cập nhật sản phẩm thành công!',

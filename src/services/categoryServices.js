@@ -4,30 +4,33 @@ import ProductModel from '../models/productModel.js';
 import crypto from 'crypto';
 import getSlug from 'speakingurl'
 import Connection from '../db/configMysql.js';
-import e from 'express';
 const connection = await Connection();
 
 let CategoryService = {
-    createSlug : async (name) => {
+    createSlug: async (name) => {
         const slug = getSlug(name, { lang: 'vn' });
-    
         let fullSlug, existingCategory;
         do {
             const randomInt = crypto.randomBytes(4).readUInt32LE();
-            fullSlug = `${slug}.cat-${randomInt}`;
-            
-         existingCategory = await CategoryModel.getCategoryBySlug(connection, fullSlug);
-        } while (existingCategory);
-    
+            fullSlug = `${slug}-${randomInt}`;
+         existingCategory = await CategoryModel.getCategoryByField(
+             connection,
+             'slug',
+           fullSlug
+         );
+        } while (existingCategory); 
         return fullSlug;
+
     },
 
+
+    
+
     // add new category
-    addCategory: async (payload) => {
+    addCategory: async (data) => {
         try {
-            payload.slug_categories = await CategoryService.createSlug(payload.name)
-            
-            const rows = await CategoryModel.addCategory(connection, payload);
+            data.slug = await CategoryService.createSlug(data.name);
+            const rows = await CategoryModel.addCategory(connection, data);
             return rows;
         } catch (err) {
             throw new Error("Không thêm được danh mục mới")
@@ -68,6 +71,7 @@ let CategoryService = {
 
         }
     }
+
 
 }
 

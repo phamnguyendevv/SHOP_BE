@@ -1,59 +1,63 @@
-import ErrorWithStatus from '../utils/error.js';
-
+import ErrorWithStatus from "../utils/error.js";
 
 let CategoryModel = {
   //get category by id
   getCategoryById: async (connection, id) => {
-      const [rows, fields] = await connection.execute('SELECT * FROM `category` WHERE id = ?', [id]);
-      return rows[0];
+    const [rows, fields] = await connection.execute(
+      "SELECT * FROM `category` WHERE id = ?",
+      [id]
+    );
+    return rows[0];
   },
   //get category by slug
   getCategoryBySlug: async (connection, slug) => {
-      const [rows, fields] = await connection.execute('SELECT * FROM `categories` WHERE slug_categories = ?', [slug]);
-      return rows[0];
-  
+    const [rows, fields] = await connection.execute(
+      "SELECT * FROM `categories` WHERE slug_categories = ?",
+      [slug]
+    );
+    return rows[0];
   },
   getCategoryByName: async (connection, name) => {
-    
-      const [rows, fields] = await connection.execute('SELECT * FROM `categories` WHERE name = ?', [name]);
-      return rows;
-
+    const [rows, fields] = await connection.execute(
+      "SELECT * FROM `categories` WHERE name = ?",
+      [name]
+    );
+    return rows;
   },
 
+  getCategoryByField: async (connection, field, value) => {
+    const query = `SELECT * FROM \`categories\` WHERE ${field} = ?`;
+    const [rows, fields] = await connection.execute(query, [value]);
+    return rows[0];
+  },
 
   // add new category
-  addCategory: async (connection, category) => {
-
+  addCategory: async (connection, category) => {  
     // Thực hiện truy vấn INSERT
     try {
-
       const [rows, fields] = await connection.execute(
-        'INSERT INTO categories (product_id, name, slug_categories, popular_categories, image_categories, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_DATE, CURRENT_DATE)',
+        "INSERT INTO categories ( name, slug, is_popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_DATE, CURRENT_DATE)",
         [
-          category.product_id,
           category.name,
-          category.slug_categories || null, // Sử dụng null nếu giá trị không được chỉ định
-          category.popular_categories || false,
-          category.image_categories,
+          category.slug || null, // Sử dụng null nếu giá trị không được chỉ định
+          category.is_popular || false,
+          category.image || null,
         ]
       );
       return rows[0];
     } catch (error) {
       throw new Error(error);
     }
-
   },
-
 
   //get all category
   getAllCategories: async (connection) => {
     try {
-      const categories = await connection.execute('SELECT * FROM `category`');
+      const categories = await connection.execute("SELECT * FROM `categories`");
       return categories;
     } catch (error) {
       // Xử lý lỗi ở đây
-      throw new Error('Error in getAllCategories');
-
+      throw new Error("Error in getAllCategories");
     }
   },
 
@@ -61,50 +65,45 @@ let CategoryModel = {
   updateCategory: async (connection, category) => {
     const fieldsToUpdate = [];
     const params = [];
-   
+
     if (category.name !== undefined) {
-      fieldsToUpdate.push('name = ?');
+      fieldsToUpdate.push("name = ?");
       params.push(category.name);
     }
     if (category.image !== undefined) {
-      fieldsToUpdate.push('image = ?');
+      fieldsToUpdate.push("image = ?");
       params.push(category.image);
     }
-    if (category.popular !== undefined) { 
-      fieldsToUpdate.push('popular = ?');
+    if (category.popular !== undefined) {
+      fieldsToUpdate.push("popular = ?");
       params.push(category.popular);
     }
 
     if (fieldsToUpdate.length === 0) {
-      throw new Error('Không có trường nào được cập nhật');
+      throw new Error("Không có trường nào được cập nhật");
     }
 
     params.push(category.id);
 
-    const fieldsToUpdateString = fieldsToUpdate.join(', ');
+    const fieldsToUpdateString = fieldsToUpdate.join(", ");
     console.log(fieldsToUpdateString);
-    const query = `UPDATE category SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
+    const query = `UPDATE categories SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
 
     const result = await connection.execute(query, params);
-  
 
     return result;
   },
 
-
   //delete category
   deleteCategory: async (connection, id) => {
     //get category by caterogy id
-   
-    const result = await connection.execute('DELETE FROM category WHERE id = ?', [id]);
-    if (result[0].affectedRows === 0) {
-      throw new Error('Không xóa được danh mục');
-    }
+
+    const result = await connection.execute(
+      "DELETE FROM categories WHERE id = ?",
+      [id]
+    );
     return result;
-  }
-}
-
-
-
+  },
+};
 
 export default CategoryModel;
