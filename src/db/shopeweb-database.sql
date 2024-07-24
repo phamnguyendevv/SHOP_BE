@@ -100,13 +100,13 @@ CREATE TABLE product (
     name VARCHAR(255),
     price INT,
     url_demo VARCHAR(255),
-    popular_product BOOLEAN,
+    is_popular BOOLEAN,
     description TEXT,
     sold INT,
     code_discount VARCHAR(255),
     pre_order BOOLEAN,
     points INT,
-    slug_product TEXT,
+    slug TEXT,
     technology JSON,
     created_at DATETIME,
     updated_at DATETIME
@@ -132,7 +132,7 @@ CREATE TABLE categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255),
     slug TEXT,
-    popular BOOLEAN,
+    is_popular BOOLEAN,
     image VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
@@ -198,10 +198,10 @@ CREATE TABLE discount_used (
 );
 
 CREATE TABLE categories_products (
-    categories_id INT ,
-    products_id INT ,
-    FOREIGN KEY (categories_id) REFERENCES categories(id),
-    FOREIGN KEY (products_id) REFERENCES product(id)
+    category_id INT ,
+    product_id INT ,
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (product_id) REFERENCES product(id)
 );
 
 
