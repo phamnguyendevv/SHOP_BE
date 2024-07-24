@@ -26,9 +26,9 @@ jobs:
 
       - name: Push Docker image to registry
         run: |
-          docker login -u duchaidev -p Ldh060303@
-          docker tag beshopweb duchaidev/beshopweb
-          docker push duchaidev/beshopweb
+          docker login -u enestars -p nguyen123
+          docker tag beshopweb v1.0
+          docker push enestars/beshopweb
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
@@ -37,8 +37,8 @@ jobs:
           username: administrator@
           password: Vpssieure@vnvn
           script: |
-            docker pull duchaidev/beshopweb
+            docker pull enestars/beshopweb
             docker stop beshopweb || true
             docker rm beshopweb || true
             docker image prune -f
-            docker run -d --name beshopweb -p 8090:8989 duchaidev/beshopweb
+            docker run -d --name beshopweb -p 8090:8989 enestars/beshopweb
