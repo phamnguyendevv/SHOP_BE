@@ -30,7 +30,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-          docker tag beshopweb enestars/beshopweb:v1.0
+          docker tag beshopweb enestars/beshopweb
           docker push enestars/beshopweb
 
       - name: Deploy to server
