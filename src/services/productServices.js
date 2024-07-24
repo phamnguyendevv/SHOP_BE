@@ -79,7 +79,6 @@ let ProductServices = {
 
   updateProduct: async (data) => {
     const { productData, classifyData } = data;
-    
     const productId = productData.id;
     // Generate slug for the product if the name is being updated
     if (productData.name) {
@@ -128,7 +127,6 @@ let ProductServices = {
           // Add category if it doesn't exist
           category = await CategoryService.addCategory({ name: nameCategory });
         }
-
         // Add product-category relationship
         await ProductModel.addProductCategory(
           connection,

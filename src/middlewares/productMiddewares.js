@@ -272,7 +272,6 @@ let productMiddlewares = {
           },
         },
         "classifyData.*.name": {
-        
           isLength: {
             options: { min: 1 },
             errorMessage: "Tên sản phẩm không được để trống",
@@ -283,9 +282,10 @@ let productMiddlewares = {
             errorMessage: "Giá sản phẩm phải là số",
           }
         },
-
         "classifyData.*.url_download": {
-          
+          isString: {
+            errorMessage: "URL tải xuống phải là chuỗi",
+          }
         },
       },
       ["body"]

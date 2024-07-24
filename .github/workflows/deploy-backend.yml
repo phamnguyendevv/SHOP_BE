@@ -33,9 +33,9 @@ jobs:
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
-          host: 152.42.164.162
-          username: root
-          password: Duy2006
+          host: 103.167.88.144
+          username: administrator@
+          password: Vpssieure@vnvn
           script: |
             docker pull duchaidev/beshopweb
             docker stop beshopweb || true
