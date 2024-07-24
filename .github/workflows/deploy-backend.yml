@@ -25,17 +25,20 @@ jobs:
         run: docker build -t beshopweb .
 
       - name: Push Docker image to registry
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          docker login -u enestars -p nguyen123
-          docker tag beshopweb v1.0
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker tag beshopweb enestars/beshopweb:v1.0
           docker push enestars/beshopweb
 
       - name: Deploy to server
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.7 # Sử dụng phiên bản cố định
         with:
-          host: 103.167.88.144
-          username: administrator@
-          password: Vpssieure@vnvn
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             docker pull enestars/beshopweb
             docker stop beshopweb || true
