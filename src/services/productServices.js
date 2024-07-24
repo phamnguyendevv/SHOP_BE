@@ -29,11 +29,12 @@ let ProductServices = {
     const { productData, classifyData } = data;
 
     // Generate slug for the product
-    const slug_product = await ProductServices.createSlug(productData.name);
-    productData.slug_product = slug_product;
+    const slug = await ProductServices.createSlug(productData.name);
+    productData.slug = slug;
 
     // Add product to the database
     const newProduct = await ProductModel.addProduct(connection, productData);
+
     const productId = newProduct.insertId;
 
     // Handle categories
@@ -51,6 +52,25 @@ let ProductServices = {
             name: nameCategory,
           });
           category = newCategory;
+
+          // Add product-category relationship
+          await ProductModel.addProductCategory(
+            connection,
+            productId,
+            category.id
+          );
+        } else {
+          // Check if the product-category relationship already exists
+          const existingRelationship =
+            await categoryProdcutModel.getRelationshipByProductIdAndCategoryId(
+              connection,
+              productId,
+              category.id
+            );
+
+          if (existingRelationship) {
+            return;
+          }
         }
 
         // Add product-category relationship
@@ -90,27 +110,32 @@ let ProductServices = {
 
     // Handle categories
     if (productData.categories && productData.categories.length > 0) {
-      const existingCategories = await categoryProdcutModel.getCategoriesByProductId(
-        connection,
-        productId
-      );
+      const existingCategories =
+        await categoryProdcutModel.getCategoriesByProductId(
+          connection,
+          productId
+        );
+
       // Find categories to add and to remove
       const categoriesToAdd = productData.categories.filter(
-        (nameCategory) =>
+        (newCategory) =>
           !existingCategories.some(
-            (existingCategory) => existingCategory.name === nameCategory
+            (existingCategory) => existingCategory.name === newCategory
           )
       );
-      
+
       const categoriesToRemove = existingCategories.filter(
         (existingCategory) =>
           !productData.categories.includes(existingCategory.name)
       );
-      
 
       // Remove product-category relationships
       const removeCategoryPromises = categoriesToRemove.map((category) =>
-        ProductModel.removeProductCategory(connection, productId, category.id)
+        categoryProdcutModel.removeProductCategory(
+          connection,
+          productId,
+          category.id
+        )
       );
 
       await Promise.all(removeCategoryPromises);
@@ -122,7 +147,6 @@ let ProductServices = {
           "name",
           nameCategory
         );
-
         if (!category) {
           // Add category if it doesn't exist
           category = await CategoryService.addCategory({ name: nameCategory });
@@ -139,30 +163,33 @@ let ProductServices = {
     }
 
     // Prepare classify data and update or insert into database
-    console.log("classifyData", classifyData);
     if (classifyData && classifyData.length > 0) {
-      const existingClassifyData = await ProductModel.findClassifyById(
-        connection,
-        classifyData.id
-      );
+      const classifyIds = classifyData.map((classify) => classify.id);
 
+      // Lấy tất cả các phân loại hiện có trong một truy vấn duy nhất
+      const existingClassifyData = await ProductModel.findClassifyByIds(
+        connection,
+        classifyIds
+      );
+      const existingClassifyMap = new Map(
+        existingClassifyData.map((item) => [item.id, true])
+      );
       // Update existing classify data and add new ones
       const updateClassifyPromises = classifyData.map((classify) => {
-        if (
-          existingClassifyData.some((existing) => existing.id === classify.id)
-        ) {
-          // Update existing classify
+        console.log("classify", existingClassifyMap);
+        if (existingClassifyMap.has(classify.id)) {
+          // Cập nhật phân loại hiện có
           return ProductModel.updateClassify(connection, classify.id, classify);
         } else {
-          // Add new classify
+          // Thêm phân loại mới
           classify.product_id = productId;
           return ProductModel.addClassify(connection, classify);
         }
       });
 
+      // Chờ tất cả các Promise hoàn thành
       await Promise.all(updateClassifyPromises);
     }
-
     return await ProductModel.getProductById(connection, productId);
   },
 

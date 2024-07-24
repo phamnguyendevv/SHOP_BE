@@ -119,7 +119,7 @@ CREATE TABLE  classify (
     FOREIGN KEY (product_id) REFERENCES product(id),
     name VARCHAR(255),
     price VARCHAR(255),
-    url_dowload VARCHAR(255),
+    url_download VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
 

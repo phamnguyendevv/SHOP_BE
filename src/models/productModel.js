@@ -1,5 +1,15 @@
 let ProductModel = {
-  // find data by id
+  // find data by ids
+
+  findClassifyByIds: async (connection, classifyIds) => {
+    const placeholders = classifyIds.map(() => "?").join(",");
+    const query = `SELECT * FROM classify WHERE id IN (${placeholders})`;
+
+    const [rows] = await connection.execute(query, classifyIds);
+
+    return rows;
+  },
+
   findProductById: async (connection, id) => {
     const [rows] = await connection.execute(
       "SELECT * FROM `product` WHERE id = ?",
@@ -19,11 +29,9 @@ let ProductModel = {
 
   // add new data
   addProduct: async (connection, productData) => {
-   
-
     try {
       const query = `INSERT INTO product 
-                            (user_id, status_id, name, price, url_demo, is_popular, description, sold, code_discount, pre_order, points, slug_product, technology, created_at, updated_at) 
+                            (user_id, status_id, name, price, url_demo, is_popular, description, sold, code_discount, pre_order, points, slug, technology, created_at, updated_at) 
                             VALUES (?, ?, ?, ?, ?, 0, ?, 0, ?, ?, ?, ?, ?, CURDATE(), CURDATE())`;
 
       // Thực hiện truy vấn để chèn dữ liệu
@@ -37,7 +45,7 @@ let ProductModel = {
         productData.code_Discount || "",
         productData.pre_order || 0,
         productData.points || 0,
-        productData.slug_product,
+        productData.slug,
         JSON.stringify(productData.technology),
       ]);
 
@@ -147,8 +155,6 @@ let ProductModel = {
     return result;
   },
 
-
-
   //--------------------------- classify ------------------------------
 
   findClassifyById: async (connection, id) => {
@@ -159,7 +165,8 @@ let ProductModel = {
     return rows[0];
   },
 
-    addClassify: async (connection, classifyData) => {
+  addClassify: async (connection, classifyData) => {
+    console.log("thêm mới");
     const query = `INSERT INTO classify (product_id, name,price,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
     const [result] = await connection.query(query, [
       classifyData.product_id,
@@ -171,9 +178,7 @@ let ProductModel = {
   },
 
   updateClassify: async (connection, classifyData) => {
-    console.log(classifyData);
-
-    console.log("--------------------");
+    console.log("cập nhật");
     const fieldsToUpdate = [];
     const params = [];
 
