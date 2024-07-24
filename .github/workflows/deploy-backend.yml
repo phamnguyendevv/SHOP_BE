@@ -44,5 +44,5 @@ jobs:
             docker stop beshopweb || true
             docker rm beshopweb || true
             docker image prune -f
-            CONTAINER_ID=$(docker run -d --name beshopweb -p 8080:8989 enestars/beshopweb)
+            CONTAINER_ID=$(docker run -d --name beshopweb -p 8888:8989 enestars/beshopweb)
             docker logs "$CONTAINER_ID"
