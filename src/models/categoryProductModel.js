@@ -20,15 +20,28 @@ let categoryProductModel = {
     );
     return rows;
   },
-    removeProductCategory: async (connection, productId, categoryId) => {
-        console.log("productId", productId);
-        console.log("categoryId", categoryId);
-        const [result, fields] = await connection.execute(
-            "DELETE FROM categories_products WHERE product_id = ? AND category_id = ?",
-            [productId, categoryId]
-        );
-        return result;
-    },
+  removeProductCategory: async (connection, productId, categoryId) => {
+    console.log("productId", productId);
+    console.log("categoryId", categoryId);
+    const fieldsToUpdate = [];
+    const params = [];
+
+    if (productId !== undefined) {
+      fieldsToUpdate.push("product_id = ?");
+      params.push(productId);
+    }
+    if (categoryId !== undefined) {
+      fieldsToUpdate.push("category_id = ?");
+      params.push(categoryId);
+    }
+    const fieldsToUpdateString = fieldsToUpdate.join(", ");
+    const query = `DELETE FROM categories_products WHERE ${fieldsToUpdateString}`;
+    const [result] = await connection.query(query, params);
+
+
+    
+    return result;
+  },
 };
 
 export default categoryProductModel;

@@ -26,18 +26,17 @@ let CategoryModel = {
   },
 
   getCategoryByField: async (connection, field, value) => {
-  
     const query = `SELECT * FROM \`categories\` WHERE ${field} = ?`;
     const [rows, fields] = await connection.execute(query, [value]);
     return rows[0];
   },
 
   // add new category
-  addCategory: async (connection, category) => {  
+  addCategory: async (connection, category) => {
     // Thực hiện truy vấn INSERT
     try {
-      const [rows, fields] = await connection.execute(
-        "INSERT INTO categories ( name, slug, is_popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_DATE, CURRENT_DATE)",
+      const [result] = await connection.execute(
+        "INSERT INTO categories (name, slug, is_popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
         [
           category.name,
           category.slug || null, // Sử dụng null nếu giá trị không được chỉ định
@@ -45,6 +44,15 @@ let CategoryModel = {
           category.image || null,
         ]
       );
+      const categoryId = result.insertId;
+
+      // Truy vấn SELECT để trả về thông tin của category mới
+      const [rows] = await connection.execute(
+        "SELECT * FROM categories WHERE id = ?",
+        [categoryId]
+      );
+
+   
       return rows[0];
     } catch (error) {
       throw new Error(error);

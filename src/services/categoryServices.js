@@ -28,9 +28,11 @@ let CategoryService = {
 
     // add new category
     addCategory: async (data) => {
+ 
         try {
             data.slug = await CategoryService.createSlug(data.name);
             const rows = await CategoryModel.addCategory(connection, data);
+            console.log("rows", rows);
             return rows;
         } catch (err) {
             throw new Error("Không thêm được danh mục mới")

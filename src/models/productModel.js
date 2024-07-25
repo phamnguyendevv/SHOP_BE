@@ -27,6 +27,12 @@ let ProductModel = {
     return rows;
   },
 
+  getProductByField: async (connection, field, value) => {
+    const query = `SELECT * FROM \`product\` WHERE ${field} = ?`;
+    const [rows, fields] = await connection.execute(query, [value]);
+    return rows[0];
+  },
+
   // add new data
   addProduct: async (connection, productData) => {
     try {
@@ -118,7 +124,7 @@ let ProductModel = {
   },
 
   getProductBySlug: async (connection, slug_product) => {
-    const query = `SELECT * FROM product WHERE slug_product = ?`;
+    const query = `SELECT * FROM product WHERE slug = ?`;
     const [result] = await connection.query(query, slug_product);
     return result[0];
   },
@@ -165,11 +171,16 @@ let ProductModel = {
     return rows[0];
   },
 
-  addClassify: async (connection, classifyData) => {
-    console.log("thêm mới");
+  getClassifyByField: async (connection, field, value) => {
+    const query = `SELECT * FROM \`classify\` WHERE ${field} = ?`;
+    const [rows, fields] = await connection.execute(query, [value]);
+    return rows;
+  },
+
+  addClassify: async (connection, productId, classifyData) => {
     const query = `INSERT INTO classify (product_id, name,price,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
     const [result] = await connection.query(query, [
-      classifyData.product_id,
+      productId,
       classifyData.name,
       classifyData.price,
       classifyData.url_download,
@@ -177,18 +188,21 @@ let ProductModel = {
     return result;
   },
 
-  updateClassify: async (connection, classifyData) => {
-    console.log("cập nhật");
+  updateClassify: async (connection, productId, classifyData) => {
     const fieldsToUpdate = [];
     const params = [];
 
-    if (classifyData.name_classify !== undefined) {
+    if (classifyData.name !== undefined) {
       fieldsToUpdate.push("name = ?");
-      params.push(classifyData.name_classify);
+      params.push(classifyData.name);
     }
-    if (classifyData.price_classify !== undefined) {
+    if (productId !== undefined) {
+      fieldsToUpdate.push("product_id = ?");
+      params.push(productId);
+    }
+    if (classifyData.price !== undefined) {
       fieldsToUpdate.push("price = ?");
-      params.push(classifyData.price_classify);
+      params.push(classifyData.price);
     }
     if (classifyData.url_download !== undefined) {
       fieldsToUpdate.push("url_download = ?");
@@ -197,12 +211,9 @@ let ProductModel = {
     params.push(classifyData.id);
 
     const fieldsToUpdateString = fieldsToUpdate.join(", ");
-
-    const query = `UPDATE classify SET ${fieldsToUpdateString}, updated_at = CURDATE() WHERE id = ? `;
+    const query = `UPDATE classify SET ${fieldsToUpdateString}, updated_at = NOW() WHERE id = ?`;
 
     const [result] = await connection.query(query, params);
-
-    return result;
   },
 
   getClassifyByProduct: async (connection, product_id) => {

@@ -217,9 +217,9 @@ let productMiddlewares = {
           },
         },
         "productData.name": {
-          isLength: {
-            options: { min: 1 },
-            errorMessage: "Tên sản phẩm không được để trống",
+          trim: true,
+          isString: {
+            errorMessage: "Tên sản phẩm phải là chuỗi",
           },
         },
         "productData.price": {
@@ -303,20 +303,14 @@ let productMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const product = await ProductModel.findProductById(
+              const product = await ProductModel.getProductByField(
                 connection,
+                "id",
                 value
               );
               console.log(product);
               if (!product) {
                 throw new Error("Không tìm thầy sản phẩm");
-              }
-              const classify = await ProductModel.findClassifyById(
-                connection,
-                value
-              );
-              if (!classify) {
-                throw new Error("Không tìm thầy loại sản phẩm");
               }
               return true;
             },

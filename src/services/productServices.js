@@ -7,6 +7,7 @@ import crypto from "crypto";
 import { clearScreenDown } from "readline";
 import CategoryService from "./categoryServices.js";
 import categoryProdcutModel from "../models/categoryProductModel.js";
+import categoryProductModel from "../models/categoryProductModel.js";
 
 let ProductServices = {
   createSlug: async (name) => {
@@ -48,9 +49,11 @@ let ProductServices = {
 
         if (!category) {
           // Add category if it doesn't exist
+
           const newCategory = await CategoryService.addCategory({
             name: nameCategory,
           });
+          console.log("newCategory", newCategory);
           category = newCategory;
 
           // Add product-category relationship
@@ -90,7 +93,7 @@ let ProductServices = {
       product_id: productId,
     }));
     const classifyPromises = classifyDataArray.map((classify) =>
-      ProductModel.addClassify(connection, classify)
+      ProductModel.addClassify(connection, productId, classify)
     );
     await Promise.all(classifyPromises);
 
@@ -99,7 +102,7 @@ let ProductServices = {
 
   updateProduct: async (data) => {
     const { productData, classifyData } = data;
-    const productId = productData.id;
+    const productId = Number(productData.id);
     // Generate slug for the product if the name is being updated
     if (productData.name) {
       const slug = await ProductServices.createSlug(productData.name);
@@ -176,27 +179,30 @@ let ProductServices = {
       );
       // Update existing classify data and add new ones
       const updateClassifyPromises = classifyData.map((classify) => {
-        console.log("classify", existingClassifyMap);
-        if (existingClassifyMap.has(classify.id)) {
+        const classifyId = Number(classify.id);
+        if (existingClassifyMap.has(classifyId)) {
           // Cập nhật phân loại hiện có
-          return ProductModel.updateClassify(connection, classify.id, classify);
+          return ProductModel.updateClassify(connection, productId, classify);
         } else {
           // Thêm phân loại mới
           classify.product_id = productId;
-          return ProductModel.addClassify(connection, classify);
+          return ProductModel.addClassify(connection, productId, classify);
         }
       });
 
       // Chờ tất cả các Promise hoàn thành
       await Promise.all(updateClassifyPromises);
     }
-    return await ProductModel.getProductById(connection, productId);
+    return await ProductModel.findProductById(connection, productId);
   },
 
   deleteProduct: async (id) => {
     try {
       console.log("id", id);
       const resultClassify = await ProductModel.deleteClassify(connection, id);
+      const removeProductCategory =
+        await categoryProdcutModel.removeProductCategory(connection, id);
+
       const result = await ProductModel.deleteProduct(connection, id);
     } catch (error) {
       console.error("Không xóa được sản phẩm: ", error);
@@ -207,15 +213,25 @@ let ProductServices = {
   },
 
   getProductBySlug: async (slug_product) => {
-    const product = await ProductModel.getProductBySlug(
+    const product = await ProductModel.getProductByField(
       connection,
+      "slug",
       slug_product
     );
-    const classify = await ProductModel.getClassifyByProduct(
+    console.log("product", product);
+
+    const categories = await categoryProductModel.getCategoriesByProductId(
       connection,
       product.id
     );
-    const result = { product, classify };
+
+    const classify = await ProductModel.getClassifyByField(
+      connection,
+      "product_id",
+      product.id
+    );
+    const result = { product, categories, classify };
+    console.log("result", result);
     return result;
   },
 
@@ -223,60 +239,82 @@ let ProductServices = {
 
   getList: async (data) => {
     const { pagingParams, filterParams } = data;
-    const { orderBy, keyword, pageIndex, isPaging, pageSize, priceRange } =
-      pagingParams;
-    const { categories, technology, is_popular } = filterParams;
+    const { orderBy, keyword, pageIndex, isPaging, pageSize } = pagingParams;
+    const { categories, technology, is_popular, priceRange } = filterParams;
+    console.log("filterParams", filterParams);
 
     // Construct the SQL query
-    let query = "SELECT * FROM product WHERE ";
+    let query = `SELECT p.* FROM product p `;
     let conditions = [];
+    let joins = [];
 
-    // Add conditions for filtering
+    // Add joins for filtering by categories
     if (categories && categories.length > 0) {
+      const categoryIdPromises = categories.map((category) =>
+        CategoryModel.getCategoryByField(connection, "name", category)
+      );
+
+      // Chờ tất cả các lời gọi bất đồng bộ hoàn thành
+      const categoryIdResults = await Promise.all(categoryIdPromises);
+      const categoryIdArray = categoryIdResults.map((result) => result.id);
+
+      console.log("categoryIdArray", categoryIdArray);
+
+      // Thêm phép nối (join)
+      joins.push(`INNER JOIN categories_products pc ON p.id = pc.product_id`);
+
+      // Thêm điều kiện lọc
       conditions.push(
-        `JSON_CONTAINS(categories, JSON_ARRAY(${categories
-          .map((cat) => connection.escape(cat))
-          .join(",")}))`
+        `pc.category_id IN (${categoryIdArray
+          .map((id) => connection.escape(id))
+          .join(",")})`
       );
     }
+
+    // Add conditions for filtering
     if (technology && technology.length > 0) {
       conditions.push(
-        `JSON_CONTAINS(technology, JSON_ARRAY(${technology
+        `JSON_CONTAINS(p.technology, JSON_ARRAY(${technology
           .map((tec) => connection.escape(tec))
           .join(",")}))`
       );
     }
     if (keyword) {
-      conditions.push(`name_product LIKE '%${keyword}%'`);
+      conditions.push(`p.name LIKE '%${keyword}%'`);
     }
     if (priceRange) {
       conditions.push(
-        `price >= ${priceRange.minPrice} AND price <= ${priceRange.maxPrice}`
+        `p.price >= ${priceRange.minPrice} AND p.price <= ${priceRange.maxPrice}`
       );
     }
     if (is_popular === 1) {
-      conditions.push(`is_popular = 1`);
+      conditions.push(`p.is_popular = 1`);
     }
-    // Apply conditions
+
+    // Combine joins and conditions
+    if (joins.length > 0) {
+      query += joins.join(" ");
+    }
     if (conditions.length > 0) {
-      query += conditions.join(" AND ");
-    } else {
-      // If no filters are applied, select all products
-      query += "1";
+      query += " WHERE " + conditions.join(" AND ");
     }
+
     // Apply ordering
     if (orderBy) {
       query += ` ORDER BY ${orderBy}`;
     }
+
     // Apply paging
     if (isPaging) {
       const offset = (pageIndex - 1) * pageSize;
       query += ` LIMIT ${pageSize} OFFSET ${offset}`;
     }
-
+    console.log("query", query);
     const totalCountQuery =
-      "SELECT COUNT(*) as totalCount FROM product WHERE " +
-      (conditions.length > 0 ? conditions.join(" AND ") : "1");
+      `SELECT COUNT(DISTINCT p.id) as totalCount FROM product p ` +
+      (joins.length > 0 ? joins.join(" ") : "") +
+      (conditions.length > 0 ? " WHERE " + conditions.join(" AND ") : "");
+    console.log("totalCountQuery", totalCountQuery);
     const [totalCountRows, totalCountFields] = await connection.query(
       totalCountQuery
     );
