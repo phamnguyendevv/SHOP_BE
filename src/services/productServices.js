@@ -3,6 +3,8 @@ const connection = await Connection();
 import CategoryModel from "../models/categoryModel.js";
 import ProductModel from "../models/productModel.js";
 import getSlug from "speakingurl";
+import mysql from "mysql2";
+
 import crypto from "crypto";
 import { clearScreenDown } from "readline";
 import CategoryService from "./categoryServices.js";
@@ -241,8 +243,8 @@ let ProductServices = {
     const { pagingParams, filterParams } = data;
     const { orderBy, keyword, pageIndex, isPaging, pageSize } = pagingParams;
     const { categories, technology, is_popular, priceRange } = filterParams;
-    console.log("filterParams", filterParams);
-
+    const validSortFields = ["price", "name"];
+    const validOrderFields = ["asc", "desc"];
     // Construct the SQL query
     let query = `SELECT p.* FROM product p `;
     let conditions = [];
@@ -257,8 +259,6 @@ let ProductServices = {
       // Chờ tất cả các lời gọi bất đồng bộ hoàn thành
       const categoryIdResults = await Promise.all(categoryIdPromises);
       const categoryIdArray = categoryIdResults.map((result) => result.id);
-
-      console.log("categoryIdArray", categoryIdArray);
 
       // Thêm phép nối (join)
       joins.push(`INNER JOIN categories_products pc ON p.id = pc.product_id`);
@@ -301,7 +301,18 @@ let ProductServices = {
 
     // Apply ordering
     if (orderBy) {
-      query += ` ORDER BY ${orderBy}`;
+      const [sortField, sortOrder] = orderBy.split(":");
+      if (
+        !validSortFields.includes(sortField) ||
+        !validOrderFields.includes(sortOrder)
+      ) {
+        return res.status(400).send("Tham số sắp xếp không hợp lệ");
+      }
+
+      // Xử lý tham số sắp xếp
+      query += ` ORDER BY ${mysql.escapeId(sortField)} ${mysql
+        .escape(sortOrder)
+        .replace(/'/g, "")}`;
     }
 
     // Apply paging
@@ -309,12 +320,12 @@ let ProductServices = {
       const offset = (pageIndex - 1) * pageSize;
       query += ` LIMIT ${pageSize} OFFSET ${offset}`;
     }
-    console.log("query", query);
+
     const totalCountQuery =
       `SELECT COUNT(DISTINCT p.id) as totalCount FROM product p ` +
       (joins.length > 0 ? joins.join(" ") : "") +
       (conditions.length > 0 ? " WHERE " + conditions.join(" AND ") : "");
-    console.log("totalCountQuery", totalCountQuery);
+
     const [totalCountRows, totalCountFields] = await connection.query(
       totalCountQuery
     );
