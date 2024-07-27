@@ -132,6 +132,7 @@ let UserModel = {
   },
   updateUser: async (connection, data) => {
     try {
+      console.log(data)
       const fieldsToUpdate = [];
       const params = [];
 
@@ -143,9 +144,9 @@ let UserModel = {
         fieldsToUpdate.push("role_id = ?");
         params.push(data.role_id);
       }
-      if (data.fullname !== undefined) {
-        fieldsToUpdate.push("fullname = ?");
-        params.push(data.fullname);
+      if (data.full_name !== undefined) {
+        fieldsToUpdate.push("full_name = ?");
+        params.push(data.full_name);
       }
       if (data.username !== undefined) {
         fieldsToUpdate.push("username = ?");
@@ -175,10 +176,11 @@ let UserModel = {
       params.push(data.id);
 
       const fieldsToUpdateString = fieldsToUpdate.join(", ");
-
+      
       const query = `UPDATE user SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
 
       const result = await connection.execute(query, params);
+      return result;
     } catch (error) {
       throw new Error("Không cập nhật được user");
     }

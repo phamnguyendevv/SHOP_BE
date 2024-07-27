@@ -6,7 +6,8 @@ let userController = {
         const result = await userServices.getList(req.body)
         return res.json({
             message: 'Lấy danh sách người dùng thành công!',
-            result
+            data: result,
+            status: 200
 
         })
     },
@@ -15,7 +16,8 @@ let userController = {
         const result = await userServices.getUserById(id)
         return res.json({
             message: 'Lấy thông tin người dùng thành công!',
-            result
+            data: result,
+            status: 200
 
         })
     },
@@ -23,6 +25,7 @@ let userController = {
         const result = await userServices.updateUser(req.body)
         return res.json({
             message: 'Câp nhật thông tin người dùng thành công!',
+            status: 200
         })
     },
 
