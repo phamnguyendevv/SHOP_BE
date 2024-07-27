@@ -116,23 +116,20 @@ let UserModel = {
     }
   },
 
-  findAndUpdatePassword: async (connection, hashedPassword, email) => {
+  findAndUpdatePassword: async (connection, hashedPassword, id) => {
     try {
-    
       const [rows, fields] = await connection.execute(
-        `UPDATE user SET password = ? WHERE email = ?`,
-        [hashedPassword, email]
+        `UPDATE user SET password = ? WHERE id = ?`,
+        [hashedPassword, id]
       );
       return rows;
-
     } catch (error) {
       throw new Error("Không cập nhật được mật khẩu");
     }
-  
   },
   updateUser: async (connection, data) => {
     try {
-      console.log(data)
+      console.log(data);
       const fieldsToUpdate = [];
       const params = [];
 
@@ -176,12 +173,13 @@ let UserModel = {
       params.push(data.id);
 
       const fieldsToUpdateString = fieldsToUpdate.join(", ");
-      
+
       const query = `UPDATE user SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
 
       const result = await connection.execute(query, params);
       return result;
     } catch (error) {
+      console.log(error);
       throw new Error("Không cập nhật được user");
     }
 

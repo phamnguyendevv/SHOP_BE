@@ -138,6 +138,14 @@ CREATE TABLE categories (
     updated_at DATETIME
 );
 
+CREATE TABLE image (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT,
+    FOREIGN KEY (product_id) REFERENCES product(id),
+    url VARCHAR(255),
+    type INT
+);
+
 
 
 
@@ -255,3 +263,5 @@ VALUES
   CURDATE(),
   CURDATE() 
 );
+
+

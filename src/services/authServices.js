@@ -89,12 +89,12 @@ let AuthService = {
   },
   changePassword: async (data) => {
     try {
-      const { email, oldPassword, newPassword } = data;
-      if (!email || !oldPassword || !newPassword) {
+      const { id, oldPassword, newPassword } = data;
+      if (!id || !oldPassword || !newPassword) {
         throw new Error('Vui lòng nhập đầy đủ thông tin')
       }
       const hashedPassword = await password.hashPassword(newPassword);
-      const result = await UserModel.findAndUpdatePassword(connection, hashedPassword, email);
+      const result = await UserModel.findAndUpdatePassword(connection, hashedPassword, id);
     } catch (error) {
       throw new Error('Cập nhật mật khẩu thất bại')
     }
