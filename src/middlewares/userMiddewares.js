@@ -132,11 +132,11 @@ let userMiddlewares = {
   changePassword: validate(
     checkSchema(
       {
-        email: {
+        id: {
           trim: true,
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserByEmail(connection, value);
+              const user = await UserModel.getProductByField(connection,"id", value);
               if (!user) {
                 throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
               }
