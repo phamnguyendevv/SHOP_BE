@@ -26,7 +26,7 @@ const defaultErrorHandler = (err, req, res, next) => {
         { requestId: req.requestId },
         message
   
-      ];
+    ];
   
     myLogger.error(` Error        :: ${req.method}`, params);
 

@@ -9,14 +9,16 @@ let authController = {
         const result = await AuthService.register(req.body)
         return res.json({
             message: 'Tạo tài khoản thành công',
+            status: 200
            
         })
     },
 
     registerAdminController: async (req, res) => {
-        const result = await AuthService.register(req.body)
+        const result = await AuthService.registerAdmin(req.body);
         return res.json({
             message: 'Tạo tài khoản admin thành công',
+            status: 200
         })
     },
 
@@ -26,18 +28,20 @@ let authController = {
     loginController: async (req, res) => {
         const user = req.user
        
-        const result = await AuthService.login(user)
+        const result = await AuthService.login(user);
         return res.json({
-            message: 'Đăng nhập thành công',
-            result
-        })
+          message: "Đăng nhập thành công",
+            data: result,
+          status: 200
+        });
     },
 
     refreshTokenController: async (req, res) => {
         const result = await AuthService.refreshToken(req.body)
         return res.json({
             message: 'Lấy token thành công',
-            result
+            data: result,
+            status: 200
         })
     },  
     forgotPassController: async (req, res) =>{
@@ -45,7 +49,7 @@ let authController = {
         const result = await AuthService.forgotPassword(user)
         return res.json({
             message: 'Gửi mã xác nhận thành công',
-            result
+            status: 200
 
         })
     },
@@ -55,7 +59,8 @@ let authController = {
     resetPassController: async (req, res) =>{
         const result = await AuthService.resetPassword(req.body)
         return res.json({
-            message: 'Cập nhật mật khẩu thành công'
+            message: 'Cập nhật mật khẩu thành công',
+            status: 200
 
         })
     },
@@ -64,7 +69,8 @@ let authController = {
 
         const result = await AuthService.changePassword(req.body)
         return res.json({
-            message: 'Cập nhật mật khẩu thành công'
+            message: 'Cập nhật mật khẩu thành công',
+            status: 200
         })
     },
 
@@ -75,7 +81,8 @@ let authController = {
         const result = await AuthService.Oauth(code)
         return res.json({
             message: 'Đăng nhập thành công với google',
-            result
+            result,
+            status: 200
         })
     },
 
@@ -86,7 +93,7 @@ let authController = {
         const result = await AuthService.verifyCode(req.body)
         return res.json({
             message: 'Xác thực mã thành công',
-            result
+            status: 200
         })
     },
 
@@ -95,20 +102,23 @@ let authController = {
         const result = await statusUserService.addStatus(req.body)
         return res.json({
             message: 'Add new status successfully!',
-            result
+            data: result,
+            status: 200
         })
     },
     getStatusController: async (req, res) => {
         const result = await statusUserService.getStatus(req.body)
         return res.json({
             message: 'Get all status successfully!',
-            result
+            data: result,
+            status: 200
         })
     },
     updateStatusController: async (req, res) => {
         const result = await statusUserService.updateStatus(req.body)
         return res.json({
-            message: `Status có id ${req.body.id} đã được cập nhật`
+            message: `Status có id ${req.body.id} đã được cập nhật`,
+            status: 200
         })
     },
     deleteStatusController: async (req, res) => {
@@ -117,7 +127,7 @@ let authController = {
         const result = await statusUserService.deleteStatus(id)
         return res.json({
             message: 'Delete status successfully!',
-            result
+            status: 200
         })
     }
 

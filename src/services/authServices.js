@@ -29,30 +29,50 @@ let AuthService = {
     }
 
   },
+  registerAdmin: async (data) => {
+
+    const hashed = await password.hashPassword(data.password);
+    const referral_code = `${data.id}${code}`;
+    const user = await UserModel.createUserAdmin(connection, data, hashed, code);
+    if (!user) {
+      throw new ErrorWithStatus({"looi":400})
+    }
+
+  },
 
   //login
   login: async (user) => {
-    const { password, created_at, updated_at, ...usercustom } = user;
+    try {
+       const { password, created_at, updated_at, ...usercustom } = user;
 
     const accessToken = await generateToken(user);
     const refreshToken = await refreshTokens(user);
     const decod = await decoToken(accessToken);
     const exp = decod.exp;
-    const Token = { accessToken, refreshToken, exp }
-    return { usercustom, Token };
+    const token = { accessToken, refreshToken, exp }
+    return { user: usercustom, token };
 
+    }
+    catch (error) {
+      throw new Error('Đăng nhập thất bại')
+    }
   },
 
   refreshToken: async (data) => {
-    const { refreshToken } = data;
-    const decod = await decoToken(refreshToken);
-    const user = await UserModel.getUserById(connection, decod.id);
-    const { password, created_at, updated_at, ...usercustom } = user;
-    const newaccessToken = await generateToken(user);
-    const expNewaccessToken = await decoToken(newaccessToken);
-    const exp = expNewaccessToken.exp;
-    const Token = { accessToken: newaccessToken, refreshToken, exp }
-    return { usercustom, Token };
+    try {
+      const { refreshToken } = data;
+      const decod = await decoToken(refreshToken);
+      const user = await UserModel.getUserById(connection, decod.id);
+      const { password, created_at, updated_at, ...usercustom } = user;
+      const newaccessToken = await generateToken(user);
+      const expNewaccessToken = await decoToken(newaccessToken);
+      const exp = expNewaccessToken.exp;
+      const token = { accessToken: newaccessToken, refreshToken, exp }
+      return { user:usercustom, token };
+    }
+    catch (error) {
+      throw new Error('Lấy token thất bại')
+    }
   },
 
   forgotPassword: async (user) => {
@@ -68,19 +88,19 @@ let AuthService = {
     }
   },
   changePassword: async (data) => {
-    const { email, oldPassword, newPassword } = data;
-    if (!email || !oldPassword || !newPassword) {
-      throw new Error('Vui lòng nhập đầy đủ thông tin')
-    }
-    const hashedPassword = await password.hashPassword(newPassword);
-
-    const result = await UserModel.findAndUpdatePassword(connection, hashedPassword, email);
-    if (result.affectedRows== 0) {
+    try {
+      const { email, oldPassword, newPassword } = data;
+      if (!email || !oldPassword || !newPassword) {
+        throw new Error('Vui lòng nhập đầy đủ thông tin')
+      }
+      const hashedPassword = await password.hashPassword(newPassword);
+      const result = await UserModel.findAndUpdatePassword(connection, hashedPassword, email);
+    } catch (error) {
       throw new Error('Cập nhật mật khẩu thất bại')
     }
   },
-
   resetPassword: async (data) => {
+    try {
     const { email, code, newPassword } = data;
     if (!email || !code || !newPassword) {
       throw new Error('Vui lòng nhập đầy đủ thông tin')
@@ -93,8 +113,10 @@ let AuthService = {
     const result = UserModel.findAndUpdatePassword(connection, hashedPassword, email);
     if (!result) {
       throw new Error('Cập nhật mật khẩu thất bại')
+      }
+    } catch (error) {
+      throw new Error('Cập nhật mật khẩu thất bại')
     }
-
   },
 
 

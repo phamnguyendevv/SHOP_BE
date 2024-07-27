@@ -65,6 +65,7 @@ class MyLogger {
     }
 
     error(message, params) {
+        console.log('error', message, params)
         const paramsLog = this.commonParams(params);
         const logObject = Object.assign({ message }, paramsLog);
         this.logger.error(logObject);

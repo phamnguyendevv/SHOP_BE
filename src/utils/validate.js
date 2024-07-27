@@ -29,9 +29,8 @@ const validate = validations => {
 
     myLogger.error(`Validation Error :: ${req.method}`, params);
 
-   
-    res.status(400).json({ errors: errors.array()});
-    
+    res.status(422).json({ message, status });
+
   }
 }
 
