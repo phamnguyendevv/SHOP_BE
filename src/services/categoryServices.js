@@ -48,6 +48,58 @@ let CategoryService = {
             throw new Error("Không lấy được danh mục")
         }
     },
+    getCategoryList: async (data) => {
+        try {
+            const { pagingParams, filterParams } = data;
+            const { keyword, pageIndex, isPaging, pageSize } = pagingParams;
+            const { is_popular } = filterParams;
+            // Construct the SQL query
+            let query = `SELECT p.* FROM categories p `;
+            let conditions = [];
+            let joins = [];
+            if (keyword) {
+                conditions.push(`p.name LIKE '%${keyword}%'`);
+            }
+            if (is_popular === 1) {
+                conditions.push(`p.is_popular = 1`);
+            }
+
+            // Combine joins and conditions
+            if (joins.length > 0) {
+                query += joins.join(" ");
+            }
+            if (conditions.length > 0) {
+                query += " WHERE " + conditions.join(" AND ");
+            }
+
+            // Apply paging
+            if (isPaging) {
+                const offset = (pageIndex - 1) * pageSize;
+                query += ` LIMIT ${pageSize} OFFSET ${offset}`;
+            }
+
+            const totalCountQuery =
+                `SELECT COUNT(DISTINCT p.id) as totalCount FROM categories p ` +
+                (joins.length > 0 ? joins.join(" ") : "") +
+                (conditions.length > 0 ? " WHERE " + conditions.join(" AND ") : "");
+
+            const [totalCountRows, totalCountFields] = await connection.query(
+                totalCountQuery
+            );
+            const totalCount = totalCountRows[0].totalCount;
+
+            // Calculate total pages
+            const totalPage = Math.ceil(totalCount / pageSize);
+
+            // Execute main query to get data
+            const [rows, fields] = await connection.query(query);
+
+            return { data: rows, meta: { total: totalCount, totalPage: totalPage } };
+        } catch (error) {
+            throw new Error("Không lấy được danh mục")
+        }  
+    },
+
 
     //update category
     updateCategory: async (category) => {

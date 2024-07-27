@@ -180,6 +180,13 @@ CREATE TABLE product_cart (
     created_at DATETIME,
     updated_at DATETIME
 );
+CREATE TABLE technology (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    category_id INT,
+    name VARCHAR(255),
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
 
 -- Tạo bảng Discount
 CREATE TABLE discount (

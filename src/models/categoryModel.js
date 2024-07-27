@@ -70,6 +70,19 @@ let CategoryModel = {
     }
   },
 
+  getCategoryList: async (connection) => {
+    try {
+      const categories = await connection.execute(
+        "SELECT id, name, slug, image FROM `categories`"
+      );
+      return categories;
+    } catch (error) {
+      // Xử lý lỗi ở đây
+      throw new Error("Error in getCategoryList");
+    }
+  },
+  
+
   //update category
   updateCategory: async (connection, category) => {
     const fieldsToUpdate = [];
