@@ -9,24 +9,6 @@ let ProductModel = {
 
     return rows;
   },
-
-  findProductById: async (connection, id) => {
-    const [rows] = await connection.execute(
-      "SELECT * FROM `product` WHERE id = ?",
-      [id]
-    );
-
-    return rows[0];
-  },
-  // find data by slug
-  findProductBySlug: async (connection, fullSlug) => {
-    const [rows] = await connection.execute(
-      "SELECT * FROM `product` WHERE slug = ?",
-      [fullSlug]
-    );
-    return rows;
-  },
-
   getProductByField: async (connection, field, value) => {
     const query = `SELECT * FROM \`product\` WHERE ${field} = ?`;
     const [rows, fields] = await connection.execute(query, [value]);
@@ -37,8 +19,8 @@ let ProductModel = {
   addProduct: async (connection, productData) => {
     try {
       const query = `INSERT INTO product 
-                            (user_id, status_id, name, price, url_demo, is_popular, description, sold, code_discount, pre_order, points, slug, technology, created_at, updated_at) 
-                            VALUES (?, ?, ?, ?, ?, 0, ?, 0, ?, ?, ?, ?, ?, CURDATE(), CURDATE())`;
+                            (user_id, status_id, name, price, url_demo, is_popular, description, sold, code_discount, pre_order, points, slug, created_at, updated_at) 
+                            VALUES (?, ?, ?, ?, ?, 0, ?, 0, ?, ?, ?, ?, CURDATE(), CURDATE())`;
 
       // Thực hiện truy vấn để chèn dữ liệu
       const [result] = await connection.query(query, [
@@ -52,7 +34,6 @@ let ProductModel = {
         productData.pre_order || 0,
         productData.points || 0,
         productData.slug,
-        JSON.stringify(productData.technology),
       ]);
 
       return result;
@@ -152,80 +133,6 @@ let ProductModel = {
       console.error("Không xóa được sản phẩm: ", error);
       throw new Error("Không tìm thấy sản phẩm với id này");
     }
-  },
-
-  //----------------------------- product category ------------------------------
-  addProductCategory: async (connection, product_id, category_id) => {
-    const query = `INSERT INTO categories_products (product_id, category_id) VALUES (?, ?)`;
-    const [result] = await connection.query(query, [product_id, category_id]);
-    return result;
-  },
-
-  //--------------------------- classify ------------------------------
-
-  findClassifyById: async (connection, id) => {
-    const [rows, fields] = await connection.execute(
-      "SELECT * FROM `classify` WHERE id = ?",
-      [id]
-    );
-    return rows[0];
-  },
-
-  getClassifyByField: async (connection, field, value) => {
-    const query = `SELECT * FROM \`classify\` WHERE ${field} = ?`;
-    const [rows, fields] = await connection.execute(query, [value]);
-    return rows;
-  },
-
-  addClassify: async (connection, productId, classifyData) => {
-    const query = `INSERT INTO classify (product_id, name,price,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
-    const [result] = await connection.query(query, [
-      productId,
-      classifyData.name,
-      classifyData.price,
-      classifyData.url_download,
-    ]);
-    return result;
-  },
-
-  updateClassify: async (connection, productId, classifyData) => {
-    const fieldsToUpdate = [];
-    const params = [];
-
-    if (classifyData.name !== undefined) {
-      fieldsToUpdate.push("name = ?");
-      params.push(classifyData.name);
-    }
-    if (productId !== undefined) {
-      fieldsToUpdate.push("product_id = ?");
-      params.push(productId);
-    }
-    if (classifyData.price !== undefined) {
-      fieldsToUpdate.push("price = ?");
-      params.push(classifyData.price);
-    }
-    if (classifyData.url_download !== undefined) {
-      fieldsToUpdate.push("url_download = ?");
-      params.push(classifyData.url_download);
-    }
-    params.push(classifyData.id);
-
-    const fieldsToUpdateString = fieldsToUpdate.join(", ");
-    const query = `UPDATE classify SET ${fieldsToUpdateString}, updated_at = NOW() WHERE id = ?`;
-
-    const [result] = await connection.query(query, params);
-  },
-
-  getClassifyByProduct: async (connection, product_id) => {
-    const query = `SELECT * FROM classify WHERE product_id = ?`;
-    const [result] = await connection.query(query, product_id);
-    return result;
-  },
-
-  deleteClassify: async (connection, id) => {
-    const query = `DELETE FROM classify WHERE product_id = ?`;
-    const [result] = await connection.query(query, id);
-    return result;
   },
 };
 

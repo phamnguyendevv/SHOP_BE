@@ -24,7 +24,6 @@ let CategoryService = {
     },
 
 
-    
 
     // add new category
     addCategory: async (data) => {

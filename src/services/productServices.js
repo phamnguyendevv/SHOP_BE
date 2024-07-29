@@ -1,105 +1,112 @@
+import mysql from "mysql2";
+import getSlug from "speakingurl";
+import crypto from "crypto";
 import Connection from "../db/configMysql.js";
-const connection = await Connection();
+import CategoryService from "./categoryServices.js";
 import CategoryModel from "../models/categoryModel.js";
 import ProductModel from "../models/productModel.js";
-import getSlug from "speakingurl";
-import mysql from "mysql2";
-
-import crypto from "crypto";
-import { clearScreenDown } from "readline";
-import CategoryService from "./categoryServices.js";
-import categoryProdcutModel from "../models/categoryProductModel.js";
+import ClassifyModel from "../models/classifyModel.js";
+import TechnologyModel from "../models/technologyModel.js";
 import categoryProductModel from "../models/categoryProductModel.js";
+import categoryProdcutModel from "../models/categoryProductModel.js";
+import ProductTechnologyModel from "../models/productTechnologyMode.js";
+const connection = await Connection();
 
 let ProductServices = {
   createSlug: async (name) => {
     const slug = getSlug(name, { lang: "vn" });
-
-    let fullSlug, existingCategory;
+    let fullSlug, existingProductSlug;
     do {
       const randomInt = crypto.randomBytes(4).readUInt32LE();
       fullSlug = `${slug}-${randomInt}`;
-      existingCategory = await ProductModel.findProductBySlug(
+      existingProductSlug = await ProductModel.getProductByField(
         connection,
+        "slug",
         fullSlug
       );
-    } while (!existingCategory);
+    } while (existingProductSlug);
     return fullSlug;
   },
 
   //addProduct
   addProduct: async (data) => {
-    const { productData, classifyData } = data;
+      const { productData, classifyData } = data;
 
-    // Generate slug for the product
-    const slug = await ProductServices.createSlug(productData.name);
-    productData.slug = slug;
+      // Generate slug for the product
+      const slug = await ProductServices.createSlug(productData.name);
 
-    // Add product to the database
-    const newProduct = await ProductModel.addProduct(connection, productData);
+      productData.slug = slug;
+      // Add product to the database
+      const newProduct = await ProductModel.addProduct(connection, productData);
 
-    const productId = newProduct.insertId;
-
-    // Handle categories
-    const categoryPromises = productData.categories.map(
-      async (nameCategory) => {
-        let category = await CategoryModel.getCategoryByField(
-          connection,
-          "name",
-          nameCategory
-        );
-
-        if (!category) {
-          // Add category if it doesn't exist
-
-          const newCategory = await CategoryService.addCategory({
-            name: nameCategory,
-          });
-          console.log("newCategory", newCategory);
-          category = newCategory;
-
-          // Add product-category relationship
-          await ProductModel.addProductCategory(
+      const productId = newProduct.insertId;
+      // Handle categories
+      const categoryPromises = productData.categories.map(
+        async (categoryId) => {
+          const category = await CategoryModel.getCategoryByField(
             connection,
-            productId,
-            category.id
+            "id",
+            categoryId
           );
-        } else {
-          // Check if the product-category relationship already exists
+          if (!category) {
+            throw new Error("Không tìm thấy danh mục sản phẩm");
+          }
+
           const existingRelationship =
-            await categoryProdcutModel.getRelationshipByProductIdAndCategoryId(
+            await categoryProductModel.getRelationshipByProductIdAndCategoryId(
               connection,
               productId,
-              category.id
+              categoryId
             );
-
-          if (existingRelationship) {
-            return;
+          if (!existingRelationship) {
+            await categoryProductModel.addProductCategory(
+              connection,
+              productId,
+              categoryId
+            );
           }
         }
+      );
 
-        // Add product-category relationship
-        await ProductModel.addProductCategory(
-          connection,
-          productId,
-          category.id
-        );
+      // Handle technologies
+      const technologiesPromises = productData.technologies.map(
+        async (technologyId) => {
+          const exitTechnology = await TechnologyModel.getTechnologyByField(
+            connection,
+            "id",
+            technologyId
+          );
+          if (!exitTechnology) {
+            throw new Error("Không tìm thấy công nghệ sản phẩm");
+          }
+          await ProductTechnologyModel.addProductTechnology(
+            connection,
+            productId,
+            technologyId
+          );
+        }
+      );
+
+      // Wait for all category and technology promises to complete
+      await Promise.all([...categoryPromises, ...technologiesPromises]);
+
+      // Prepare classify data and insert into database
+      if (classifyData && classifyData.length > 0) {
+        {
+          const classifyDataArray = classifyData.map((classify) => ({
+            ...classify,
+            product_id: productId,
+          }));
+          const classifyPromises = classifyDataArray.map((classify) =>
+            ClassifyModel.addClassify(connection, productId, classify)
+          );
+          await Promise.all(classifyPromises);
+        }
+      } else {
+        throw new Error("Không tìm thấy phân loại sản phẩm");
       }
-    );
 
-    await Promise.all(categoryPromises);
-
-    // Prepare classify data and insert into database
-    const classifyDataArray = classifyData.map((classify) => ({
-      ...classify,
-      product_id: productId,
-    }));
-    const classifyPromises = classifyDataArray.map((classify) =>
-      ProductModel.addClassify(connection, productId, classify)
-    );
-    await Promise.all(classifyPromises);
-
-    return newProduct;
+      return newProduct;
   },
 
   updateProduct: async (data) => {
@@ -157,7 +164,7 @@ let ProductServices = {
           category = await CategoryService.addCategory({ name: nameCategory });
         }
         // Add product-category relationship
-        await ProductModel.addProductCategory(
+        await categoryProductModel.addProductCategory(
           connection,
           productId,
           category.id
@@ -184,24 +191,27 @@ let ProductServices = {
         const classifyId = Number(classify.id);
         if (existingClassifyMap.has(classifyId)) {
           // Cập nhật phân loại hiện có
-          return ProductModel.updateClassify(connection, productId, classify);
+          return ProductMClassifyModelodel.updateClassify(
+            connection,
+            productId,
+            classify
+          );
         } else {
           // Thêm phân loại mới
           classify.product_id = productId;
-          return ProductModel.addClassify(connection, productId, classify);
+          return ClassifyModel.addClassify(connection, productId, classify);
         }
       });
 
       // Chờ tất cả các Promise hoàn thành
       await Promise.all(updateClassifyPromises);
     }
-    return await ProductModel.findProductById(connection, productId);
+    return await ProductModel.getProductByField(connection, "id", productId);
   },
 
   deleteProduct: async (id) => {
     try {
-      console.log("id", id);
-      const resultClassify = await ProductModel.deleteClassify(connection, id);
+      const resultClassify = await ClassifyModel.deleteClassify(connection, id);
       const removeProductCategory =
         await categoryProdcutModel.removeProductCategory(connection, id);
 
@@ -220,14 +230,11 @@ let ProductServices = {
       "slug",
       slug_product
     );
-    console.log("product", product);
-
     const categories = await categoryProductModel.getCategoriesByProductId(
       connection,
       product.id
     );
-
-    const classify = await ProductModel.getClassifyByField(
+    const classify = await ClassifyModel.getClassifyByField(
       connection,
       "product_id",
       product.id
@@ -236,8 +243,6 @@ let ProductServices = {
     console.log("result", result);
     return result;
   },
-
-  // --------------------------------------------product Popular--------------------------------------------
 
   getList: async (data) => {
     const { pagingParams, filterParams } = data;
@@ -261,7 +266,7 @@ let ProductServices = {
       const categoryIdArray = categoryIdResults.map((result) => result.id);
 
       // Thêm phép nối (join)
-      joins.push(`INNER JOIN categories_products pc ON p.id = pc.product_id`);
+      joins.push(`INNER JOIN products_categories pc ON p.id = pc.product_id`);
 
       // Thêm điều kiện lọc
       conditions.push(

@@ -17,6 +17,7 @@ router.get("/api/v0", (req, res) => {
 router.use('/api/v0/auth', authRouter)
 router.use('/api/v0/user',userRouter)
 router.use('/api/v0/category', cateRouter)
+router.use("/api/v0/technology", cateRouter);
 router.use('/api/v0/product', productRouter)
 router.use('/api/v0/discount', discountRote)
 router.use('/api/v0/cart', cartRouter)

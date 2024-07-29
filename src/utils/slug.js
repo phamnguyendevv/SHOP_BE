@@ -16,7 +16,11 @@ const createSlug = async (name, type) => {
     do {
         const randomInt = crypto.randomBytes(4).readUInt32LE();
         fullSlug = `${slug}.${prefix}-${randomInt}`;
-        existingProduct = await ProductModel.findProductBySlug(connection, fullSlug);
+        existingProduct = await ProductModel.getProductByField(
+            connection,
+            'slug',
+          fullSlug
+        );
     } while (existingProduct);
 
     return fullSlug;

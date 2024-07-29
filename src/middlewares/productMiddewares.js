@@ -5,6 +5,7 @@ import CategoryModel from "../models/categoryModel.js";
 import { validationResult, check, body, checkSchema } from "express-validator";
 
 import Connection from "../db/configMysql.js";
+import ClassifyModel from "../models/classifyModel.js";
 const connection = await Connection();
 
 const productDataSchema = {
@@ -150,7 +151,7 @@ let productMiddlewares = {
           errorMessage: "Mô tả sản phẩm không được để trống",
         },
       },
-      "productData.technology": {
+      "productData.technologies": {
         in: ["body"],
         isArray: {
           errorMessage: "Công nghệ sản phẩm phải là mảng",
@@ -190,8 +191,9 @@ let productMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await ProductModel.findProductById(
+              const user = await ProductModel.getProductByField(
                 connection,
+                "id",
                 value
               );
               if (!user) {
@@ -222,8 +224,7 @@ let productMiddlewares = {
             errorMessage: "Tên sản phẩm phải là chuỗi",
           },
         },
-        "productData.price": {
-        },
+        "productData.price": {},
         "productData.url_demo": {
           isURL: {
             options: { require_protocol: true },
@@ -240,7 +241,6 @@ let productMiddlewares = {
           },
         },
         "productData.description": {
-        
           isLength: {
             options: { min: 1 },
             errorMessage: "Mô tả sản phẩm không được để trống",
@@ -260,8 +260,9 @@ let productMiddlewares = {
           trim: true,
           custom: {
             options: async (value, { req }) => {
-              const classify = await ProductModel.findClassifyById(
+              const classify = await ClassifyModel.getClassifyByField(
                 connection,
+                "id",
                 value
               );
               if (!classify) {
@@ -280,12 +281,12 @@ let productMiddlewares = {
         "classifyData.*.price": {
           isNumeric: {
             errorMessage: "Giá sản phẩm phải là số",
-          }
+          },
         },
         "classifyData.*.url_download": {
           isString: {
             errorMessage: "URL tải xuống phải là chuỗi",
-          }
+          },
         },
       },
       ["body"]

@@ -180,11 +180,19 @@ CREATE TABLE product_cart (
     created_at DATETIME,
     updated_at DATETIME
 );
-CREATE TABLE technology (
+CREATE TABLE technologies  (
     id INT PRIMARY KEY AUTO_INCREMENT,
     category_id INT,
     name VARCHAR(255),
     FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+CREATE TABLE products_technologies (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT,
+    technology_id INT,
+    FOREIGN KEY (product_id) REFERENCES product(id),
+    FOREIGN KEY (technology_id) REFERENCES technology(id)
 );
 
 
@@ -212,12 +220,14 @@ CREATE TABLE discount_used (
 
 );
 
-CREATE TABLE categories_products (
+CREATE TABLE products_categories (
     category_id INT ,
     product_id INT ,
     FOREIGN KEY (category_id) REFERENCES categories(id),
     FOREIGN KEY (product_id) REFERENCES product(id)
 );
+
+
 
 
 
