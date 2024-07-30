@@ -15,6 +15,8 @@ let ProductModel = {
     return rows[0];
   },
 
+  
+
   // add new data
   addProduct: async (connection, productData) => {
     try {
@@ -134,6 +136,9 @@ let ProductModel = {
       throw new Error("Không tìm thấy sản phẩm với id này");
     }
   },
+
+  
+  
 };
 
 export default ProductModel;

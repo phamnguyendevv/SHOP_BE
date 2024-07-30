@@ -6,10 +6,13 @@ import CategoryService from "./categoryServices.js";
 import CategoryModel from "../models/categoryModel.js";
 import ProductModel from "../models/productModel.js";
 import ClassifyModel from "../models/classifyModel.js";
+
 import TechnologyModel from "../models/technologyModel.js";
+
 import categoryProductModel from "../models/categoryProductModel.js";
 import categoryProdcutModel from "../models/categoryProductModel.js";
 import ProductTechnologyModel from "../models/productTechnologyMode.js";
+import ImageModel from "../models/imageModel.js";
 const connection = await Connection();
 
 let ProductServices = {
@@ -30,83 +33,83 @@ let ProductServices = {
 
   //addProduct
   addProduct: async (data) => {
-      const { productData, classifyData } = data;
+    const { productData, classifyData } = data;
 
-      // Generate slug for the product
-      const slug = await ProductServices.createSlug(productData.name);
+    // Generate slug for the product
+    const slug = await ProductServices.createSlug(productData.name);
 
-      productData.slug = slug;
-      // Add product to the database
-      const newProduct = await ProductModel.addProduct(connection, productData);
+    productData.slug = slug;
+    // Add product to the database
+    const newProduct = await ProductModel.addProduct(connection, productData);
 
-      const productId = newProduct.insertId;
-      // Handle categories
-      const categoryPromises = productData.categories.map(
-        async (categoryId) => {
-          const category = await CategoryModel.getCategoryByField(
-            connection,
-            "id",
-            categoryId
-          );
-          if (!category) {
-            throw new Error("Không tìm thấy danh mục sản phẩm");
-          }
-
-          const existingRelationship =
-            await categoryProductModel.getRelationshipByProductIdAndCategoryId(
-              connection,
-              productId,
-              categoryId
-            );
-          if (!existingRelationship) {
-            await categoryProductModel.addProductCategory(
-              connection,
-              productId,
-              categoryId
-            );
-          }
-        }
+    const productId = newProduct.insertId;
+    // Handle categories
+    const categoryPromises = productData.categories.map(async (categoryId) => {
+      const category = await CategoryModel.getCategoryByField(
+        connection,
+        "id",
+        categoryId
       );
-
-      // Handle technologies
-      const technologiesPromises = productData.technologies.map(
-        async (technologyId) => {
-          const exitTechnology = await TechnologyModel.getTechnologyByField(
-            connection,
-            "id",
-            technologyId
-          );
-          if (!exitTechnology) {
-            throw new Error("Không tìm thấy công nghệ sản phẩm");
-          }
-          await ProductTechnologyModel.addProductTechnology(
-            connection,
-            productId,
-            technologyId
-          );
-        }
-      );
-
-      // Wait for all category and technology promises to complete
-      await Promise.all([...categoryPromises, ...technologiesPromises]);
-
-      // Prepare classify data and insert into database
-      if (classifyData && classifyData.length > 0) {
-        {
-          const classifyDataArray = classifyData.map((classify) => ({
-            ...classify,
-            product_id: productId,
-          }));
-          const classifyPromises = classifyDataArray.map((classify) =>
-            ClassifyModel.addClassify(connection, productId, classify)
-          );
-          await Promise.all(classifyPromises);
-        }
-      } else {
-        throw new Error("Không tìm thấy phân loại sản phẩm");
+      if (!category) {
+        throw new Error("Không tìm thấy danh mục sản phẩm");
       }
 
-      return newProduct;
+      const existingRelationship =
+        await categoryProductModel.getRelationshipByProductIdAndCategoryId(
+          connection,
+          productId,
+          categoryId
+        );
+      if (!existingRelationship) {
+        await categoryProductModel.addProductCategory(
+          connection,
+          productId,
+          categoryId
+        );
+      }
+    });
+
+    // Handle technologies
+    const technologiesPromises = productData.technologies.map(
+      async (technologyId) => {
+        const exitTechnology = await TechnologyModel.getTechnologyByField(
+          connection,
+          "id",
+          technologyId
+        );
+        console.log("exitTechnology", exitTechnology);
+
+        if (!exitTechnology) {
+          throw new Error("Không tìm thấy công nghệ sản phẩm");
+        }
+        await ProductTechnologyModel.addProductTechnology(
+          connection,
+          productId,
+          technologyId
+        );
+      }
+    );
+
+    // Wait for all category and technology promises to complete
+    await Promise.all([...categoryPromises, ...technologiesPromises]);
+
+    // Prepare classify data and insert into database
+    if (classifyData && classifyData.length > 0) {
+      {
+        const classifyDataArray = classifyData.map((classify) => ({
+          ...classify,
+          product_id: productId,
+        }));
+        const classifyPromises = classifyDataArray.map((classify) =>
+          ClassifyModel.addClassify(connection, productId, classify)
+        );
+        await Promise.all(classifyPromises);
+      }
+    } else {
+      throw new Error("Không tìm thấy phân loại sản phẩm");
+    }
+
+    return newProduct;
   },
 
   updateProduct: async (data) => {
@@ -344,6 +347,20 @@ let ProductServices = {
 
     return { data: rows, meta: { total: totalCount, totalPage: totalPage } };
   },
+
+  addImage: async (data) => {
+    const result = await ImageModel.addImage(connection, data);
+    return result;
+  },
+  updateImage: async (data) => {
+    const result = await ImageModel.updateImage(connection, data);
+    return result;
+  },
+  deleteImage: async (id) => {
+    const result = await ImageModel.deleteImage(connection, id);
+    return result;
+  }
+
 };
 
 export default ProductServices;

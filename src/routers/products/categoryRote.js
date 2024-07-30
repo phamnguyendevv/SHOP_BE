@@ -9,9 +9,6 @@ const router = express.Router()
 
 router.post('/', categoryMiddlewares.addCategoryValidator, wrapAsync(categoryController.addCategory))
 
-//get all categories
-router.get('/', wrapAsync(categoryController.getAllCategories))
-
 //update category
 router.put('/', categoryMiddlewares.updateCategoryValidator, wrapAsync(categoryController.updateCategory))
 

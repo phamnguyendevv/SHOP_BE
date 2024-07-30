@@ -11,16 +11,6 @@ let categoryController = {
       result,
     });
   },
-
-  //get all categories
-  getAllCategories: async (req, res) => {
-    const result = await CategoryService.getAllCategories(req.body);
-    return res.json({
-      message: "Get all categories successfully!",
-      result,
-    });
-  },
-
   //update category
   updateCategory: async (req, res) => {
     const result = await CategoryService.updateCategory(req.body);

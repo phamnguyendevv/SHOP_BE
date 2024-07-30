@@ -1,35 +1,31 @@
 import express from "express";
-
+import technologyMiddlewares from "../../middlewares/technologyMiddlewares.js";
+import technologyController from "../../controllers/technologyController.js";
 import wrapAsync from "../../utils/handlers.js";
 const router = express.Router();
-
-
 
 // add technology
 router.post(
   "/",
-  categoryMiddlewares.addCategoryValidator,
-  wrapAsync(categoryController.addCategory)
+  technologyMiddlewares.addTechnologyValidator,
+  wrapAsync(technologyController.addTechnology)
 );
-
-//get all technology
-router.get("/", wrapAsync(categoryController.getAllCategories));
 
 //update technology
 router.put(
   "/",
-  categoryMiddlewares.updateCategoryValidator,
-  wrapAsync(categoryController.updateCategory)
+  technologyMiddlewares.updateTechnologyValidator,
+  wrapAsync(technologyController.updateTechnology)
 );
-
 //delete technology
 router.delete(
   "/",
-  categoryMiddlewares.deleteCategoryValidator,
-  wrapAsync(categoryController.deleteCategory)
+  technologyMiddlewares.deleteTechnologyValidator,
+  wrapAsync(technologyController.deleteTechnology)
 );
 
-// get technology get-list
-router.post("/get-list", wrapAsync(categoryController.getCategoryList));
+// // get technology get-list
+
+router.post("/get-list", wrapAsync(technologyController.getTechnologyList));
 
 export default router;

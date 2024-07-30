@@ -20,4 +20,19 @@ router.put('/status',wrapAsync(statusProductController.updateStatusController))
 router.delete('/status/:id',wrapAsync(statusProductController.deleteStatusController))
 
 
+router.post('/image',productMiddlewares.addImageValidator , wrapAsync(productController.addImageController))
+router.put(
+    "/image",
+    productMiddlewares.updateImageValidator,
+    wrapAsync(productController.updateImageController)
+);
+
+router.delete(
+  "/image",
+  productMiddlewares.deleteImageValidator,
+  wrapAsync(productController.deleteImageController)
+);
+router.get('/image', wrapAsync(productController.getImageController))
+
+
 export default router;

@@ -52,7 +52,6 @@ let CategoryModel = {
         [categoryId]
       );
 
-   
       return rows[0];
     } catch (error) {
       throw new Error(error);
@@ -81,39 +80,41 @@ let CategoryModel = {
       throw new Error("Error in getCategoryList");
     }
   },
-  
 
   //update category
   updateCategory: async (connection, category) => {
-    const fieldsToUpdate = [];
-    const params = [];
+    try {
+      const fieldsToUpdate = [];
+      const params = [];
+      console.log(category);
 
-    if (category.name !== undefined) {
-      fieldsToUpdate.push("name = ?");
-      params.push(category.name);
+      if (category.name !== undefined) {
+        fieldsToUpdate.push("name = ?");
+        params.push(category.name);
+      }
+      if (category.image !== undefined) {
+        fieldsToUpdate.push("image = ?");
+        params.push(category.image);
+      }
+      if (category.is_popular !== undefined) {
+        fieldsToUpdate.push("is_popular = ?");
+        params.push(parseInt(category.is_popular));
+      }
+
+      if (fieldsToUpdate.length === 0) {
+        throw new Error("Không có trường nào được cập nhật");
+      }
+
+      params.push(parseInt(category.id));
+
+      const fieldsToUpdateString = fieldsToUpdate.join(", ");
+      const query = `UPDATE categories SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
+      const result = await connection.execute(query, params);
+
+      return result;
+    } catch (error) {
+      console.log(error);
     }
-    if (category.image !== undefined) {
-      fieldsToUpdate.push("image = ?");
-      params.push(category.image);
-    }
-    if (category.popular !== undefined) {
-      fieldsToUpdate.push("popular = ?");
-      params.push(category.popular);
-    }
-
-    if (fieldsToUpdate.length === 0) {
-      throw new Error("Không có trường nào được cập nhật");
-    }
-
-    params.push(category.id);
-
-    const fieldsToUpdateString = fieldsToUpdate.join(", ");
-    console.log(fieldsToUpdateString);
-    const query = `UPDATE categories SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
-
-    const result = await connection.execute(query, params);
-
-    return result;
   },
 
   //delete category

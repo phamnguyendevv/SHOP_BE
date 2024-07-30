@@ -5,6 +5,7 @@ import cateRouter from './products/categoryRote.js'
 import productRouter from './products/productRotes.js'
 import discountRote from './products/discountRote.js'
 import cartRouter from './products/cartRote.js'
+import techRouter from './products/technologyRote.js'
 import swaggerUi from 'swagger-ui-express'
 import swaggerSpec from './swagger/index.js'
 
@@ -17,7 +18,7 @@ router.get("/api/v0", (req, res) => {
 router.use('/api/v0/auth', authRouter)
 router.use('/api/v0/user',userRouter)
 router.use('/api/v0/category', cateRouter)
-router.use("/api/v0/technology", cateRouter);
+router.use("/api/v0/technology", techRouter);
 router.use('/api/v0/product', productRouter)
 router.use('/api/v0/discount', discountRote)
 router.use('/api/v0/cart', cartRouter)

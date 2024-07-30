@@ -37,16 +37,6 @@ let CategoryService = {
             throw new Error("Không thêm được danh mục mới")
         }
     },
-
-    //get all categories
-    getAllCategories: async (category) => {
-        try {
-            const categories = await CategoryModel.getAllCategories(connection, category);
-            return categories[0];
-        } catch (error) {
-            throw new Error("Không lấy được danh mục")
-        }
-    },
     getCategoryList: async (data) => {
         try {
             const { pagingParams, filterParams } = data;
@@ -103,7 +93,6 @@ let CategoryService = {
     //update category
     updateCategory: async (category) => {
         try {
-         
             const result = await CategoryModel.updateCategory(connection, category);
         } catch (error) {
             throw new Error("Không cập nhật được danh mục")

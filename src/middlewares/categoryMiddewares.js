@@ -58,6 +58,23 @@ let categoryMiddlewares = {
   updateCategoryValidator: validate(
     checkSchema(
       {
+        user_id: {
+          trim: true,
+          isNumeric: {
+            errorMessage: "Mã người dùng phải là số",
+          },
+          custom: {
+            options: async (value, { req }) => {
+              const user = await UserModel.getUserById(connection, value);
+              if (!user) {
+                throw new Error("Người dùng không tồn tạii");
+              }
+              return true;
+            }
+          }
+
+        },
+
         id: {
           trim: true,
           isNumeric: {

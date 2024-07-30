@@ -138,7 +138,7 @@ CREATE TABLE categories (
     updated_at DATETIME
 );
 
-CREATE TABLE image (
+CREATE TABLE images (
     id INT PRIMARY KEY AUTO_INCREMENT,
     product_id INT,
     FOREIGN KEY (product_id) REFERENCES product(id),

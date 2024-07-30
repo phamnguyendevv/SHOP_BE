@@ -6,6 +6,7 @@ import { validationResult, check, body, checkSchema } from "express-validator";
 
 import Connection from "../db/configMysql.js";
 import ClassifyModel from "../models/classifyModel.js";
+import ImageModel from "../models/imageModel.js";
 const connection = await Connection();
 
 const productDataSchema = {
@@ -320,6 +321,100 @@ let productMiddlewares = {
       },
       ["query"]
     )
+  ),
+  addImageValidator: validate(
+    checkSchema({
+      product_id: {
+        trim: true,
+        isNumeric: {
+          errorMessage: "Mã sản phẩm phải là số",
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const product = await ProductModel.getProductByField(
+              connection,
+              "id",
+              value
+            );
+            if (!product) {
+              throw new Error("Không tìm thấy sản phẩm");
+            }
+            return true;
+          },
+        },
+      },
+      url: {
+        in: ["body"],
+      },
+    })
+  ),
+  updateImageValidator: validate(
+    checkSchema({
+      id: {
+        trim: true,
+        isNumeric: {
+          errorMessage: "Mã ảnh phải là số",
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const image = await ImageModel.getImageByField(
+              connection,
+              "id",
+              value
+            );
+            if (!image) {
+              throw new Error("Không tìm thấy ảnh");
+            }
+            return true;
+          },
+        },
+      },
+      product_id: {
+        trim: true,
+        isNumeric: {
+          errorMessage: "Mã sản phẩm phải là số",
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const product = await ProductModel.getProductByField(
+              connection,
+              "id",
+              value
+            );
+            if (!product) {
+              throw new Error("Không tìm thấy sản phẩm");
+            }
+            return true;
+          },
+        },
+      },
+      url: {
+        in: ["body"],
+      },
+    })
+  ),
+  deleteImageValidator: validate(
+    checkSchema({
+      id: {
+        trim: true,
+        isNumeric: {
+          errorMessage: "Mã ảnh phải là số",
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const image = await ImageModel.getImageByField(
+              connection,
+              "id",
+              value
+            );
+            if (!image) {
+              throw new Error("Không tìm thấy ảnh");
+            }
+            return true;
+          },
+        },
+      },
+    })
   ),
 };
 
