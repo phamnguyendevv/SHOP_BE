@@ -187,13 +187,6 @@ CREATE TABLE technologies  (
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
-CREATE TABLE products_technologies (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    product_id INT,
-    technology_id INT,
-    FOREIGN KEY (product_id) REFERENCES product(id),
-    FOREIGN KEY (technology_id) REFERENCES technology(id)
-);
 
 
 -- Tạo bảng Discount
@@ -214,6 +207,16 @@ CREATE TABLE products_categories (
     FOREIGN KEY (category_id) REFERENCES categories(id),
     FOREIGN KEY (product_id) REFERENCES product(id)
 );
+
+
+
+CREATE TABLE products_technologies (
+    product_id INT,
+    technology_id INT,
+    FOREIGN KEY (product_id) REFERENCES product(id),
+    FOREIGN KEY (technology_id) REFERENCES technologies(id)
+);
+
 
 
 
