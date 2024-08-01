@@ -1,4 +1,5 @@
 import ErrorWithStatus from "../utils/error.js";
+import CategoryModel from "./categoryModel.js";
 
 let categoryProductModel = {
   getRelationshipByProductIdAndCategoryId: async (
@@ -18,11 +19,13 @@ let categoryProductModel = {
   },
 
   getCategoriesByProductId: async (connection, productId) => {
-    const [rows, fields] = await connection.execute(
-      "SELECT c.* FROM categories c JOIN products_categories pc ON c.id = pc.category_id WHERE pc.product_id = ?",
-      [productId]
-    );
-    return rows;
+    let query = `SELECT c.* FROM categories c JOIN products_categories pc ON c.id = pc.category_id WHERE pc.product_id = ?`;
+    try {
+      const [rows, fields] = await connection.query(query, [productId]);
+      return rows;
+    } catch (error) {
+      throw new Error("Không lấy được danh mục sản phẩm");
+    }
   },
   //----------------------------- product category ------------------------------
   addProductCategory: async (connection, productId, categoryId) => {
@@ -36,25 +39,62 @@ let categoryProductModel = {
       throw new Error("Không thêm được danh mục sản phẩm");
     }
   },
+  updateProductCategories: async (transaction, productId, newCategories) => {
+    const existingCategories =
+      await categoryProductModel.getCategoriesByProductId(
+        transaction,
+        productId
+      );
+
+    const categoriesToAdd = newCategories.filter(
+      (newCat) =>
+        !existingCategories.some((existingCat) => existingCat.id === newCat)
+    );
+    const categoriesToRemove = existingCategories.filter(
+      (existingCat) => !newCategories.includes(existingCat.id)
+    );
+
+    await Promise.all([
+      ...categoriesToRemove.map((cat) =>
+        categoryProductModel.removeProductCategory(
+          transaction,
+          productId,
+          cat.id
+        )
+      ),
+      ...categoriesToAdd.map(async (catId) => {
+        const category = await CategoryModel.getCategoryByField(
+          transaction,
+          "id",
+          catId
+        );
+        if (!category) throw new Error("Không tìm thấy danh mục sản phẩm");
+        return categoryProductModel.addProductCategory(
+          transaction,
+          productId,
+          catId
+        );
+      }),
+    ]);
+  },
+
   removeProductCategory: async (connection, productId, categoryId) => {
-    console.log("productId", productId);
-    console.log("categoryId", categoryId);
-    const fieldsToUpdate = [];
-    const params = [];
-
-    if (productId !== undefined) {
-      fieldsToUpdate.push("product_id = ?");
-      params.push(productId);
+    try {
+      const query = `DELETE FROM products_categories WHERE product_id = ? AND category_id = ?`;
+      const [result] = await connection.query(query, [productId, categoryId]);
+      return result;
+    } catch (error) {
+      throw new Error("Không xóa được danh mục sản phẩm");
     }
-    if (categoryId !== undefined) {
-      fieldsToUpdate.push("category_id = ?");
-      params.push(categoryId);
+  },
+  removeProductCategoryByProductId: async (connection, productId) => {
+    try {
+      const query = `DELETE FROM products_categories WHERE product_id = ?`;
+      const [result] = await connection.query(query, [productId]);
+      return result;
+    } catch (error) {
+      throw new Error("Không xóa được danh mục sản phẩm");
     }
-    const fieldsToUpdateString = fieldsToUpdate.join(", ");
-    const query = `DELETE FROM products_categories WHERE ${fieldsToUpdateString}`;
-    const [result] = await connection.query(query, params);
-
-    return result;
   },
 };
 

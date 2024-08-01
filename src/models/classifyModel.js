@@ -51,6 +51,32 @@ let ClassifyModel = {
 
     const [result] = await connection.query(query, params);
   },
+  updateProductClassify: async (transaction, productId, classifyData) => {
+    const classifyIds = classifyData.map((classify) => classify.id);
+    const existingClassifyData = await ProductModel.findClassifyByIds(
+      transaction,
+      classifyIds
+    );
+    const existingClassifyMap = new Map(
+      existingClassifyData.map((item) => [item.id, true])
+    );
+
+    await Promise.all(
+      classifyData.map((classify) => {
+        const classifyId = Number(classify.id);
+        if (existingClassifyMap.has(classifyId)) {
+          return ProductClassifyModel.updateClassify(
+            transaction,
+            productId,
+            classify
+          );
+        } else {
+          classify.product_id = productId;
+          return ClassifyModel.addClassify(transaction, productId, classify);
+        }
+      })
+    );
+  },
 
   getClassifyByProduct: async (connection, product_id) => {
     const query = `SELECT * FROM classify WHERE product_id = ?`;

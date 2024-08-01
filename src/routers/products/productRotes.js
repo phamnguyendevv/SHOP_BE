@@ -32,6 +32,11 @@ router.delete(
   productMiddlewares.deleteImageValidator,
   wrapAsync(productController.deleteImageController)
 );
+router.get(
+  "/image",
+  productMiddlewares.getImageValidator,
+  wrapAsync(productController.getImageController)
+);
 router.get('/image', wrapAsync(productController.getImageController))
 
 

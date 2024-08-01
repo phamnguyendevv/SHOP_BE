@@ -78,6 +78,25 @@ let ImageModel = {
       throw new Error("Không xóa được ảnh");
     }
   },
+  getImage: async (connection, id) => {
+    try {
+      const query = `SELECT * FROM images WHERE id = ?`;
+      const [result] = await connection.query(query, [id]);
+      return result[0];
+    } catch (error) {
+      throw new Error("Không lấy được ảnh");
+    }
+  },
+  deleteImageByField: async (connection, field, value) => {
+    try {
+      const query = `DELETE FROM images WHERE ${field} = ?`;
+      const [result] = await connection.query(query, [value]);
+      return result;
+    } catch (error) {
+      throw new Error("Không xóa được ảnh");
+    }
+  },
+  
 };
 
 

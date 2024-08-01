@@ -15,8 +15,6 @@ let ProductModel = {
     return rows[0];
   },
 
-  
-
   // add new data
   addProduct: async (connection, productData) => {
     try {
@@ -46,7 +44,7 @@ let ProductModel = {
     }
   },
 
-  updateProduct: async (connection, productData) => {
+  updateProduct: async (transaction, productData) => {
     const fieldsToUpdate = [];
     const params = [];
 
@@ -90,10 +88,6 @@ let ProductModel = {
       fieldsToUpdate.push("pre_order = ?");
       params.push(productData.pre_order);
     }
-    if (productData.technology !== undefined) {
-      fieldsToUpdate.push("technology = ?");
-      params.push(JSON.stringify(productData.technology));
-    }
 
     params.push(productData.id);
 
@@ -101,7 +95,7 @@ let ProductModel = {
 
     const query = `UPDATE product SET ${fieldsToUpdateString}, updated_at = CURDATE() WHERE id = ?`;
 
-    const [result] = await connection.query(query, params);
+    const [result] = await transaction.query(query, params);
 
     return result;
   },
@@ -123,12 +117,7 @@ let ProductModel = {
 
   deleteProduct: async (connection, id) => {
     try {
-      const queryClassify = `DELETE FROM classify WHERE product_id = ?`;
-
-      const [resultClassify] = await connection.query(queryClassify, [id]);
-
       const queryProduct = `DELETE FROM product WHERE id = ?`;
-
       const [resultProduct] = await connection.query(queryProduct, [id]);
     } catch (error) {
       // Xử lý lỗi ở đây
@@ -136,9 +125,6 @@ let ProductModel = {
       throw new Error("Không tìm thấy sản phẩm với id này");
     }
   },
-
-  
-  
 };
 
 export default ProductModel;

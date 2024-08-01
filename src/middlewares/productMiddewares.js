@@ -131,13 +131,6 @@ let productMiddlewares = {
           errorMessage: "Tên sản phẩm không được để trống",
         },
       },
-      "productData.price": {
-        in: ["body"],
-        isFloat: {
-          options: { min: 0 },
-          errorMessage: "Giá sản phẩm phải là số dương",
-        },
-      },
       "productData.url_demo": {
         in: ["body"],
         isString: {
@@ -217,76 +210,6 @@ let productMiddlewares = {
               }
               return true;
             },
-          },
-        },
-        "productData.name": {
-          trim: true,
-          isString: {
-            errorMessage: "Tên sản phẩm phải là chuỗi",
-          },
-        },
-        "productData.price": {},
-        "productData.url_demo": {
-          isURL: {
-            options: { require_protocol: true },
-            errorMessage: "Định dạng URL demo không hợp lệ",
-          },
-        },
-        "productData.categories": {
-          isArray: {
-            errorMessage: "Danh mục sản phẩm phải là mảng",
-          },
-          custom: {
-            options: (value) => Array.isArray(value) && value.length > 0,
-            errorMessage: "Phải chọn ít nhất một danh mục",
-          },
-        },
-        "productData.description": {
-          isLength: {
-            options: { min: 1 },
-            errorMessage: "Mô tả sản phẩm không được để trống",
-          },
-        },
-        "productData.technology": {
-          isArray: {
-            errorMessage: "Công nghệ sản phẩm phải là mảng",
-          },
-          custom: {
-            options: (value) => Array.isArray(value) && value.length > 0,
-            errorMessage: "Phải chọn ít nhất một công nghệ",
-          },
-        },
-
-        "classifyData.*.id": {
-          trim: true,
-          custom: {
-            options: async (value, { req }) => {
-              const classify = await ClassifyModel.getClassifyByField(
-                connection,
-                "id",
-                value
-              );
-              if (!classify) {
-                throw new Error("Không tìm thấy loại sản phẩm");
-              }
-              return true;
-            },
-          },
-        },
-        "classifyData.*.name": {
-          isLength: {
-            options: { min: 1 },
-            errorMessage: "Tên sản phẩm không được để trống",
-          },
-        },
-        "classifyData.*.price": {
-          isNumeric: {
-            errorMessage: "Giá sản phẩm phải là số",
-          },
-        },
-        "classifyData.*.url_download": {
-          isString: {
-            errorMessage: "URL tải xuống phải là chuỗi",
           },
         },
       },
@@ -394,6 +317,29 @@ let productMiddlewares = {
     })
   ),
   deleteImageValidator: validate(
+    checkSchema({
+      id: {
+        trim: true,
+        isNumeric: {
+          errorMessage: "Mã ảnh phải là số",
+        },
+        custom: {
+          options: async (value, { req }) => {
+            const image = await ImageModel.getImageByField(
+              connection,
+              "id",
+              value
+            );
+            if (!image) {
+              throw new Error("Không tìm thấy ảnh");
+            }
+            return true;
+          },
+        },
+      },
+    })
+  ),
+  getImageValidator: validate(
     checkSchema({
       id: {
         trim: true,

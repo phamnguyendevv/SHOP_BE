@@ -208,6 +208,14 @@ CREATE TABLE discount (
     created_at DATETIME,
     updated_at DATETIME
 );
+CREATE TABLE products_categories (
+    category_id INT ,
+    product_id INT ,
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (product_id) REFERENCES product(id)
+);
+
+
 
 CREATE TABLE discount_used (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -219,17 +227,6 @@ CREATE TABLE discount_used (
     updated_at DATETIME
 
 );
-
-CREATE TABLE products_categories (
-    category_id INT ,
-    product_id INT ,
-    FOREIGN KEY (category_id) REFERENCES categories(id),
-    FOREIGN KEY (product_id) REFERENCES product(id)
-);
-
-
-
-
 
 
 
