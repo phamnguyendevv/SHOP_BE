@@ -37,10 +37,11 @@ let CategoryModel = {
     try {
     
       const result = await Connection.execute(
-        "INSERT INTO categories (name, slug, is_popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+        "INSERT INTO categories (name, slug, description,is_popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
         [
           data.name,
           data.slug || null, // Sử dụng null nếu giá trị không được chỉ định
+          data.description ,
           data.is_popular || false,
           data.image || null,
         ]
@@ -96,6 +97,10 @@ let CategoryModel = {
         fieldsToUpdate.push("image = ?");
         params.push(data.image);
       }
+      if (data.description !== undefined) {
+        fieldsToUpdate.push("description = ?");
+        params.push(data.description);
+      }
       if (data.is_popular !== undefined) {
         fieldsToUpdate.push("is_popular = ?");
         params.push(parseInt(data.is_popular));
@@ -109,6 +114,8 @@ let CategoryModel = {
 
       const fieldsToUpdateString = fieldsToUpdate.join(", ");
       const query = `UPDATE categories SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
+      console.log(query);
+      console.log(params);
       const result = await Connection.execute(query, params);
 
       return result;

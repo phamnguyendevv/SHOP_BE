@@ -139,49 +139,84 @@ let ProductServices = {
   async getList(data) {
     const { pagingParams, filterParams } = data;
     const { orderBy, keyword, pageIndex, isPaging, pageSize } = pagingParams;
-    const { categories, technologies, is_popular, priceRange } = filterParams;
+    const { categories, technologies, is_popular, priceRange, user_id } =
+      filterParams;
 
     const validSortFields = ["price", "name"];
     const validOrderFields = ["asc", "desc"];
 
-    let query = "SELECT DISTINCT p.* FROM product p";
-    let countQuery = "SELECT COUNT(DISTINCT p.id) as totalCount FROM product p";
+    let query = `
+    SELECT DISTINCT p.*, i.url as image, u.full_name as user_name, c.price as price_min
+    FROM product p
+    LEFT JOIN images i ON p.id = i.product_id AND i.type = 1
+    LEFT JOIN classify c ON p.id = c.product_id AND c.price = (
+      SELECT MIN(price) FROM classify WHERE product_id = p.id
+    )
+    LEFT JOIN user u ON p.user_id = u.id
+  `;
+    let countQuery = `
+    SELECT COUNT(DISTINCT p.id) as totalCount
+    FROM product p
+    LEFT JOIN classify c ON p.id = c.product_id AND c.price = (
+      SELECT MIN(price) FROM classify WHERE product_id = p.id
+    )
+  `;
     let conditions = [];
-    let joins = [];
-    let params = [];
+    let countConditions = [];
+    let queryParams = [];
+    let countParams = [];
 
     if (categories?.length > 0) {
-      joins.push("INNER JOIN products_categories pc ON p.id = pc.product_id");
+      query += " INNER JOIN products_categories pc ON p.id = pc.product_id";
+      countQuery +=
+        " INNER JOIN products_categories pc ON p.id = pc.product_id";
       conditions.push("pc.category_id IN (?)");
-      params.push(categories);
+      countConditions.push("pc.category_id IN (?)");
+      queryParams.push(categories);
+      countParams.push(categories);
     }
 
     if (technologies?.length > 0) {
-      joins.push("INNER JOIN products_technologies pt ON p.id = pt.product_id");
+      query += " INNER JOIN products_technologies pt ON p.id = pt.product_id";
+      countQuery +=
+        " INNER JOIN products_technologies pt ON p.id = pt.product_id";
       conditions.push("pt.technology_id IN (?)");
-      params.push(technologies);
+      countConditions.push("pt.technology_id IN (?)");
+      queryParams.push(technologies);
+      countParams.push(technologies);
     }
 
     if (keyword) {
       conditions.push("p.name LIKE ?");
-      params.push(`%${keyword}%`);
+      countConditions.push("p.name LIKE ?");
+      queryParams.push(`%${keyword}%`);
+      countParams.push(`%${keyword}%`);
     }
 
     if (priceRange) {
-      conditions.push("p.price BETWEEN ? AND ?");
-      params.push(priceRange.minPrice, priceRange.maxPrice);
+      conditions.push("c.price BETWEEN ? AND ?");
+      countConditions.push("c.price BETWEEN ? AND ?");
+      queryParams.push(priceRange.minPrice, priceRange.maxPrice);
+      countParams.push(priceRange.minPrice, priceRange.maxPrice);
     }
 
     if (is_popular === 1) {
       conditions.push("p.is_popular = 1");
+      countConditions.push("p.is_popular = 1");
     }
 
-    const joinClause = joins.join(" ");
-    const whereClause =
-      conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
+    if (user_id) {
+      conditions.push("p.user_id = ?");
+      countConditions.push("p.user_id = ?");
+      queryParams.push(user_id);
+      countParams.push(user_id);
+    }
 
-    query += ` ${joinClause} ${whereClause}`;
-    countQuery += ` ${joinClause} ${whereClause}`;
+    if (conditions.length > 0) {
+      const whereClause = " WHERE " + conditions.join(" AND ");
+      query += whereClause;
+      countQuery += " WHERE " + countConditions.join(" AND ");
+    }
 
     if (orderBy) {
       const [sortField, sortOrder] = orderBy.split(":");
@@ -189,7 +224,7 @@ let ProductServices = {
         validSortFields.includes(sortField) &&
         validOrderFields.includes(sortOrder)
       ) {
-        query += ` ORDER BY ${mysql.escapeId(sortField)} ${sortOrder}`;
+        query += ` ORDER BY p.${mysql.escapeId(sortField)} ${sortOrder}`;
       } else {
         throw new Error("Tham số sắp xếp không hợp lệ");
       }
@@ -197,18 +232,18 @@ let ProductServices = {
 
     if (isPaging) {
       query += " LIMIT ? OFFSET ?";
-      params.push(
+      queryParams.push(
         parseInt(pageSize),
         (parseInt(pageIndex) - 1) * parseInt(pageSize)
       );
     }
 
     try {
-      const [totalCountRows] = await connection.query(countQuery, params);
+      const [totalCountRows] = await connection.query(countQuery, countParams);
       const totalCount = totalCountRows[0].totalCount;
       const totalPage = Math.ceil(totalCount / pageSize);
 
-      const [rows] = await connection.query(query, params);
+      const [rows] = await connection.query(query, queryParams);
 
       return {
         data: rows,
