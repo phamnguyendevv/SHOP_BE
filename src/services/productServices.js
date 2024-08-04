@@ -270,24 +270,59 @@ async function handleCategories(productId, categories) {
     })
   );
 }
-// Hàm xử lý technologies
+// // Hàm xử lý technologies
+// async function handleTechnologies(productId, technologies) {
+//   await Promise.all(
+//     technologies.map(async (technologyId) => {
+//       const exitTechnology = await TechnologyModel.getTechnologyByField(
+//         "id",
+//         technologyId
+//       );
+//       if (!exitTechnology) {
+//         throw new Error("Không tìm thấy công nghệ sản phẩm");
+//       }
+//       await ProductTechnologyModel.addProductTechnology(
+//         productId,
+//         technologyId
+//       );
+//     })
+//   );
+// }
+
+
 async function handleTechnologies(productId, technologies) {
-  await Promise.all(
-    technologies.map(async (technologyId) => {
-      const exitTechnology = await TechnologyModel.getTechnologyByField(
+  const existingTechnologies =
+    await ProductTechnologyModel.getTechnologiesByProductId(productId);
+
+  const technologiesToAdd = technologies.filter(
+    (newTech) =>
+      !existingTechnologies.some((existingTech) => existingTech.id === newTech)
+  );
+  console.log("cần thêm",technologiesToAdd);
+  const technologiesToRemove = existingTechnologies.filter(
+    (existingTech) => !technologies.includes(existingTech.id)
+  );
+  console.log("cần xóa" ,technologiesToRemove);
+
+  await Promise.all([
+    ...technologiesToRemove.map((tech) =>
+      ProductTechnologyModel.deleteProductTechnology(productId, tech.id)
+    ),
+    ...technologiesToAdd.map(async (techId) => {
+      const technology = await TechnologyModel.getTechnologyByField(
         "id",
-        technologyId
+        techId
       );
-      if (!exitTechnology) {
+      if (!technology) {
         throw new Error("Không tìm thấy công nghệ sản phẩm");
       }
-      await ProductTechnologyModel.addProductTechnology(
-        productId,
-        technologyId
-      );
-    })
-  );
+      return ProductTechnologyModel.addProductTechnology(productId, techId);
+    }),
+  ]);
 }
+
+
+
 // Hàm xử lý images
 async function handleImages(productId, images) {
   console.log(images);
@@ -352,6 +387,7 @@ async function updateProductClassify(productId, classifyData) {
     })
   );
 }
+
 async function updateProductCategories(productId, newCategories) {
   const existingCategories =
     await categoryProductModel.getCategoriesByProductId(productId);
