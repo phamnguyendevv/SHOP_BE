@@ -29,9 +29,10 @@ let TechnologyService = {
         queryParams.push(`%${keyword}%`);
       }
 
-      if (category_id) {
-        conditions.push("t.category_id = ?");
-        queryParams.push(category_id);
+      if (category_id && category_id.length > 0) {
+        const placeholders = category_id.map(() => "?").join(",");
+        conditions.push(`t.category_id IN (${placeholders})`);
+        queryParams = queryParams.concat(category_id);
       }
 
       const whereClause =

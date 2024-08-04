@@ -6,7 +6,6 @@ let ProductModel = {
   findClassifyByIds: async (classifyIds) => {
     const placeholders = classifyIds.map(() => "?").join(",");
     const query = `SELECT * FROM classify WHERE id IN (${placeholders})`;
-
     const rows = await Connection.execute(query, classifyIds);
 
     return rows;

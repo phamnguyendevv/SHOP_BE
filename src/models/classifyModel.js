@@ -60,10 +60,16 @@ let ClassifyModel = {
     return result;
   },
 
-  deleteClassify: async (connection, id) => {
+  deleteClassify: async (id) => {
     const query = `DELETE FROM classify WHERE product_id = ?`;
-    const [result] = await connection.query(query, id);
+    const result = await Connection.query(query, id);
     return result;
   },
+  deleteClassify: async (product_id, id) => {
+    const query = `DELETE FROM classify WHERE product_id = ? AND id = ?`;
+    const result = await Connection.query(query, [product_id, id]);
+    return result;
+  },
+ 
 };
 export default ClassifyModel;

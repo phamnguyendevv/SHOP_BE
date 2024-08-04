@@ -358,27 +358,45 @@ async function handleClassifyData(productId, classifyData) {
     )
   );
 }
-
 async function updateProductClassify(productId, classifyData) {
-  const classifyIds = classifyData.map((classify) => classify.id);
-  const existingClassifyData = await ProductModel.findClassifyByIds(
-    classifyIds
-  );
-  const existingClassifyMap = new Map(
-    existingClassifyData.map((item) => [item.id, true])
-  );
+  const existingClassifies = await ClassifyModel.getClassifyByField(
+    "product_id",
+    productId);
 
-  await Promise.all(
-    classifyData.map((classify) => {
-      const classifyId = Number(classify.id);
-      if (existingClassifyMap.has(classifyId)) {
-        return ClassifyModel.updateClassify(productId, classify);
-      } else {
-        classify.product_id = productId;
-        return ClassifyModel.addClassify(productId, classify);
-      }
-    })
+  const classifiesToAdd = classifyData.filter(
+    (newClassify) =>
+      !existingClassifies.some(
+        (existingClassify) => existingClassify.id === newClassify.id
+      )
   );
+  console.log("cần thêm", classifiesToAdd);
+
+  const classifiesToRemove = existingClassifies.filter(
+    (existingClassify) =>
+      !classifyData.some(
+        (newClassify) => newClassify.id === existingClassify.id
+      )
+  );
+  console.log("cần xóa", classifiesToRemove);
+
+  await Promise.all([
+    ...classifiesToRemove.map((classify) =>
+      ClassifyModel.deleteClassify(productId, classify.id)
+    ),
+    ...classifiesToAdd.map(async (classify) => {
+      if (classify.id) {
+        const existingClassify = await ClassifyModel.getClassifyByField(
+          "id",
+          classify.id
+        );
+        if (existingClassify) {
+          return ClassifyModel.updateClassify(productId, classify);
+        }
+      }
+      classify.product_id = productId;
+      return ClassifyModel.addClassify(productId, classify);
+    }),
+  ]);
 }
 
 async function updateProductCategories(productId, newCategories) {
