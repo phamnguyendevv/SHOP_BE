@@ -1,33 +1,37 @@
+import Connection from "../db/configMysql.js";
+
+
 let ImageModel = {
-  getImageByField: async (connection, field, value) => {
+  getImageByField: async (field, value) => {
     try {
       const query = `SELECT * FROM images WHERE ${field} = ?`;
-      const [result] = await connection.query(query, [value]);
-      return result[0];
+      const result = await Connection.query(query, [value]);
+      return result;
     } catch (error) {
       throw new Error("Không lấy được ảnh");
     }
   },
-  addImage: async (connection, data) => {
+  addImage: async (data) => {
     try {
       const query = `INSERT INTO images (product_id, url, type) VALUES (?, ?, ?)`;
-
-      const [result] = await connection.query(query, [
+      console.log(`productId: ${data.product_id}, url: ${data.url}, type: ${data.type}`); 
+      const result = await Connection.query(query, [
         data.product_id,
         data.url,
         data.type,
       ]);
       // get inserted image
       const queryGet = `SELECT * FROM images WHERE id = ?`;
-      const [resultGet] = await connection.query(queryGet, [result.insertId]);
+      const resultGet = await Connection.query(queryGet, [result.insertId]);
       return resultGet[0];
     } catch (error) {
       throw new Error("Không thêm được ảnh");
     }
   },
-  updateImage: async (connection, data) => {
+  updateImage: async (data) => {
     try {
       // Base query
+    
       let query = `UPDATE images SET `;
       let queryParams = [];
       let updateFields = [];
@@ -58,11 +62,11 @@ let ImageModel = {
       queryParams.push(data.id);
 
       // Execute query
-      const [result] = await connection.query(query, queryParams);
+      const result = await Connection.query(query, queryParams);
 
       // get updated image
       const queryGet = `SELECT * FROM images WHERE id = ?`;
-      const [resultGet] = await connection.query(queryGet, [data.id]);
+      const resultGet = await Connection.query(queryGet, [data.id]);
       return resultGet[0];
     } catch (error) {
       throw new Error("Không cập nhật được ảnh");

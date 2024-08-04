@@ -2,8 +2,8 @@ import UserModel from '../models/userModel.js';
 import validate from '../utils/validate.js'; // Đảm bảo đường dẫn đúng
 import USERS_MESSAGES from '../constants/messages.js';
 import { checkSchema } from 'express-validator';
-import Connection from '../db/configMysql.js';
-const connection = await Connection();
+import Connection from "../db/configMysql.js";
+const connection = await Connection.getConnection();
 
 import passwordhandler from '../utils/password.js';
 import ErrorWithStatus from '../utils/error.js';
@@ -23,7 +23,10 @@ let discountMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-                    const user = await UserModel.getUserById(connection, value);
+                    const user = await UserModel.getUserByField(
+                      "id",
+                      value
+                    );
                     if (!user) {
                         throw new Error('User not found');
                     }
@@ -82,7 +85,10 @@ let discountMiddlewares = {
             },
             custom: {
                 options: async (value, { req }) => {
-                    const user = await UserModel.getUserById(connection, value);
+                    const user = await UserModel.getUserByField(
+                      "id",
+                      value
+                    );
                     if (!user) {
                         throw new Error('User not found');
                     }

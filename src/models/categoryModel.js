@@ -1,5 +1,5 @@
 import ErrorWithStatus from "../utils/error.js";
-
+import Connection from "../db/configMysql.js";
 let CategoryModel = {
   //get category by id
   getCategoryById: async (connection, id) => {
@@ -25,29 +25,30 @@ let CategoryModel = {
     return rows;
   },
 
-  getCategoryByField: async (connection, field, value) => {
+  getCategoryByField: async (field, value) => {
     const query = `SELECT * FROM \`categories\` WHERE ${field} = ?`;
-    const [rows, fields] = await connection.execute(query, [value]);
-    return rows[0];
+    const results = await Connection.execute(query, [value]);
+    return results;
   },
 
   // add new category
-  addCategory: async (connection, category) => {
+  addCategory: async (data) => {
     // Thực hiện truy vấn INSERT
     try {
-      const [result] = await connection.execute(
+    
+      const result = await Connection.execute(
         "INSERT INTO categories (name, slug, is_popular, image, created_at, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
         [
-          category.name,
-          category.slug || null, // Sử dụng null nếu giá trị không được chỉ định
-          category.is_popular || false,
-          category.image || null,
+          data.name,
+          data.slug || null, // Sử dụng null nếu giá trị không được chỉ định
+          data.is_popular || false,
+          data.image || null,
         ]
       );
       const categoryId = result.insertId;
 
       // Truy vấn SELECT để trả về thông tin của category mới
-      const [rows] = await connection.execute(
+      const rows = await Connection.execute(
         "SELECT * FROM categories WHERE id = ?",
         [categoryId]
       );
@@ -82,34 +83,33 @@ let CategoryModel = {
   },
 
   //update category
-  updateCategory: async (connection, category) => {
+  updateCategory: async (data) => {
     try {
       const fieldsToUpdate = [];
       const params = [];
-      console.log(category);
 
-      if (category.name !== undefined) {
+      if (data.name !== undefined) {
         fieldsToUpdate.push("name = ?");
-        params.push(category.name);
+        params.push(data.name);
       }
-      if (category.image !== undefined) {
+      if (data.image !== undefined) {
         fieldsToUpdate.push("image = ?");
-        params.push(category.image);
+        params.push(data.image);
       }
-      if (category.is_popular !== undefined) {
+      if (data.is_popular !== undefined) {
         fieldsToUpdate.push("is_popular = ?");
-        params.push(parseInt(category.is_popular));
+        params.push(parseInt(data.is_popular));
       }
 
       if (fieldsToUpdate.length === 0) {
         throw new Error("Không có trường nào được cập nhật");
       }
 
-      params.push(parseInt(category.id));
+      params.push(parseInt(data.id));
 
       const fieldsToUpdateString = fieldsToUpdate.join(", ");
       const query = `UPDATE categories SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
-      const result = await connection.execute(query, params);
+      const result = await Connection.execute(query, params);
 
       return result;
     } catch (error) {
@@ -118,10 +118,10 @@ let CategoryModel = {
   },
 
   //delete category
-  deleteCategory: async (connection, id) => {
+  deleteCategory: async (id) => {
     //get category by caterogy id
 
-    const result = await connection.execute(
+    const result = await Connection.execute(
       "DELETE FROM categories WHERE id = ?",
       [id]
     );

@@ -1,37 +1,16 @@
+import Connection from "../db/configMysql.js";
+
+
 let UserModel = {
-  getUserByEmail: async (connection, email) => {
-    const [rows, fields] = await connection.execute(
-      `SELECT * FROM user WHERE email = ?`,
-      [email]
-    );
-
-    return rows[0];
-  },
-
-  getUserById: async (connection, id) => {
-    const [rows, fields] = await connection.execute(
-      `SELECT * FROM user WHERE id = ?`,
-      [id]
-    );
-    return rows[0];
-  },
-  getUserByFullname: async (connection, fullname) => {
-    const [rows, fields] = await connection.execute(
-      `SELECT * FROM user WHERE full_name = ?`,
-      [fullname]
-    );
-
-    return rows[0];
-  },
-  getProductByField: async (connection, field, value) => {
+  getUserByField: async (field, value) => {
     const query = `SELECT * FROM \`user\` WHERE ${field} = ?`;
-    const [rows, fields] = await connection.execute(query, [value]);
-    return rows[0];
+    const results = await Connection.execute(query, [value]);
+    return results[0];
   },
 
-  createUser: async (connection, data, hashed, code) => {
+  createUser: async (data, hashed) => {
     try {
-      const [rows, fields] = await connection.execute(
+      const rows = await Connection.execute(
         `
             INSERT INTO user (
                 email,
@@ -62,19 +41,19 @@ let UserModel = {
           hashed,
           data.qr_admin,
           data.status_id || 1,
-          code,
+          data.referral_code,
         ]
       );
-      const user = await UserModel.getUserByEmail(connection, data.email);
+      const user = await UserModel.getUserByField("email", data.email);
       return user;
     } catch (error) {
       throw new Error("Không thêm được user");
     }
   },
-  createUserAdmin: async (connection, data, hashed, code) => {
+  createUserAdmin: async (data, hashed, code) => {
     try {
       console.log(data);
-      const [rows, fields] = await connection.execute(
+      const rows = await Connection.execute(
         `
             INSERT INTO user (
                 email,
@@ -106,30 +85,37 @@ let UserModel = {
           data.qr_admin,
           data.status_id || 1,
           data.role_id,
-          code,
+          data.referral_code,
         ]
       );
-      const user = await UserModel.getUserByEmail(connection, data.email);
+      const user = await UserModel.getUserByField("email", data.email);
       return user;
     } catch (error) {
       throw new Error("Không thêm được user");
     }
   },
+  updateUserReferralCode: async (id, referral_code) => {
+    
+      const results = await Connection.execute(
+        `UPDATE user SET referral_code = ? WHERE id = ?`,
+        [referral_code, id]
+      );
+      return results;
+  },
 
-  findAndUpdatePassword: async (connection, hashedPassword, id) => {
+  findAndUpdatePassword: async (hashedPassword, id) => {
     try {
-      const [rows, fields] = await connection.execute(
+      const results = await Connection.execute(
         `UPDATE user SET password = ? WHERE id = ?`,
         [hashedPassword, id]
       );
-      return rows;
+      return results;
     } catch (error) {
       throw new Error("Không cập nhật được mật khẩu");
     }
   },
-  updateUser: async (connection, data) => {
+  updateUser: async (data) => {
     try {
-      console.log(data);
       const fieldsToUpdate = [];
       const params = [];
 
@@ -161,6 +147,10 @@ let UserModel = {
         fieldsToUpdate.push("birthday = ?");
         params.push(data.birthday);
       }
+      if (data.referral_code !== undefined) {
+        fieldsToUpdate.push("referral_code = ?");
+        params.push(data.referral_code);
+      }
       if (data.sex !== undefined) {
         fieldsToUpdate.push("sex = ?");
         params.push(data.sex);
@@ -176,14 +166,12 @@ let UserModel = {
 
       const query = `UPDATE user SET ${fieldsToUpdateString}, updated_at = CURRENT_DATE WHERE id = ?`;
 
-      const result = await connection.execute(query, params);
+      const result = await Connection.execute(query, params);
       return result;
     } catch (error) {
       console.log(error);
       throw new Error("Không cập nhật được user");
     }
-
-    return result;
   },
 };
 

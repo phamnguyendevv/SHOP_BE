@@ -1,7 +1,7 @@
 import CartModel from '../models/cartModel.js';
 import ProductModel from '../models/productModel.js';
-import Connection from '../db/configMysql.js';
-const connection = await Connection();
+// import Connection from "../db/configMysql.js";
+// const connection = await Connection.getConnection();
 
 let CartService = {
     addToCart: async (data) => {

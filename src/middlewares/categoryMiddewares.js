@@ -3,7 +3,7 @@ import validate from "../utils/validate.js";
 import USERS_MESSAGES from "../constants/messages.js";
 import { checkSchema } from "express-validator";
 import Connection from "../db/configMysql.js";
-const connection = await Connection();
+const connection = await Connection.getConnection();
 
 import CategoryModel from "../models/categoryModel.js";
 import ProductModel from "../models/productModel.js";
@@ -20,7 +20,7 @@ let categoryMiddlewares = {
         //     },
         //     custom: {
         //         options: async (value, { req }) => {
-        //             const user = await UserModel.getUserById(connection, value);
+        //             const user = await UserModel.getUserByField("id", value);
         //             if (!user) {
         //                 throw new Error('Người dùng không tồn tại');
         //             }
@@ -65,14 +65,13 @@ let categoryMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserById(connection, value);
+              const user = await UserModel.getUserByField("id", value);
               if (!user) {
                 throw new Error("Người dùng không tồn tạii");
               }
               return true;
-            }
-          }
-
+            },
+          },
         },
 
         id: {
@@ -83,7 +82,6 @@ let categoryMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const category = await CategoryModel.getCategoryByField(
-                connection,
                 "id",
                 value
               );
@@ -114,7 +112,6 @@ let categoryMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const category = await CategoryModel.getCategoryByField(
-                connection,
                 "id",
                 value
               );

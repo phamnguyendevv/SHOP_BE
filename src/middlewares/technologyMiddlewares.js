@@ -2,10 +2,10 @@ import UserModel from "../models/userModel.js";
 import validate from "../utils/validate.js";
 import USERS_MESSAGES from "../constants/messages.js";
 import { checkSchema } from "express-validator";
-import Connection from "../db/configMysql.js";
 import CategoryModel from "../models/categoryModel.js";
 import TechnologyModel from "../models/technologyModel.js";
-const connection = await Connection();
+import Connection from "../db/configMysql.js";
+const connection = await Connection.getConnection();
 
 let technologyMiddlewares = {
   // add category validator
@@ -20,7 +20,6 @@ let technologyMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const category = await CategoryModel.getCategoryByField(
-                connection,
                 "id",
                 value
               );
@@ -36,11 +35,10 @@ let technologyMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const technology = await TechnologyModel.getTechnologyByField(
-                connection,
                 "name",
                 value
               );
-              if (technology) {
+              if (technology.length > 0) {
                 throw new Error("Công nghệ đã tồn tại");
               }
               return true;
@@ -59,7 +57,6 @@ let technologyMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const technology = await TechnologyModel.getTechnologyByField(
-                connection,
                 "id",
                 value
               );
@@ -78,7 +75,6 @@ let technologyMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const category = await CategoryModel.getCategoryByField(
-                connection,
                 "id",
                 value
               );
@@ -94,11 +90,10 @@ let technologyMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const technology = await TechnologyModel.getTechnologyByField(
-                connection,
                 "name",
                 value
               );
-              if (technology) {
+              if (technology.length > 0) {
                 throw new Error("Công nghệ đã tồn tại");
               }
               return true;
@@ -117,13 +112,10 @@ let technologyMiddlewares = {
               custom: {
               
                   options: async (value, { req }) => {
-                      console.log(value);
               const technology = await TechnologyModel.getTechnologyByField(
-                connection,
                 "id",
                 value
                   );
-                  console.log(technology);
               if (!technology) {
                 throw new Error("Công nghệ không tồn tại");
               }

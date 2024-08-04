@@ -1,7 +1,7 @@
 import express from 'express'
-import Connection from './src/db/configMysql.js'
 import indexRouter from './src/routers/index.js';
-import checkExitsDB from './src/db/checkExistsDB.js'
+import initDatabase from "./src/db/checkExistsDB.js";
+
 import logger from './src/loggers/loggerRun.js'
 import defaultErrorHandler from './src/middlewares/errorMiddewares.js'
 import dotenv from 'dotenv';
@@ -13,9 +13,7 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 //check database and create if not exists
-checkExitsDB()
-Connection()
-
+initDatabase();
 
 app.use(cors());
 

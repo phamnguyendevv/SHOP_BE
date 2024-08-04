@@ -2,11 +2,9 @@
 import UserModel from '../models/userModel.js';
 import password from '../utils/password.js';
 import { generateToken, refreshTokens, decoToken } from '../utils/jwt.js';
-import USERS_MESSAGES from '../constants/messages.js';
-import Connection from '../db/configMysql.js';
 import { sendEmail } from '../utils/email.js';
 import ErrorWithStatus from '../utils/error.js';
-const connection = await Connection();
+// const connection = await Connection.getConnection();
 
 import axios from 'axios';
 import crypto from 'crypto';
@@ -20,20 +18,22 @@ const tempCodes = {};
 let AuthService = {
 
   register: async (data) => {
-
-    const hashed = await password.hashPassword(data.password);
-    const referral_code = `${data.id}${code}`;
-    const user = await UserModel.createUser(connection, data, hashed, code);
-    if (!user) {
-      throw new ErrorWithStatus({"looi":400})
+    try {
+      const hashed = await password.hashPassword(data.password);
+      data.referral_code = code;
+      const user = await UserModel.createUser( data, hashed);
+      return user;
     }
-
+    catch (error) {
+      throw new Error('Tạo tài khoản thất bại')
+    }
+ 
   },
   registerAdmin: async (data) => {
 
     const hashed = await password.hashPassword(data.password);
-    const referral_code = `${data.id}${code}`;
-    const user = await UserModel.createUserAdmin(connection, data, hashed, code);
+    data.referral_code = `${data.id}${code}`;
+    const user = await UserModel.createUserAdmin( data, hashed);
     if (!user) {
       throw new ErrorWithStatus({"looi":400})
     }
@@ -62,7 +62,7 @@ let AuthService = {
     try {
       const { refreshToken } = data;
       const decod = await decoToken(refreshToken);
-      const user = await UserModel.getUserById(connection, decod.id);
+      const user = await UserModel.getUserByField("id", decod.id);
       const { password, created_at, updated_at, ...usercustom } = user;
       const newaccessToken = await generateToken(user);
       const expNewaccessToken = await decoToken(newaccessToken);
@@ -94,7 +94,7 @@ let AuthService = {
         throw new Error('Vui lòng nhập đầy đủ thông tin')
       }
       const hashedPassword = await password.hashPassword(newPassword);
-      const result = await UserModel.findAndUpdatePassword(connection, hashedPassword, id);
+      const result = await UserModel.findAndUpdatePassword( hashedPassword, id);
     } catch (error) {
       throw new Error('Cập nhật mật khẩu thất bại')
     }
@@ -110,7 +110,7 @@ let AuthService = {
     }
     delete tempCodes[email];
     const hashedPassword = await password.hashPassword(newPassword);
-    const result = UserModel.findAndUpdatePassword(connection, hashedPassword, email);
+    const result = UserModel.findAndUpdatePassword( hashedPassword, email);
     if (!result) {
       throw new Error('Cập nhật mật khẩu thất bại')
       }
@@ -173,13 +173,13 @@ let AuthService = {
       ]
       // Check if user exists in the database
       const users = { email, fullname, qr_admin }
-      let user = await UserModel.getUserByEmail(connection, email);
+      let user = await UserModel.getUserByField("email", email);
       if (!user) {
         // Create a new user
-        user = await UserModel.createUser(connection, users, hashedPassword);
+        user = await UserModel.createUser( users, hashedPassword);
         const referralCode = `${user.id}${codess}`;
         const userId = user.id;
-        await UserModel.updateUserReferralCode(connection, referralCode, userId);
+        await UserModel.updateUserReferralCode(userId, referralCode);
         return user;
       }
       // Create token pair

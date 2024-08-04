@@ -1,3 +1,5 @@
+import Connection from "../db/configMysql.js";
+
 let ClassifyModel = {
   findClassifyById: async (connection, id) => {
     const [rows, fields] = await connection.execute(
@@ -7,15 +9,15 @@ let ClassifyModel = {
     return rows[0];
   },
 
-  getClassifyByField: async (connection, field, value) => {
+  getClassifyByField: async ( field, value) => {
     const query = `SELECT * FROM \`classify\` WHERE ${field} = ?`;
-    const [rows, fields] = await connection.execute(query, [value]);
+    const rows = await Connection.execute(query, [value]);
     return rows;
   },
 
-  addClassify: async (connection, productId, classifyData) => {
+  addClassify: async ( productId, classifyData) => {
     const query = `INSERT INTO classify (product_id, name,price,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
-    const [result] = await connection.query(query, [
+    const result = await Connection.query(query, [
       productId,
       classifyData.name,
       classifyData.price,
@@ -24,58 +26,32 @@ let ClassifyModel = {
     return result;
   },
 
-  updateClassify: async (connection, productId, classifyData) => {
+  updateClassify: async (productId, data) => {
     const fieldsToUpdate = [];
     const params = [];
 
-    if (classifyData.name !== undefined) {
+    if (data.name !== undefined) {
       fieldsToUpdate.push("name = ?");
-      params.push(classifyData.name);
+      params.push(data.name);
     }
     if (productId !== undefined) {
       fieldsToUpdate.push("product_id = ?");
       params.push(productId);
     }
-    if (classifyData.price !== undefined) {
+    if (data.price !== undefined) {
       fieldsToUpdate.push("price = ?");
-      params.push(classifyData.price);
+      params.push(data.price);
     }
-    if (classifyData.url_download !== undefined) {
+    if (data.url_download !== undefined) {
       fieldsToUpdate.push("url_download = ?");
-      params.push(classifyData.url_download);
+      params.push(data.url_download);
     }
-    params.push(classifyData.id);
+    params.push(data.id);
 
     const fieldsToUpdateString = fieldsToUpdate.join(", ");
     const query = `UPDATE classify SET ${fieldsToUpdateString}, updated_at = NOW() WHERE id = ?`;
 
-    const [result] = await connection.query(query, params);
-  },
-  updateProductClassify: async (transaction, productId, classifyData) => {
-    const classifyIds = classifyData.map((classify) => classify.id);
-    const existingClassifyData = await ProductModel.findClassifyByIds(
-      transaction,
-      classifyIds
-    );
-    const existingClassifyMap = new Map(
-      existingClassifyData.map((item) => [item.id, true])
-    );
-
-    await Promise.all(
-      classifyData.map((classify) => {
-        const classifyId = Number(classify.id);
-        if (existingClassifyMap.has(classifyId)) {
-          return ProductClassifyModel.updateClassify(
-            transaction,
-            productId,
-            classify
-          );
-        } else {
-          classify.product_id = productId;
-          return ClassifyModel.addClassify(transaction, productId, classify);
-        }
-      })
-    );
+    const result = await Connection.query(query, params);
   },
 
   getClassifyByProduct: async (connection, product_id) => {

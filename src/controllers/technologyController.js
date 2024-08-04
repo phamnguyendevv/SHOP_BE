@@ -4,7 +4,6 @@ import TechnologyService from "../services/technologyServices.js";
 let technologyController = {
   // add new Technolog
   addTechnology: async (req, res) => {
-    console.log(req.body);
     const result = await TechnologyService.addTechnology(req.body);
     return res.json({
       message: "Thêm công nghệ thành công!",

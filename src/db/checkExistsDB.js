@@ -1,77 +1,68 @@
-import mysql from 'mysql2/promise';
-import fs from 'fs/promises';
+import mysql from "mysql2/promise";
+import fs from "fs/promises";
+import Connection from "./configMysql.js";
 
-const config = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  port: process.env.DB_PORT,
-};
+async function createDatabaseIfNotExists() {
+  const tempConnection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+  });
 
-const checkAndCreateDatabase = async () => {
   try {
-    const tempConnection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      port: process.env.DB_PORT,
-    });
-
-    const [rows] = await tempConnection.query('SHOW DATABASES LIKE ?', [process.env.DB_DATABASE]);
-    const databaseExists = rows.length > 0;
-
-    if (!databaseExists) {
+    const [rows] = await tempConnection.query("SHOW DATABASES LIKE ?", [
+      process.env.DB_DATABASE,
+    ]);
+    if (rows.length === 0) {
       await tempConnection.query(`CREATE DATABASE ${process.env.DB_DATABASE}`);
       console.log(`Database ${process.env.DB_DATABASE} created.`);
     }
-
+  } finally {
     await tempConnection.end();
-
-    return true;
-  } catch (error) {
-    throw new Error('Error while checking and creating database:', error);
   }
-};
+}
 
-const tableExists = async (connection, tableName) => {
+async function tableExists(connection, tableName) {
   const [rows] = await connection.query(
-    `SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = ? AND table_name = ?`,
-    [connection.config.database, tableName]
+    "SELECT 1 FROM information_schema.tables WHERE table_schema = ? AND table_name = ? LIMIT 1",
+    [process.env.DB_DATABASE, tableName]
   );
-  return rows[0].count === 1;
-};
+  return rows.length > 0;
+}
 
-const runSQLFile = async (connection, filePath) => {
-  const sql = await fs.readFile(filePath, 'utf8');
-  const statements = sql.split(';').filter((statement) => statement.trim() !== '');
+async function runSQLFile(connection, filePath) {
+  const sql = await fs.readFile(filePath, "utf8");
+  const statements = sql.split(";").filter((statement) => statement.trim());
   for (const statement of statements) {
     try {
       await connection.query(statement);
     } catch (error) {
-      continue;
+      console.warn(`Warning: Failed to execute statement: ${statement}`, error);
     }
   }
-};
+}
 
-const checkExitsDB = async () => {
+async function initDatabase() {
   try {
-    const databaseExists = await checkAndCreateDatabase();
-    if (databaseExists) {
-      const connection = await mysql.createConnection(config);
-      const tableName = 'discount_used';
-      const tableExistsResult = await tableExists(connection, tableName);
-      if (!tableExistsResult) {
+    await createDatabaseIfNotExists();
+    console.log(`Database ${process.env.DB_DATABASE} exists.`);
+
+    const connection = await Connection.getConnection();
+    try {
+      const tableName = "discount_used";
+      if (!(await tableExists(connection, tableName))) {
         console.log(`Table ${tableName} does not exist. Running SQL file...`);
-        await runSQLFile(connection, './src/db/shopeweb-database.sql');
-        console.log('SQL file executed successfully.');
-      } 
+        await runSQLFile(connection, "./src/db/shopeweb-database.sql");
+        console.log("SQL file executed successfully.");
+      }
       console.log(`Database ${process.env.DB_DATABASE} is ready to use.`);
-      await connection.end(); // Đóng kết nối ở đúng chỗ này
+    } finally {
+      connection.release();
     }
   } catch (error) {
-    console.error('Error while checking and creating database:', error);
+    console.error("Error while initializing database:", error);
   }
-};
+}
 
-export default checkExitsDB;
+export default initDatabase;

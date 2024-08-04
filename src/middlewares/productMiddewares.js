@@ -3,107 +3,10 @@ import validate from "../utils/validate.js"; // Đảm bảo đường dẫn đ�
 import ProductModel from "../models/productModel.js";
 import CategoryModel from "../models/categoryModel.js";
 import { validationResult, check, body, checkSchema } from "express-validator";
-
-import Connection from "../db/configMysql.js";
 import ClassifyModel from "../models/classifyModel.js";
 import ImageModel from "../models/imageModel.js";
-const connection = await Connection();
-
-const productDataSchema = {
-  user_id: {
-    in: ["body"],
-    trim: true,
-    isNumeric: {
-      errorMessage: "Mã người dùng phải là số",
-    },
-    custom: {
-      options: async (value, { req }) => {
-        const user = await UserModel.getUserById(connection, value);
-        if (!user) {
-          throw new Error("Người dùng không tồn tại");
-        }
-        return true;
-      },
-    },
-  },
-  name_product: {
-    in: ["body"],
-    trim: true,
-    isLength: {
-      options: { min: 1 },
-      errorMessage: "Tên sản phẩm không được để trống",
-    },
-  },
-  price: {
-    in: ["body"],
-    isFloat: {
-      options: { min: 0 },
-      errorMessage: "Giá sản phẩm phải là số dương",
-    },
-  },
-  url_Demo: {
-    in: ["body"],
-    isURL: {
-      options: { require_protocol: true },
-      errorMessage: "Định dạng URL demo không hợp lệ",
-    },
-  },
-  categories: {
-    in: ["body"],
-    isArray: {
-      errorMessage: "Category must be an array",
-    },
-    custom: {
-      options: (value) => Array.isArray(value) && value.length > 0,
-      errorMessage: "Phải chọn ít nhất một danh mục",
-    },
-  },
-  description: {
-    in: ["body"],
-    trim: true,
-    isLength: {
-      options: { min: 1 },
-      errorMessage: "Mô tả sản phẩm không được để trống",
-    },
-  },
-  technology: {
-    in: ["body"],
-    isArray: {
-      errorMessage: "Technology must be an array",
-    },
-    custom: {
-      options: (value) => Array.isArray(value) && value.length > 0,
-      errorMessage: "Phải chọn ít nhất một công nghệ",
-    },
-  },
-};
-
-// Define validation schema for classify data
-const classifyDataSchema = {
-  name_classify: {
-    in: ["body", "classifyData"],
-    trim: true,
-    isLength: {
-      options: { min: 1 },
-      errorMessage: "Tên phân loại sản phẩm không được để trống",
-    },
-  },
-  price_classify: {
-    in: ["body", "classifyData"],
-    isURL: {
-      options: { require_protocol: true },
-      errorMessage: "Định dạng URL hình ảnh không hợp lệ",
-    },
-  },
-  url_download: {
-    // Corrected field name
-    in: ["body", "classifyData"],
-    isURL: {
-      options: { require_protocol: true },
-      errorMessage: "Định dạng URL tải xuống không hợp lệ",
-    },
-  },
-};
+import Connection from "../db/configMysql.js";
+const connection = await Connection.getConnection();
 
 let productMiddlewares = {
   addProductValidator: validate(
@@ -115,7 +18,7 @@ let productMiddlewares = {
         },
         custom: {
           options: async (value, { req }) => {
-            const user = await UserModel.getUserById(connection, value);
+            const user = await UserModel.getUserByField("id", value);
             if (!user) {
               throw new Error("Người dùng không tồn tại");
             }
@@ -186,7 +89,6 @@ let productMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const user = await ProductModel.getProductByField(
-                connection,
                 "id",
                 value
               );
@@ -204,7 +106,7 @@ let productMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserById(connection, value);
+              const user = await UserModel.getUserByField("id", value);
               if (!user) {
                 throw new Error("Người dùng không tồn tại");
               }
@@ -229,7 +131,6 @@ let productMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const product = await ProductModel.getProductByField(
-                connection,
                 "id",
                 value
               );

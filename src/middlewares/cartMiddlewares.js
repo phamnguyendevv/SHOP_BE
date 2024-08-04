@@ -3,9 +3,9 @@ import validate from "../utils/validate.js"; // Đảm bảo đường dẫn đ�
 import ProductModel from "../models/productModel.js";
 import { checkSchema } from "express-validator";
 import statusProductModel from "../models/statusProductModel.js";
-import Connection from "../db/configMysql.js";
 import cartModel from "../models/cartModel.js";
-const connection = await Connection();
+import Connection from "../db/configMysql.js";
+const connection = await Connection.getConnection();
 
 let cartMiddlewares = {
   addCartValidator: validate(
@@ -38,7 +38,7 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserById(connection, value);
+              const user = await UserModel.getUserByField("id", value);
               if (!user) {
                 throw new Error("Không tìm thấy người dùng");
               }
@@ -81,7 +81,7 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserById(connection, value);
+              const user = await UserModel.getUserByField("id", value);
               if (!user) {
                 throw new Error("Không tìm thấy người dùng");
               }
@@ -142,7 +142,7 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserById(connection, value);
+              const user = await UserModel.getUserByField("id", value);
               if (!user) {
                 throw new Error("Không tìm thấy người dùng");
               }

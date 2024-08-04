@@ -3,8 +3,6 @@ import validate from "../utils/validate.js"; // Đảm bảo đường dẫn đ�
 import USERS_MESSAGES from "../constants/messages.js";
 import { checkSchema } from "express-validator";
 import passwordhandler from "../utils/password.js";
-import Connection from "../db/configMysql.js";
-const connection = await Connection();
 
 let userMiddlewares = {
   //register validator
@@ -20,7 +18,7 @@ let userMiddlewares = {
           },
           custom: {
             options: async (value) => {
-              const user = await UserModel.getUserByFullname(connection, value);
+              const user = await UserModel.getUserByField("full_name", value);
               if (user) {
                 throw new Error(USERS_MESSAGES.FULL_NAME_ALREADY_EXISTS);
               }
@@ -39,7 +37,7 @@ let userMiddlewares = {
           },
           custom: {
             options: async (value) => {
-              const user = await UserModel.getUserByEmail(connection, value);
+              const user = await UserModel.getUserByField("email", value);
 
               if (user) {
                 throw new Error(USERS_MESSAGES.EMAIL_ALREADY_EXISTS);
@@ -73,7 +71,7 @@ let userMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserByEmail(connection, value);
+              const user = await UserModel.getUserByField("email", value);
               if (!user) {
                 throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
               }
@@ -119,7 +117,10 @@ let userMiddlewares = {
         id: {
           custom: {
             options: async (value) => {
-              const user = await UserModel.getUserById(connection, value);
+              const user = await UserModel.getUserByField("id", value);
+              if (!user) {
+                throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
+              }
               return true;
             },
           },
@@ -136,7 +137,10 @@ let userMiddlewares = {
           trim: true,
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getProductByField(connection,"id", value);
+              const user = await UserModel.getUserByField(
+                "id",
+                value
+              );
               if (!user) {
                 throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
               }
@@ -182,7 +186,7 @@ let userMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await UserModel.getUserByEmail(connection, value);
+              const user = await UserModel.getUserByField("email", value);
               if (!user) {
                 throw new Error(USERS_MESSAGES.USER_NOT_FOUND);
               }

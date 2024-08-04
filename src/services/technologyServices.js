@@ -1,13 +1,12 @@
 import TechnologyModel from "../models/technologyModel.js";
 import Connection from "../db/configMysql.js";
-const connection = await Connection();
 
 let TechnologyService = {
   // add new Technology
   addTechnology: async (data) => {
     try {
       console.log(data);
-      const rows = await TechnologyModel.addTechnology(connection, data);
+      const rows = await TechnologyModel.addTechnology(data);
       return rows;
     } catch (err) {
       throw new Error("Không thêm được danh mục mới");
@@ -18,60 +17,59 @@ let TechnologyService = {
       const { pagingParams, filterParams } = data;
       const { keyword, pageIndex, isPaging, pageSize } = pagingParams;
       const { category_id } = filterParams;
-      // Construct the SQL query
-      let query = `SELECT t.* FROM technologies t `;
+
+      const page = Math.max(0, parseInt(pageIndex) - 1 || 0);
+      const limit = parseInt(pageSize) || 20;
+
       let conditions = [];
-      let joins = [];
+      let queryParams = [];
+
       if (keyword) {
-        conditions.push(`t.name LIKE '%${keyword}%'`);
+        conditions.push("t.name LIKE ?");
+        queryParams.push(`%${keyword}%`);
       }
 
       if (category_id) {
-        conditions.push(`t.category_id = ${category_id}`);
-      }
-      // Combine joins and conditions
-      if (joins.length > 0) {
-        query += joins.join(" ");
-      }
-      if (conditions.length > 0) {
-        query += " WHERE " + conditions.join(" AND ");
+        conditions.push("t.category_id = ?");
+        queryParams.push(category_id);
       }
 
-      // Apply paging
+      const whereClause =
+        conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+      // Sử dụng SQL_CALC_FOUND_ROWS để lấy tổng số bản ghi hiệu quả
+      let query = `SELECT SQL_CALC_FOUND_ROWS t.* FROM technologies t ${whereClause}`;
+
       if (isPaging) {
-        const offset = (pageIndex - 1) * pageSize;
-        query += ` LIMIT ${pageSize} OFFSET ${offset}`;
+        query += " LIMIT ? OFFSET ?";
+        queryParams.push(limit, page * limit);
       }
+      console.log(query);
+      // Thực hiện truy vấn chính
+      const rows = await Connection.query(query, queryParams);
 
-      const totalCountQuery =
-        `SELECT COUNT(DISTINCT t.id) as totalCount FROM technologies t ` +
-        (joins.length > 0 ? joins.join(" ") : "") +
-        (conditions.length > 0 ? " WHERE " + conditions.join(" AND ") : "");
-
-      const [totalCountRows, totalCountFields] = await connection.query(
-        totalCountQuery
+      // Lấy tổng số bản ghi
+      const totalResult = await Connection.query(
+        "SELECT FOUND_ROWS() as total"
       );
-      const totalCount = totalCountRows[0].totalCount;
+      const total = totalResult[0].total;
 
-      // Calculate total pages
-      const totalPage = Math.ceil(totalCount / pageSize);
+      const totalPages = Math.ceil(total / limit);
 
-      // Execute main query to get data
-      const [rows, fields] = await connection.query(query);
+      const meta = {
+        total,
+        totalPage: totalPages,
+      };
 
-      return { data: rows, meta: { total: totalCount, totalPage: totalPage } };
+      return { data: rows, meta };
     } catch (error) {
-      throw new Error("Không lấy được công nghệ");
+      throw new Error(`Không lấy được công nghệ`);
     }
   },
-
   //update Technology
-  updateTechnology: async (Technology) => {
+  updateTechnology: async (data) => {
     try {
-      const result = await TechnologyModel.updateTechnology(
-        connection,
-        Technology
-      );
+      const result = await TechnologyModel.updateTechnology(data);
     } catch (error) {
       throw new Error("Không cập nhật được danh mục");
     }
@@ -80,7 +78,7 @@ let TechnologyService = {
   //deleteTechnology
   deleteTechnology: async (id) => {
     try {
-      const result = await TechnologyModel.deleteTechnology(connection, id);
+      const result = await TechnologyModel.deleteTechnology(id);
       return result;
     } catch (error) {
       // Xử lý lỗi ở đây

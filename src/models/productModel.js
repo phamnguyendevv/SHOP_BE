@@ -1,29 +1,32 @@
+import Connection from "../db/configMysql.js"; 
+
 let ProductModel = {
   // find data by ids
 
-  findClassifyByIds: async (connection, classifyIds) => {
+  findClassifyByIds: async (classifyIds) => {
     const placeholders = classifyIds.map(() => "?").join(",");
     const query = `SELECT * FROM classify WHERE id IN (${placeholders})`;
 
-    const [rows] = await connection.execute(query, classifyIds);
+    const rows = await Connection.execute(query, classifyIds);
 
     return rows;
   },
-  getProductByField: async (connection, field, value) => {
+  getProductByField: async ( field, value) => {
     const query = `SELECT * FROM \`product\` WHERE ${field} = ?`;
-    const [rows, fields] = await connection.execute(query, [value]);
+    const rows = await Connection.execute(query, [value]);
+
     return rows[0];
   },
 
   // add new data
-  addProduct: async (connection, productData) => {
+  addProduct: async (productData) => {
     try {
       const query = `INSERT INTO product 
                             (user_id, status_id, name, price, url_demo, is_popular, description, sold, code_discount, pre_order, points, slug, created_at, updated_at) 
                             VALUES (?, ?, ?, ?, ?, 0, ?, 0, ?, ?, ?, ?, CURDATE(), CURDATE())`;
 
       // Thực hiện truy vấn để chèn dữ liệu
-      const [result] = await connection.query(query, [
+      const result = await Connection.query(query, [
         productData.user_id,
         productData.status_id || 1,
         productData.name,
@@ -44,7 +47,7 @@ let ProductModel = {
     }
   },
 
-  updateProduct: async (transaction, productData) => {
+  updateProduct: async ( productData) => {
     const fieldsToUpdate = [];
     const params = [];
 
@@ -95,7 +98,7 @@ let ProductModel = {
 
     const query = `UPDATE product SET ${fieldsToUpdateString}, updated_at = CURDATE() WHERE id = ?`;
 
-    const [result] = await transaction.query(query, params);
+    const result = await Connection.query(query, params);
 
     return result;
   },

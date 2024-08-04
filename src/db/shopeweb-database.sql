@@ -20,6 +20,14 @@ CREATE TABLE status_user (
     created_at DATETIME,
     updated_at DATETIME
 );
+CREATE TABLE status_cart (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    created_at DATETIME,
+    updated_at DATETIME
+);
+
+
 
 
 -- Tạo bảng User
@@ -98,7 +106,6 @@ CREATE TABLE product (
     status_id INT,
     FOREIGN KEY (status_id) REFERENCES status_product(id),
     name VARCHAR(255),
-    price INT,
     url_demo VARCHAR(255),
     is_popular BOOLEAN,
     description TEXT,
@@ -107,7 +114,6 @@ CREATE TABLE product (
     pre_order BOOLEAN,
     points INT,
     slug TEXT,
-    technology JSON,
     created_at DATETIME,
     updated_at DATETIME
 );
