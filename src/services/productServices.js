@@ -62,10 +62,6 @@ let ProductServices = {
     const productId = Number(productData.id);
 
     try {
-      // Generate slug if name is updated
-      if (productData.name) {
-        productData.slug = await ProductServices.createSlug(productData.name);
-      }
       // Update product
       await ProductModel.updateProduct(productData);
 
@@ -289,7 +285,6 @@ async function handleCategories(productId, categories) {
 //   );
 // }
 
-
 async function handleTechnologies(productId, technologies) {
   const existingTechnologies =
     await ProductTechnologyModel.getTechnologiesByProductId(productId);
@@ -298,11 +293,11 @@ async function handleTechnologies(productId, technologies) {
     (newTech) =>
       !existingTechnologies.some((existingTech) => existingTech.id === newTech)
   );
-  console.log("cần thêm",technologiesToAdd);
+  console.log("cần thêm", technologiesToAdd);
   const technologiesToRemove = existingTechnologies.filter(
     (existingTech) => !technologies.includes(existingTech.id)
   );
-  console.log("cần xóa" ,technologiesToRemove);
+  console.log("cần xóa", technologiesToRemove);
 
   await Promise.all([
     ...technologiesToRemove.map((tech) =>
@@ -320,8 +315,6 @@ async function handleTechnologies(productId, technologies) {
     }),
   ]);
 }
-
-
 
 // Hàm xử lý images
 async function handleImages(productId, images) {
