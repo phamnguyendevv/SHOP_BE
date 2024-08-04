@@ -91,10 +91,10 @@ let ImageModel = {
       throw new Error("Không lấy được ảnh");
     }
   },
-  deleteImageByField: async (connection, field, value) => {
+  deleteImageByField: async ( field, value) => {
     try {
       const query = `DELETE FROM images WHERE ${field} = ?`;
-      const [result] = await connection.query(query, [value]);
+      const result = await Connection.query(query, [value]);
       return result;
     } catch (error) {
       throw new Error("Không xóa được ảnh");

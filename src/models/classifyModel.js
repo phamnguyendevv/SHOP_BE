@@ -60,6 +60,12 @@ let ClassifyModel = {
     return result;
   },
 
+  deleteClassifyByFild: async (field, value) => {
+    const query = `DELETE FROM classify WHERE ${field} = ?`;
+    const result = await Connection.query(query, value);
+    return result;
+  },
+
   deleteClassify: async (id) => {
     const query = `DELETE FROM classify WHERE product_id = ?`;
     const result = await Connection.query(query, id);

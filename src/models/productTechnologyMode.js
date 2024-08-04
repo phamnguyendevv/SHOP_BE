@@ -36,10 +36,10 @@ let ProductTechnologyModel = {
       throw new Error("Không xóa được công nghệ sản phẩm");
     }
   },
-  deleteProductTechnologyByProductId: async (connection, productId) => {
+  deleteProductTechnologyByProductId: async ( productId) => {
     try {
       const query = `DELETE FROM products_technologies WHERE product_id = ?`;
-      const [result] = await connection.query(query, [productId]);
+      const result = await Connection.query(query, [productId]);
       return result;
     } catch (error) {
       throw new Error("Không xóa được công nghệ sản phẩm");

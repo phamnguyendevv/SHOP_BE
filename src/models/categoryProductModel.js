@@ -48,10 +48,10 @@ let categoryProductModel = {
       throw new Error("Không xóa được danh mục sản phẩm");
     }
   },
-  removeProductCategoryByProductId: async (connection, productId) => {
+  removeProductCategoryByProductId: async (productId) => {
     try {
       const query = `DELETE FROM products_categories WHERE product_id = ?`;
-      const [result] = await connection.query(query, [productId]);
+      const result = await Connection.query(query, [productId]);
       return result;
     } catch (error) {
       throw new Error("Không xóa được danh mục sản phẩm");

@@ -90,27 +90,17 @@ let ProductServices = {
   deleteProduct: async (id) => {
     try {
       // Xóa đồng thời các liên kết
-
       await Promise.all([
-        categoryProductModel.removeProductCategoryByProductId(connection, id),
-        ProductTechnologyModel.deleteProductTechnologyByProductId(
-          connection,
-          id
-        ),
-        ImageModel.deleteImageByField(connection, "product_id", id),
-        ClassifyModel.deleteClassify(connection, id),
+        categoryProductModel.removeProductCategoryByProductId(id),
+        ProductTechnologyModel.deleteProductTechnologyByProductId(id),
+        ImageModel.deleteImageByField("product_id", id),
+        ClassifyModel.deleteClassifyByFild("product_id", id),
       ]);
-
       // Xóa sản phẩm sau khi đã xóa tất cả các liên kết
-      await ProductModel.deleteProduct(connection, id);
-
-      await connection.commit();
+      await ProductModel.deleteProduct(id);
     } catch (error) {
-      await connection.rollback();
       console.error("Không xóa được sản phẩm: ", error);
       throw new Error("Không tìm thấy sản phẩm với id này");
-    } finally {
-      connection.release(); // Giải phóng kết nối
     }
     return { message: "Xóa sản phẩm thành công" };
   },
@@ -361,7 +351,8 @@ async function handleClassifyData(productId, classifyData) {
 async function updateProductClassify(productId, classifyData) {
   const existingClassifies = await ClassifyModel.getClassifyByField(
     "product_id",
-    productId);
+    productId
+  );
 
   const classifiesToAdd = classifyData.filter(
     (newClassify) =>

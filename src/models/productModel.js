@@ -117,10 +117,10 @@ let ProductModel = {
     return rows;
   },
 
-  deleteProduct: async (connection, id) => {
+  deleteProduct: async ( id) => {
     try {
       const queryProduct = `DELETE FROM product WHERE id = ?`;
-      const [resultProduct] = await connection.query(queryProduct, [id]);
+      const resultProduct = await Connection.query(queryProduct, [id]);
     } catch (error) {
       // Xử lý lỗi ở đây
       console.error("Không xóa được sản phẩm: ", error);
