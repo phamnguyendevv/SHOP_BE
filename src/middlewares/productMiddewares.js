@@ -36,9 +36,7 @@ let productMiddlewares = {
       },
       "productData.url_demo": {
         in: ["body"],
-        isString: {
-          errorMessage: "URL demo phải là chuỗi",
-        },
+        trim: true,
       },
       "productData.description": {
         in: ["body"],
@@ -88,10 +86,7 @@ let productMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const user = await ProductModel.getProductByField(
-                "id",
-                value
-              );
+              const user = await ProductModel.getProductByField("id", value);
               if (!user) {
                 throw new Error("Sản phảm không tồn tại");
               }
@@ -130,10 +125,7 @@ let productMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const product = await ProductModel.getProductByField(
-                "id",
-                value
-              );
+              const product = await ProductModel.getProductByField("id", value);
               console.log(product);
               if (!product) {
                 throw new Error("Không tìm thầy sản phẩm");
