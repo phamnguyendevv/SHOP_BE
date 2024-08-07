@@ -136,118 +136,78 @@ let ProductServices = {
     }
   },
 
-  async getList(data) {
+  getList: async (data) => {
     const { pagingParams, filterParams } = data;
     const { orderBy, keyword, pageIndex, isPaging, pageSize } = pagingParams;
     const { categories, technologies, is_popular, priceRange, user_id } =
       filterParams;
 
-    const validSortFields = ["price", "name"];
-    const validOrderFields = ["asc", "desc"];
-
-    let query = `
-    SELECT DISTINCT p.*, i.url as image, u.full_name as user_name, c.price as price_min
+    const baseQuery = `
+    SELECT  DISTINCT p.*, i.url as image, u.full_name as user_name,
+    c_min.price as price_min, c_max.price as price_max
     FROM product p
     LEFT JOIN images i ON p.id = i.product_id AND i.type = 1
-    LEFT JOIN classify c ON p.id = c.product_id AND c.price = (
-      SELECT MIN(price) FROM classify WHERE product_id = p.id
+    LEFT JOIN classify c_min ON p.id = c_min.product_id AND c_min.price = (
+        SELECT MIN(price) FROM classify WHERE product_id = p.id
+    )
+    LEFT JOIN classify c_max ON p.id = c_max.product_id AND c_max.price = (
+        SELECT MAX(price) FROM classify WHERE product_id = p.id
     )
     LEFT JOIN user u ON p.user_id = u.id
   `;
-    let countQuery = `
+
+    const countQuery = `
     SELECT COUNT(DISTINCT p.id) as totalCount
     FROM product p
-    LEFT JOIN classify c ON p.id = c.product_id AND c.price = (
-      SELECT MIN(price) FROM classify WHERE product_id = p.id
+    LEFT JOIN images i ON p.id = i.product_id AND i.type = 1
+    LEFT JOIN classify c_min ON p.id = c_min.product_id AND c_min.price = (
+        SELECT MIN(price) FROM classify WHERE product_id = p.id
     )
-  `;
-    let conditions = [];
-    let countConditions = [];
-    let queryParams = [];
-    let countParams = [];
+    LEFT JOIN classify c_max ON p.id = c_max.product_id AND c_max.price = (
+        SELECT MAX(price) FROM classify WHERE product_id = p.id
+    )
+    LEFT JOIN user u ON p.user_id = u.id
+    `;
 
-    if (categories?.length > 0) {
-      query += " INNER JOIN products_categories pc ON p.id = pc.product_id";
-      countQuery +=
-        " INNER JOIN products_categories pc ON p.id = pc.product_id";
-      conditions.push("pc.category_id IN (?)");
-      countConditions.push("pc.category_id IN (?)");
-      queryParams.push(categories);
-      countParams.push(categories);
-    }
+    const { conditions, params } = await buildQueryConditions({
+      categories,
+      technologies,
+      keyword,
+      priceRange,
+      is_popular,
+      user_id,
+    });
 
-    if (technologies?.length > 0) {
-      query += " INNER JOIN products_technologies pt ON p.id = pt.product_id";
-      countQuery +=
-        " INNER JOIN products_technologies pt ON p.id = pt.product_id";
-      conditions.push("pt.technology_id IN (?)");
-      countConditions.push("pt.technology_id IN (?)");
-      queryParams.push(technologies);
-      countParams.push(technologies);
-    }
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    if (keyword) {
-      conditions.push("p.name LIKE ?");
-      countConditions.push("p.name LIKE ?");
-      queryParams.push(`%${keyword}%`);
-      countParams.push(`%${keyword}%`);
-    }
+    const orderClause = await buildOrderClause(orderBy);
 
-    if (priceRange) {
-      conditions.push("c.price BETWEEN ? AND ?");
-      countConditions.push("c.price BETWEEN ? AND ?");
-      queryParams.push(priceRange.minPrice, priceRange.maxPrice);
-      countParams.push(priceRange.minPrice, priceRange.maxPrice);
-    }
-
-    if (is_popular === 1) {
-      conditions.push("p.is_popular = 1");
-      countConditions.push("p.is_popular = 1");
-    }
-
-    if (user_id) {
-      conditions.push("p.user_id = ?");
-      countConditions.push("p.user_id = ?");
-      queryParams.push(user_id);
-      countParams.push(user_id);
-    }
-
-    if (conditions.length > 0) {
-      const whereClause = " WHERE " + conditions.join(" AND ");
-      query += whereClause;
-      countQuery += " WHERE " + countConditions.join(" AND ");
-    }
-
-    if (orderBy) {
-      const [sortField, sortOrder] = orderBy.split(":");
-      if (
-        validSortFields.includes(sortField) &&
-        validOrderFields.includes(sortOrder)
-      ) {
-        query += ` ORDER BY p.${mysql.escapeId(sortField)} ${sortOrder}`;
-      } else {
-        throw new Error("Tham số sắp xếp không hợp lệ");
-      }
-    }
-
+    const limitClause = isPaging ? `LIMIT ? OFFSET ?` : "";
     if (isPaging) {
-      query += " LIMIT ? OFFSET ?";
-      queryParams.push(
+      params.push(
         parseInt(pageSize),
         (parseInt(pageIndex) - 1) * parseInt(pageSize)
       );
     }
-
+    console.log(orderClause);
+    console.log(whereClause);
+    const fullQuery = `${baseQuery} ${whereClause} ${orderClause} ${limitClause}`;
+    console.log(fullQuery);
+    console.log(params);
     try {
-      const [totalCountRows] = await connection.query(countQuery, countParams);
+      const totalCountRows = await Connection.query(
+        `${countQuery}${whereClause}`,
+        params
+      );
       const totalCount = totalCountRows[0].totalCount;
       const totalPage = Math.ceil(totalCount / pageSize);
 
-      const [rows] = await connection.query(query, queryParams);
+      const [rows] = await connection.query(fullQuery, params);
 
       return {
         data: rows,
-        meta: { total: totalCount, totalPage: totalPage },
+        meta: { total: totalCount, totalPage },
       };
     } catch (error) {
       console.error("Lỗi khi lấy danh sách sản phẩm:", error);
@@ -291,24 +251,6 @@ async function handleCategories(productId, categories) {
     })
   );
 }
-// // Hàm xử lý technologies
-// async function handleTechnologies(productId, technologies) {
-//   await Promise.all(
-//     technologies.map(async (technologyId) => {
-//       const exitTechnology = await TechnologyModel.getTechnologyByField(
-//         "id",
-//         technologyId
-//       );
-//       if (!exitTechnology) {
-//         throw new Error("Không tìm thấy công nghệ sản phẩm");
-//       }
-//       await ProductTechnologyModel.addProductTechnology(
-//         productId,
-//         technologyId
-//       );
-//     })
-//   );
-// }
 
 async function handleTechnologies(productId, technologies) {
   const existingTechnologies =
@@ -395,7 +337,6 @@ async function updateProductClassify(productId, classifyData) {
         (existingClassify) => existingClassify.id === newClassify.id
       )
   );
-  console.log("cần thêm", classifiesToAdd);
 
   const classifiesToRemove = existingClassifies.filter(
     (existingClassify) =>
@@ -403,7 +344,6 @@ async function updateProductClassify(productId, classifyData) {
         (newClassify) => newClassify.id === existingClassify.id
       )
   );
-  console.log("cần xóa", classifiesToRemove);
 
   await Promise.all([
     ...classifiesToRemove.map((classify) =>
@@ -447,6 +387,85 @@ async function updateProductCategories(productId, newCategories) {
       return categoryProductModel.addProductCategory(productId, catId);
     }),
   ]);
+}
+
+async function buildQueryConditions({
+  categories,
+  technologies,
+  keyword,
+  priceRange,
+  is_popular,
+  user_id,
+}) {
+  console.log("buildQueryConditions is being called");
+  const conditions = [];
+  const params = [];
+
+  if (categories && categories.length > 0) {
+    conditions.push(
+      "p.id IN (SELECT product_id FROM products_categories WHERE category_id IN (?))"
+    );
+    params.push(categories);
+  }
+
+  if (technologies && technologies.length > 0) {
+    conditions.push(
+      "p.id IN (SELECT product_id FROM products_technologies WHERE technology_id IN (?))"
+    );
+    params.push(technologies);
+  }
+
+  if (keyword) {
+    conditions.push("p.name LIKE ?");
+    params.push(`%${keyword}%`);
+  }
+
+  if (priceRange) {
+    conditions.push(
+      "(c_min.price >= ? AND c_max.price <= ?) OR (c_max.price BETWEEN ? AND ?)"
+    );
+    params.push(
+      priceRange.minPrice,
+      priceRange.maxPrice,
+      priceRange.minPrice,
+      priceRange.maxPrice
+    );
+  }
+
+  if (is_popular === 1) {
+    conditions.push("p.is_popular = 1");
+  }
+
+  if (user_id) {
+    conditions.push("p.user_id = ?");
+    params.push(user_id);
+  }
+
+  return { conditions, params };
+}
+
+async function buildOrderClause(orderBy) {
+  const validSortFields = {
+    price: "c_min.price",
+    name: "name",
+  };
+  const validOrderFields = ["asc", "desc"];
+
+  if (orderBy) {
+    const [sortField, sortOrder] = orderBy.split(":");
+    if (
+      !validSortFields[sortField] ||
+      !validOrderFields.includes(sortOrder.toLowerCase())
+    ) {
+      throw new Error("Tham số sắp xếp không hợp lệ");
+    }
+
+    const escapedSortField = validSortFields[sortField];
+    return `ORDER BY ${mysql.escapeId(
+      escapedSortField
+    )} ${sortOrder.toUpperCase()}`;
+  }
+  return "";
 }
 
 export default ProductServices;
