@@ -182,8 +182,11 @@ CREATE TABLE product_cart (
     product_id INT,
     FOREIGN KEY (product_id) REFERENCES product(id),
     status_id INT,
-    FOREIGN KEY (status_id)  REFERENCES status_product(id),
+    FOREIGN KEY (status_id)  REFERENCES status_cart(id),
+    classify_id INT,
+    FOREIGN KEY (classify_id)  REFERENCES classify(id),
     code VARCHAR(255),
+    note VARCHAR(255),
     created_at DATETIME,
     updated_at DATETIME
 );
@@ -200,13 +203,16 @@ CREATE TABLE technologies  (
 CREATE TABLE discount (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
-    FOREIGN KEY (user_id) REFERENCES user(id),
-    start DATETIME,
-    end DATETIME,
-    persen INT,
-    name INT,
+    name VARCHAR(255),
+    percent INT,
+    price INT,
+    type INT,
+    code VARCHAR(255),
+    date_start DATETIME,
+    date_end DATETIME,
     created_at DATETIME,
-    updated_at DATETIME
+    updated_at DATETIME,
+    FOREIGN KEY (user_id) REFERENCES user(id)
 );
 CREATE TABLE products_categories (
     category_id INT ,
@@ -227,7 +233,7 @@ CREATE TABLE products_technologies (
 
 
 
-CREATE TABLE discount_used (
+CREATE TABLE discount_user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
     FOREIGN KEY (user_id) REFERENCES user(id),

@@ -10,6 +10,7 @@ let cartController = {
         })
     },
     removeFromCartController: async (req, res) => {
+       
         const result = await CartService.removeFromCart(req.body)
         return res.json({
             message: 'Xóa sản phẩm khỏi giỏ hàng thành công',

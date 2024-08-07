@@ -69,7 +69,6 @@ let userServices = {
     return usercustom;
   },
   updateUser: async (data) => {
-    data.birthday = new Date(data.birthday);
     const result = await UserModel.updateUser(data);
     return result;
   },

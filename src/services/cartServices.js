@@ -5,32 +5,38 @@ import ProductModel from '../models/productModel.js';
 
 let CartService = {
     addToCart: async (data) => {
-
-        const { product_id, user_id, code_discount } = data;
+ 
         // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-        const existingCartItem = await CartModel.getCartById(connection, product_id);
-        if (!existingCartItem) {
-            // Nếu sản phẩm chưa có trong giỏ hàng, thêm mới vào giỏ hàng
-            const cart = await CartModel.addCart(connection, data);
-            return cart.insertId;
+        const existingCartItem = await CartModel.getCartByField(
+          "product_id",
+          data.product_id
+        );
+        if (existingCartItem.length > 0) {
+            throw new Error("Sản phẩm đã tồn tại trong giỏ hàng");
         }
-        // Nếu sản phẩm đã có trong giỏ hàng, thì trả về thông báo lỗi đã có sản phẩm trong giỏ hàng
-        throw new Error('Sản phẩm đã có trong giỏ hàng');
+        const addCart = await CartModel.addCart(data);
+        
+       
+        // Kiểm tra xem sản phẩm có tồn tại không
+
+       
+      
 
     },
     // updateCart
     updateCart: async (data) => {
         try {
-            const cartUser = await CartModel.updateStatusProduct(connection, data);
+            const cartUser = await CartModel.updateStatusProduct(data);
             return cartUser;
         } catch (error) {
-            throw new Error('Không cập nhật được số lượng sản phẩm trong giỏ hàng');
+            throw new Error('Không cập nhật được sản phẩm trong giỏ hàng');
         }
     },
     // removeCart
     removeFromCart: async (data) => {
         try {
-            const cart = await CartModel.removeProductInCart(connection, data);
+            console.log(data);
+            const cart = await CartModel.removeProductInCart(data);
             return cart;
         } catch (error) {
             throw new Error('Không xóa được sản phẩm trong giỏ hàng');
@@ -38,12 +44,12 @@ let CartService = {
     },
     // getCart
     getCart: async (data) => {
-        const cart = await CartModel.getCartStatus(connection, data);
+        console.log(data);
+        const cart = await CartModel.getCartStatus(data);
         if (cart.length === 0) {
             throw new Error('Giỏ hàng trống');
         }
         return cart;
-
     },
     // getCartSuccess
     getCartSuccess: async (data) => {

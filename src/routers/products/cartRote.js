@@ -11,7 +11,7 @@ const router = express.Router()
 router.post('/', cartMiddlewares.addCartValidator, wrapAsync(cartController.addToCartController))
 router.put('/',cartMiddlewares.updateCartValidator,wrapAsync(cartController.updateCartController))
 router.delete('/',cartMiddlewares.removeFromCartValidator, wrapAsync(cartController.removeFromCartController))
-router.get('/', wrapAsync(cartController.getCartController))
+router.post('/getcart', wrapAsync(cartController.getCartController))
 
 
 

@@ -6,16 +6,16 @@ import DiscountModel from "../models/DiscountModel.js";
 let discountServices = {
   addDiscount: async (data) => {
     data.created_at = data.updated_at = new Date();
-    const result = await DiscountModel.addDiscount(connection, data);
+    const result = await DiscountModel.addDiscount( data);
     return result;
   },
   updateDiscount: async (data) => {
     data.updated_at = new Date();
-    const result = await DiscountModel.updateDiscount(connection, data);
+    const result = await DiscountModel.updateDiscount(data);
     return result;
   },
   deleteDiscount: async (id) => {
-    const result = await DiscountModel.deleteDiscount(connection, id);
+    const result = await DiscountModel.deleteDiscount(id);
     return result;
   },
   getDiscountByCode: async (data) => {

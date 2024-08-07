@@ -5,6 +5,8 @@ import { checkSchema } from "express-validator";
 import statusProductModel from "../models/statusProductModel.js";
 import cartModel from "../models/cartModel.js";
 import Connection from "../db/configMysql.js";
+import ClassifyModel from "../models/classifyModel.js";
+import DiscountModel from "../models/DiscountModel.js";
 const connection = await Connection.getConnection();
 
 let cartMiddlewares = {
@@ -18,13 +20,16 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const product = await ProductModel.getProductByField(
-                connection,
-                "id",
+              const product = await ProductModel.getProductByField("id", value);
+              const classify = await ClassifyModel.getClassifyByField(
+                "product_id",
                 value
               );
               if (!product) {
                 throw new Error("Không tìm thấy sản phẩm");
+              }
+              if (classify.length === 0) {
+                throw new Error("Sản phẩm chưa có loại");
               }
               req.product = product;
               return true;
@@ -42,7 +47,28 @@ let cartMiddlewares = {
               if (!user) {
                 throw new Error("Không tìm thấy người dùng");
               }
-              req.user = user;
+              return true;
+            },
+          },
+        },
+        classify_id: {
+          trim: true,
+          isNumeric: {
+            errorMessage: "Mã loại phải là số",
+          },
+          custom: {
+            options: async (value, { req }) => {
+              const id = Number(value);
+              const classifyProduct = await ClassifyModel.getClassifyByFields(
+                "id = ? AND product_id = ?",
+                [id, req.product.id]
+              );
+              if (classifyProduct.length === 0) {
+                throw new Error("Sai loạn sản phẩm");
+              }
+              if (!classify) {
+                throw new Error("Không tìm thấy loại sản phẩm");
+              }
               return true;
             },
           },
@@ -51,10 +77,26 @@ let cartMiddlewares = {
       ["body"]
     )
   ),
-
   updateCartValidator: validate(
     checkSchema(
       {
+        cart_id: {
+          trim: true,
+          isNumeric: {
+            errorMessage: "Mã giỏ hàng phải là số",
+          },
+          custom: {
+            options: async (value, { req }) => {
+              const cart = await cartModel.getCartByField("id", value);
+              if (cart.length === 0) {
+                throw new Error("Không tìm thấy giỏ hàng");
+              }
+              req.cart = cart;
+              return true;
+            },
+          },
+        },
+
         product_id: {
           trim: true,
           isNumeric: {
@@ -62,9 +104,9 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const product = await cartModel.getCartByProductId(
-                connection,
-                value
+              const product = await cartModel.getCartByFields(
+                " product_id = ? AND id = ?",
+                [value, req.body.cart_id]
               );
               if (product.length === 0) {
                 throw new Error("Không tìm thấy sản phẩm trong giỏ hàng");
@@ -82,8 +124,16 @@ let cartMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const user = await UserModel.getUserByField("id", value);
-              if (!user) {
+              if (user.lenght === 0) {
                 throw new Error("Không tìm thấy người dùng");
+              }
+
+              const cart = await cartModel.getCartByFields(
+                "user_id = ? AND id = ?",
+                [value, req.body.cart_id]
+              );
+              if (cart.length === 0) {
+                throw new Error("Không tìm thấy giỏ hàng");
               }
               req.user = user;
               return true;
@@ -97,10 +147,7 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const status = await statusProductModel.getStatusById(
-                connection,
-                value
-              );
+              const status = await statusProductModel.getStatusById(value);
               if (!status) {
                 throw new Error("Không tìm thấy trạng thái sản phẩm");
               }
@@ -109,6 +156,26 @@ let cartMiddlewares = {
             },
           },
         },
+        classify_id: {
+          trim: true,
+          isNumeric: {
+            errorMessage: "Mã loại phải là số",
+          },
+          custom: {
+            options: async (value, { req }) => {
+              const id = Number(value);
+              const classifyProduct = await ClassifyModel.getClassifyByFields(
+                "id = ? AND product_id = ?",
+                [id, req.product[0].id]
+              );
+              if (classifyProduct.length === 0) {
+                throw new Error("Sai loại sản phẩm");
+              }
+              return true;
+            },
+          },
+        }
+       
       },
       ["body"]
     )
@@ -145,6 +212,10 @@ let cartMiddlewares = {
               const user = await UserModel.getUserByField("id", value);
               if (!user) {
                 throw new Error("Không tìm thấy người dùng");
+              }
+              const cart = await cartModel.getCartByField("user_id", value);
+              if (cart.length === 0) {
+                throw new Error("Không tìm thấy giỏ hàng");
               }
               req.user = user;
               return true;

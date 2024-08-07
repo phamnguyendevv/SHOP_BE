@@ -1,4 +1,4 @@
-import Connection from "../db/configMysql.js"; 
+import Connection from "../db/configMysql.js";
 
 let ProductModel = {
   // find data by ids
@@ -10,7 +10,7 @@ let ProductModel = {
 
     return rows;
   },
-  getProductByField: async ( field, value) => {
+  getProductByField: async (field, value) => {
     const query = `SELECT * FROM \`product\` WHERE ${field} = ?`;
     const rows = await Connection.execute(query, [value]);
 
@@ -21,15 +21,14 @@ let ProductModel = {
   addProduct: async (productData) => {
     try {
       const query = `INSERT INTO product 
-                            (user_id, status_id, name, price, url_demo, is_popular, description, sold, code_discount, pre_order, points, slug, created_at, updated_at) 
-                            VALUES (?, ?, ?, ?, ?, 0, ?, 0, ?, ?, ?, ?, CURDATE(), CURDATE())`;
+                            (user_id, status_id, name, url_demo, is_popular, description, sold, code_discount, pre_order, points, slug, created_at, updated_at) 
+                            VALUES (?, ?, ?, ?, 0, ?, 0, ?, ?, ?, ?, CURDATE(), CURDATE())`;
 
       // Thực hiện truy vấn để chèn dữ liệu
       const result = await Connection.query(query, [
         productData.user_id,
         productData.status_id || 1,
         productData.name,
-        productData.price,
         productData.url_demo,
         productData.description,
         productData.code_Discount || "",
@@ -46,7 +45,7 @@ let ProductModel = {
     }
   },
 
-  updateProduct: async ( productData) => {
+  updateProduct: async (productData) => {
     const fieldsToUpdate = [];
     const params = [];
 
@@ -117,7 +116,7 @@ let ProductModel = {
     return rows;
   },
 
-  deleteProduct: async ( id) => {
+  deleteProduct: async (id) => {
     try {
       const queryProduct = `DELETE FROM product WHERE id = ?`;
       const resultProduct = await Connection.query(queryProduct, [id]);

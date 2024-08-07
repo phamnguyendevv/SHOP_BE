@@ -1,35 +1,35 @@
-
+import Connection from '../db/configMysql.js';
 
 
 let statusProductModel = {
-    addStatus: async (connection, status) => {
-        await connection.execute(
-            `INSERT INTO status_product (name,created_at,
+    addStatus: async ( status) => {
+        await Connection.execute(
+            `INSERT INTO status_cart (name,created_at,
                 updated_at) VALUES (?,CURRENT_DATE, 
                     CURRENT_DATE)`,
             [status.name]
         );
     },
     
-    getStatus: async (connection, status) => {
-        const [rows, fields] = await connection.execute('SELECT * FROM status_product');
+    getStatus: async ( status) => {
+        const rows = await Connection.execute('SELECT * FROM status_cart');
         return rows;
     },
-    updateStatus: async (connection, status) => {
-        await connection.execute(
-            `UPDATE status_product SET name = ? WHERE id = ?`,
+    updateStatus: async (status) => {
+        await Connection.execute(
+            `UPDATE status_cart SET name = ? WHERE id = ?`,
             [status.name, status.id]
         );
     },
-    deleteStatus : async (connection, status) => {
-        await connection.execute(
-            `DELETE FROM status_product WHERE id = ?`,
+    deleteStatus : async (status) => {
+        await Connection.execute(
+            `DELETE FROM status_cart WHERE id = ?`,
             [status.id]
         );
     },
-    getStatusById: async (connection, id) => {
-        const [rows] = await connection.execute('SELECT * FROM status_product WHERE id = ?', [id]);
-        return rows[0];
+    getStatusById: async (id) => {
+        const rows = await Connection.execute('SELECT * FROM status_cart WHERE id = ?', [id]);
+        return rows;
     },
 
 

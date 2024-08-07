@@ -1,12 +1,17 @@
 import Connection from "../db/configMysql.js";
 
-
 let UserModel = {
   getUserByField: async (field, value) => {
     const query = `SELECT * FROM \`user\` WHERE ${field} = ?`;
     const results = await Connection.execute(query, [value]);
     return results[0];
   },
+  getUserByFields: async (field, values) => {
+    const query = `SELECT * FROM \`user\` WHERE ${field}`;
+    const results = await Connection.execute(query, values);
+    return results[0];
+  },
+  
 
   createUser: async (data, hashed) => {
     try {
@@ -95,12 +100,11 @@ let UserModel = {
     }
   },
   updateUserReferralCode: async (id, referral_code) => {
-    
-      const results = await Connection.execute(
-        `UPDATE user SET referral_code = ? WHERE id = ?`,
-        [referral_code, id]
-      );
-      return results;
+    const results = await Connection.execute(
+      `UPDATE user SET referral_code = ? WHERE id = ?`,
+      [referral_code, id]
+    );
+    return results;
   },
 
   findAndUpdatePassword: async (hashedPassword, id) => {
@@ -126,6 +130,10 @@ let UserModel = {
       if (data.role_id !== undefined) {
         fieldsToUpdate.push("role_id = ?");
         params.push(data.role_id);
+      }
+      if (data.avatar !== undefined) {
+        fieldsToUpdate.push("avatar = ?");
+        params.push(data.avatar);
       }
       if (data.full_name !== undefined) {
         fieldsToUpdate.push("full_name = ?");
@@ -154,6 +162,10 @@ let UserModel = {
       if (data.sex !== undefined) {
         fieldsToUpdate.push("sex = ?");
         params.push(data.sex);
+      }
+      if (data.balance !== undefined) {
+        fieldsToUpdate.push("balance = ?");
+        params.push(data.balance);
       }
 
       if (fieldsToUpdate.length === 0) {

@@ -18,7 +18,7 @@ let discountController = {
     },
 
     deleteDiscountController: async (req, res) => {
-        const {id} = req.params
+        const { id } = req.query
         const result = await discountServices.deleteDiscount(id)
         return res.json({
             message: 'Xóa mã giảm giá thành công!',
@@ -33,7 +33,7 @@ let discountController = {
     },
     getDiscountById: async (req, res) => {
 
-        const {id} = req.params
+        const { id } = req.query
         const result = await discountServices.getDiscountById(id)
         return res.json({
             message: 'Lấy mã giảm giá thành công!',

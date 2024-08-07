@@ -9,13 +9,20 @@ let ClassifyModel = {
     return rows[0];
   },
 
-  getClassifyByField: async ( field, value) => {
+  getClassifyByField: async (field, value) => {
+    console.log(field, value);
     const query = `SELECT * FROM \`classify\` WHERE ${field} = ?`;
     const rows = await Connection.execute(query, [value]);
     return rows;
   },
 
-  addClassify: async ( productId, classifyData) => {
+  getClassifyByFields: async (field, values) => {
+    const query = `SELECT * FROM \`classify\` WHERE ${field}`;
+    const rows = await Connection.execute(query, values);
+    return rows;
+  },
+
+  addClassify: async (productId, classifyData) => {
     const query = `INSERT INTO classify (product_id, name,price,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
     const result = await Connection.query(query, [
       productId,
@@ -76,6 +83,5 @@ let ClassifyModel = {
     const result = await Connection.query(query, [product_id, id]);
     return result;
   },
- 
 };
 export default ClassifyModel;
