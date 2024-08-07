@@ -50,7 +50,7 @@ async function initDatabase() {
 
     const connection = await Connection.getConnection();
     try {
-      const tableName = "discount_used";
+      const tableName = "discount_user";
       if (!(await tableExists(connection, tableName))) {
         console.log(`Table ${tableName} does not exist. Running SQL file...`);
         await runSQLFile(connection, "./src/db/shopeweb-database.sql");

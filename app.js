@@ -13,7 +13,7 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 //check database and create if not exists
-// initDatabase();
+await initDatabase();
 
 app.use(cors());
 
