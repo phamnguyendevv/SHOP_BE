@@ -18,7 +18,7 @@ let cartModel = {
 
   getCartStatus: async (data) => {
     const rows = await Connection.query(
-      `SELECT DISTINCT pc.note , pc.created_at as date_order, p.name as product_name, c.name as classify_name, c.price ,u.full_name as sell_by , i.url as image_url , pc.status_id
+      `SELECT DISTINCT pc.id as cart_id ,pc.note , pc.created_at as date_order,p.id as product_id, p.name as product_name,c.id as classify_id, c.name as classify_name, c.price ,u.full_name as sell_by , i.url as image_url , pc.status_id
 
        FROM product_cart pc
         JOIN product p ON pc.product_id = p.id
@@ -36,7 +36,6 @@ let cartModel = {
       `DELETE FROM product_cart WHERE product_id = ? AND user_id = ?`,
       [cart.product_id, cart.user_id]
     );
-
   },
   getCartByField: async (field, values) => {
     const rows = await Connection.query(
@@ -53,7 +52,7 @@ let cartModel = {
     return rows;
   },
 
-  updateStatusProduct: async ( data) => {
+  updateStatusProduct: async (data) => {
     const fieldsToUpdate = [];
     const params = [];
 
@@ -86,7 +85,7 @@ let cartModel = {
     console.log(params);
     const result = await Connection.query(query, params);
 
-    return
+    return;
   },
 };
 export default cartModel;

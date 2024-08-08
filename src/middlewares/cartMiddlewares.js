@@ -66,9 +66,6 @@ let cartMiddlewares = {
               if (classifyProduct.length === 0) {
                 throw new Error("Sai loạn sản phẩm");
               }
-              if (!classify) {
-                throw new Error("Không tìm thấy loại sản phẩm");
-              }
               return true;
             },
           },
@@ -190,10 +187,7 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const product = await cartModel.getCartByProductId(
-                connection,
-                value
-              );
+              const product = await cartModel.getCartByField("product_id", value);
               if (product.length === 0) {
                 throw new Error("Sản phẩm không tồn tại trong giỏ hàng");
               }
@@ -213,7 +207,10 @@ let cartMiddlewares = {
               if (!user) {
                 throw new Error("Không tìm thấy người dùng");
               }
-              const cart = await cartModel.getCartByField("user_id", value);
+              const cart = await cartModel.getCartByFields(
+                "user_id = ? AND product_id = ?",
+                [value, req.body.product_id]
+              );
               if (cart.length === 0) {
                 throw new Error("Không tìm thấy giỏ hàng");
               }
