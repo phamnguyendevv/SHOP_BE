@@ -52,7 +52,7 @@ let cartModel = {
     return rows;
   },
 
-  updateStatusProduct: async (data) => {
+  updateCart: async (data) => {
     const fieldsToUpdate = [];
     const params = [];
 
@@ -81,9 +81,14 @@ let cartModel = {
 
     const fieldsToUpdateString = fieldsToUpdate.join(", ");
     const query = `UPDATE product_cart   SET ${fieldsToUpdateString}, updated_at = NOW() WHERE id = ?`;
-    console.log(query);
-    console.log(params);
-    const result = await Connection.query(query, params);
+    const result = await Connection.executeTransaction(async (connection) => {
+      await connection.query(query, params);
+      await connection.query(
+        `UPDATE user SET balance = ? WHERE id = ?`,
+        [data.last_balance, data.user_id]
+      );
+      return { success: true, message: "Cập nhật giỏ hàng thành công" };
+    });
 
     return;
   },

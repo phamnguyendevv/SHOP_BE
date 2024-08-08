@@ -101,11 +101,12 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const product = await cartModel.getCartByFields(
+              const product = await ProductModel.getProductByField("id", value);
+              const cart = await cartModel.getCartByFields(
                 " product_id = ? AND id = ?",
                 [value, req.body.cart_id]
               );
-              if (product.length === 0) {
+              if (cart.length === 0) {
                 throw new Error("Không tìm thấy sản phẩm trong giỏ hàng");
               }
               req.product = product;
@@ -163,11 +164,12 @@ let cartMiddlewares = {
               const id = Number(value);
               const classifyProduct = await ClassifyModel.getClassifyByFields(
                 "id = ? AND product_id = ?",
-                [id, req.product[0].id]
+                [id, req.product.id]
               );
               if (classifyProduct.length === 0) {
                 throw new Error("Sai loại sản phẩm");
               }
+              req.classify = classifyProduct;
               return true;
             },
           },
