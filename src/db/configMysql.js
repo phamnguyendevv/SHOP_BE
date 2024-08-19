@@ -59,7 +59,7 @@
     execute: async (sql, params) => {
       const pool = await Connection.createPool();
       try {
-        console.log("Executing SQL:", sql, params);
+       
         const [results] = await pool.execute(sql, params);
         return results;
       } catch (error) {

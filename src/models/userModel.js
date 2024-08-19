@@ -2,6 +2,7 @@ import Connection from "../db/configMysql.js";
 
 let UserModel = {
   getUserByField: async (field, value) => {
+    console.log(field, value);
     const query = `SELECT * FROM \`user\` WHERE ${field} = ?`;
     const results = await Connection.execute(query, [value]);
     return results[0];
@@ -25,6 +26,7 @@ let UserModel = {
                 status_id,
                 role_id,
                 balance,
+                referrer_id,
                 referral_code,
                 created_at,
                 updated_at
@@ -36,6 +38,7 @@ let UserModel = {
                 ?,
                 2,  -- Assuming this is a constant value for role_id
                 0,  -- Assuming this is a constant value for balance
+                ?,  -- Referrer id
                 ?,  -- Referral code
                 CURRENT_DATE,
                 CURRENT_DATE
@@ -46,6 +49,7 @@ let UserModel = {
           hashed,
           data.qr_admin,
           data.status_id || 1,
+          data.referrer_id,
           data.referral_code,
         ]
       );

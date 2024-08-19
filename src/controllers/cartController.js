@@ -23,7 +23,6 @@ let cartController = {
         const classify = req.classify;
         const user = req.user;
         const status = req.status;
-
         const result = await CartService.updateCart({cart , product, classify, user, status}, req.body)
         return res.json({
             message: 'Câp nhật giỏ hàng thành công',

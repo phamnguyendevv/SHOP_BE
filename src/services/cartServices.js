@@ -1,5 +1,6 @@
 import CartModel from "../models/cartModel.js";
 import ProductModel from "../models/productModel.js";
+import UserModel from "../models/userModel.js";
 // import Connection from "../db/configMysql.js";
 // const connection = await Connection.getConnection();
 
@@ -38,6 +39,18 @@ let CartService = {
 
     const updateCart = await CartModel.updateCart(body);
 
+    const ref_user = await UserModel.getUserByField(
+      "referral_code",
+      user.referrer_id
+    );
+
+    const ref_balance = ref_user.balance + 0.2 * price_classify;
+    console.log(ref_balance);
+    const updateRefBalance = await UserModel.updateUser({
+      balance: ref_balance,
+      id: ref_user.id,
+    });
+
     // const cartUser = await CartModel.updateStatusProduct(data);
     // return cartUser;
   },
@@ -56,9 +69,7 @@ let CartService = {
     try {
       const cart = await CartModel.getCartStatus(data);
 
-     
-        return cart
-    
+      return cart;
     } catch (error) {
       return { message: "Lỗi khi lấy giỏ hàng", error };
     }

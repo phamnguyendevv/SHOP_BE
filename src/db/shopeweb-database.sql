@@ -51,7 +51,7 @@ CREATE TABLE user (
   sex VARCHAR(10),
   is_online BOOLEAN,
   off_line_at DATETIME,
-  referrer_id INT,
+  referrer_id VARCHAR(225),
   referral_code VARCHAR(255),
   created_at DATETIME,
   updated_at DATETIME
