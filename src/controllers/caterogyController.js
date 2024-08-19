@@ -9,6 +9,7 @@ let categoryController = {
     return res.json({
       message: "Add new category successfully!",
       result,
+      status: 200,
     });
   },
   //update category
@@ -16,6 +17,7 @@ let categoryController = {
     const result = await CategoryService.updateCategory(req.body);
     return res.json({
       message: `Danh mục có id ${req.body.id} đã được cập nhật`,
+      status: 200,
     });
   },
   //deleteCategory
@@ -24,6 +26,7 @@ let categoryController = {
     const result = await CategoryService.deleteCategory(id);
     return res.json({
       message: "Xóa danh mục thành công!",
+      status: 200,
     });
   },
     getCategoryList: async (req, res) => {

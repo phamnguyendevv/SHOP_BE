@@ -18,15 +18,36 @@ let cartModel = {
 
   getCartStatus: async (data) => {
     const rows = await Connection.query(
-      `SELECT DISTINCT pc.id as cart_id ,pc.note , pc.created_at as date_order,p.id as product_id, p.name as product_name,c.id as classify_id, c.name as classify_name, c.price ,u.full_name as sell_by , i.url as image_url , pc.status_id
-
-       FROM product_cart pc
+      `SELECT pc.id, pc.note, pc.created_at AS date_order, p.id AS product_id, p.name AS product_name,
+                    (
+                        SELECT JSON_ARRAYAGG(
+                          JSON_OBJECT(
+                              'classify_id', classify_id,
+                              'classify_name', classify_name,
+                              'price', price
+                          ) 
+                    )
+                          FROM (
+                            SELECT DISTINCT
+                                c.id AS classify_id, c.name AS classify_name, c.price
+                            FROM classify c
+                            WHERE c.product_id = p.id
+                          ) AS unique_classifies
+                      ) AS classify_info,
+                u.full_name AS sell_by,
+                    (
+                        SELECT JSON_ARRAYAGG(i.url)
+                          FROM images i
+                        WHERE i.product_id = p.id
+                    ) AS image_urls,
+                pc.status_id
+        FROM product_cart pc
         JOIN product p ON pc.product_id = p.id
-        JOIN classify c ON pc.classify_id = c.id
         JOIN user u ON p.user_id = u.id
-        JOIN images i ON p.id = i.product_id
-
-        WHERE pc.user_id = ? AND pc.status_id = ?`,
+        WHERE
+            pc.user_id = ?
+            AND pc.status_id = ?
+        GROUP BY pc.id`,
       [data.user_id, data.status_id]
     );
     return rows;

@@ -5,8 +5,8 @@ let cartController = {
         
         const result = await CartService.addToCart(req.body)
         return res.json({
-            message: 'Sản phẩm đã được thêm vào giỏ hàng thành công',
-            
+            message: result,
+            status: 200,
         })
     },
     removeFromCartController: async (req, res) => {
@@ -14,7 +14,7 @@ let cartController = {
         const result = await CartService.removeFromCart(req.body)
         return res.json({
             message: 'Xóa sản phẩm khỏi giỏ hàng thành công',
-            result
+            data: result,
         })
     },
     updateCartController: async (req, res) => {
@@ -33,8 +33,9 @@ let cartController = {
     getCartController: async (req, res) => {
         const result = await CartService.getCart(req.body)
         return res.json({
-            message: 'Lấy giỏ hàng thành công',
-            result
+            message: "Lấy giỏ hàng thành công",
+            data: result,
+            status: 200,
         })
     }
 }

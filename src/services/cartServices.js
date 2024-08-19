@@ -5,17 +5,23 @@ import ProductModel from "../models/productModel.js";
 
 let CartService = {
   addToCart: async (data) => {
-    // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
-    const existingCartItem = await CartModel.getCartByField(
-      "product_id",
-      data.product_id
-    );
-    if (existingCartItem.length > 0) {
-      throw new Error("Sản phẩm đã tồn tại trong giỏ hàng");
+    try {
+      // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
+      const existingCartItem = await CartModel.getCartByFields(
+        "product_id = ? AND user_id = ?",
+        [data.product_id, data.user_id]
+      );
+      if (existingCartItem.length > 0) {
+        const updateCart = await CartModel.updateCart(data);
+        return "Sản phẩm đã tồn tại trong giỏ hàng";
+      }
+      const addCart = await CartModel.addCart(data);
+      return "Thêm sản phẩm vào giỏ hàng thành công";
+      // Kiểm tra xem sản phẩm có tồn tại không
+    } catch (error) {
+      console.log(error);
+      throw new Error("Không thể thêm sản phẩm vào giỏ hàng");
     }
-    const addCart = await CartModel.addCart(data);
-
-    // Kiểm tra xem sản phẩm có tồn tại không
   },
   // updateCart
   updateCart: async (data, body) => {
@@ -25,10 +31,10 @@ let CartService = {
     console.log(balance_user, price_classify);
     if (balance_user < price_classify) {
       throw new Error("Số dư không đủ để mua sản phẩm");
-      }
-      
-      const last_balance = balance_user - price_classify;
-      body.last_balance = last_balance;
+    }
+
+    const last_balance = balance_user - price_classify;
+    body.last_balance = last_balance;
 
     const updateCart = await CartModel.updateCart(body);
 
@@ -47,13 +53,17 @@ let CartService = {
   },
   // getCart
   getCart: async (data) => {
-    console.log(data);
-    const cart = await CartModel.getCartStatus(data);
-    if (cart.length === 0) {
-      throw new Error("Giỏ hàng trống");
+    try {
+      const cart = await CartModel.getCartStatus(data);
+
+     
+        return cart
+    
+    } catch (error) {
+      return { message: "Lỗi khi lấy giỏ hàng", error };
     }
-    return cart;
   },
+
   // getCartSuccess
   getCartSuccess: async (data) => {
     const { page, limit } = data;

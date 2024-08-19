@@ -22,11 +22,12 @@ let ClassifyModel = {
   },
 
   addClassify: async (productId, classifyData) => {
-    const query = `INSERT INTO classify (product_id, name,price,url_download,created_at, updated_at) VALUES (?, ?,?,?, CURDATE(), CURDATE())`;
+    const query = `INSERT INTO classify (product_id, name,price,description,url_download,created_at, updated_at) VALUES (?, ?,?,?,?, CURDATE(), CURDATE())`;
     const result = await Connection.query(query, [
       productId,
       classifyData.name,
       classifyData.price,
+      classifyData.description,
       classifyData.url_download,
     ]);
     return result;
@@ -47,6 +48,10 @@ let ClassifyModel = {
     if (data.price !== undefined) {
       fieldsToUpdate.push("price = ?");
       params.push(data.price);
+    }
+    if (data.description !== undefined) {
+      fieldsToUpdate.push("description = ?");
+      params.push(data.description);
     }
     if (data.url_download !== undefined) {
       fieldsToUpdate.push("url_download = ?");
