@@ -18,7 +18,7 @@ let cartModel = {
 
   getCartStatus: async (data) => {
     const rows = await Connection.query(
-      `SELECT pc.id, pc.note, pc.created_at AS date_order, p.id AS product_id, p.name AS product_name,
+      `SELECT pc.id,p.id AS product_id, p.name AS product_name, u.full_name AS sell_by,
                     (
                         SELECT JSON_ARRAYAGG(
                           JSON_OBJECT(
@@ -34,13 +34,12 @@ let cartModel = {
                             WHERE c.product_id = p.id
                           ) AS unique_classifies
                       ) AS classify_info,
-                u.full_name AS sell_by,
                     (
                         SELECT JSON_ARRAYAGG(i.url)
                           FROM images i
                         WHERE i.product_id = p.id
                     ) AS image_urls,
-                pc.status_id
+                pc.status_id, pc.note, pc.created_at AS date_order
         FROM product_cart pc
         JOIN product p ON pc.product_id = p.id
         JOIN user u ON p.user_id = u.id
@@ -104,10 +103,10 @@ let cartModel = {
     const query = `UPDATE product_cart   SET ${fieldsToUpdateString}, updated_at = NOW() WHERE id = ?`;
     const result = await Connection.executeTransaction(async (connection) => {
       await connection.query(query, params);
-      await connection.query(
-        `UPDATE user SET balance = ? WHERE id = ?`,
-        [data.last_balance, data.user_id]
-      );
+      await connection.query(`UPDATE user SET balance = ? WHERE id = ?`, [
+        data.last_balance,
+        data.user_id,
+      ]);
       return { success: true, message: "Cập nhật giỏ hàng thành công" };
     });
 
