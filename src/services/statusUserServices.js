@@ -1,10 +1,7 @@
 import statusUserModel from '../models/statusUserModel.js';
-
 import USERS_MESSAGES from  '../constants/messages.js';
 import HTTP_STATUS from '../constants/httpStatus.js';
 import ErrorWithStatus from '../utils/error.js';
-// import Connection from '../db/configMysql.js';
-//  const connection = await Connection.getConnection();
 
 let statusUserService = {
     addStatus: async (status) => {

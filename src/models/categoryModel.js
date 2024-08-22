@@ -1,4 +1,4 @@
-import ErrorWithStatus from "../utils/error.js";
+
 import Connection from "../db/configMysql.js";
 let CategoryModel = {
   //get category by id

@@ -1,13 +1,6 @@
 import UserModel from "../models/userModel.js";
 import validate from "../utils/validate.js"; // Đảm bảo đường dẫn đúng
-import USERS_MESSAGES from "../constants/messages.js";
 import { checkSchema } from "express-validator";
-import Connection from "../db/configMysql.js";
-const connection = await Connection.getConnection();
-
-import passwordhandler from "../utils/password.js";
-import ErrorWithStatus from "../utils/error.js";
-import HTTP_STATUS from "../constants/httpStatus.js";
 import DiscountModel from "../models/DiscountModel.js";
 
 let discountMiddlewares = {

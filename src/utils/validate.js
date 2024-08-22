@@ -1,39 +1,29 @@
 import { validationResult } from 'express-validator';
 import HTTP_STATUS from '../constants/httpStatus.js';
-import EntityError from './error.js';
 import MyLogger from '../loggers/myLogger.js';
 
 const myLogger = new MyLogger();
 
-
-
-const validate = validations => {
-  return async (req, res, next) => {
-    for (let validation of validations) {
-      const result = await validation.run(req);
-      if (result.errors.length) break;
-    }
-    const errors = validationResult(req);
-    if (errors.isEmpty()) {
-      return next();
-    }
-    const message = errors.array().map(i => i.msg).join(', ')
-    const status = HTTP_STATUS.UNPROCESSABLE_ENTITY;
- 
-    const params = [
-      req.originalUrl,
-      { requestId: req.requestId },
-      {message, status}
-
-    ];
-
-    myLogger.error(`Validation Error :: ${req.method}`, params);
-
-    res.status(422).json({ message, status });
-
+const validate = validations => async (req, res, next) => {
+  await Promise.all(validations.map(validation => validation.run(req)));
+  
+  const errors = validationResult(req);
+  if (errors.isEmpty()) {
+    return next();
   }
-}
 
+  const message = errors.array().map(error => error.msg).join(', ');
+  const status = HTTP_STATUS.UNPROCESSABLE_ENTITY;
 
+  myLogger.error('Validation Error', {
+    method: req.method,
+    url: req.originalUrl,
+    requestId: req.requestId,
+    message,
+    status
+  });
+
+  res.status(status).json({ message, status });
+};
 
 export default validate;
