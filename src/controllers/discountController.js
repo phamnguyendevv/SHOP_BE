@@ -24,6 +24,13 @@ let discountController = {
             message: 'Xóa mã giảm giá thành công!',
         })
     },
+    getAllDiscounts: async (req, res) => {
+        const result = await discountServices.getAllDiscounts()
+        return res.json({
+            message: 'Lấy danh sách mã giảm giá thành công!',
+            result
+        })
+    },
     getDiscountByCode: async (req, res) => {
         const result = await discountServices.getDiscountByCode(req.body)
         return res.json({

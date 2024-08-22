@@ -21,6 +21,7 @@ let AuthService = {
     try {
       const hashed = await password.hashPassword(data.password);
       data.referral_code = code;
+
       const user = await UserModel.createUser( data, hashed);
       return user;
     }

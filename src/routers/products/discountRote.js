@@ -9,6 +9,8 @@ router.post('/', discountMiddlewares.addDiscountValidator, wrapAsync(discountCon
 router.put('/', discountMiddlewares.updateDiscountValidator, wrapAsync(discountController.updateDiscountController))
 
 router.delete('/', wrapAsync(discountController.deleteDiscountController))
+router.get('/', wrapAsync(discountController.getAllDiscounts))
+
 // router.get('/discount-by-code', wrapAsync(discountController.getDiscountByCode))
 // router.post("/get-list", wrapAsync(technologyController.getTechnologyList));
 

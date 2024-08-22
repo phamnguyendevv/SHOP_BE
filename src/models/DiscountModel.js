@@ -3,12 +3,13 @@ import Connection from "../db/configMysql.js";
 let DiscountModel = {
   addDiscount: async (data) => {
     const query =
-      "INSERT INTO discount (user_id, name, code, percent, type, date_start, date_end, created_at, updated_at) VALUES (?, ?,?,? , ?, ?, ?, CURDATE(), CURDATE())";
+      "INSERT INTO discount (user_id, name, code, percent,price, type, date_start, date_end, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), CURDATE())";
     const result = await Connection.query(query, [
       data.user_id,
       data.name,
       data.code,
       data.percent,
+      data.price,
       data.type,
       data.date_start,
       data.date_end,
@@ -59,11 +60,15 @@ let DiscountModel = {
       console.log(error);
     }
   },
-    deleteDiscount: async (id) => {
+  deleteDiscount: async (id) => {
     const result = await Connection.query(
       "DELETE FROM discount WHERE id = ?",
       id
     );
+    return result;
+  },
+  getAllDiscounts: async () => {
+    const result = await Connection.query("SELECT * FROM discount");
     return result;
   },
   getDiscountByCode: async (connection, data) => {
@@ -82,6 +87,7 @@ let DiscountModel = {
       `SELECT * FROM discount WHERE ${field} = ?`,
       [value]
     );
+    return result;
   },
 };
 

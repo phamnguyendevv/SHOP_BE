@@ -144,14 +144,11 @@ let ProductServices = {
 
     const baseQuery = `
     SELECT  DISTINCT p.*, i.url as image, u.full_name as user_name,
-    c_min.price as price_min, c_max.price as price_max
+    c_min.price as price_min
     FROM product p
     LEFT JOIN images i ON p.id = i.product_id AND i.type = 1
     LEFT JOIN classify c_min ON p.id = c_min.product_id AND c_min.price = (
         SELECT MIN(price) FROM classify WHERE product_id = p.id
-    )
-    LEFT JOIN classify c_max ON p.id = c_max.product_id AND c_max.price = (
-        SELECT MAX(price) FROM classify WHERE product_id = p.id
     )
     LEFT JOIN user u ON p.user_id = u.id
   `;
@@ -162,9 +159,6 @@ let ProductServices = {
     LEFT JOIN images i ON p.id = i.product_id AND i.type = 1
     LEFT JOIN classify c_min ON p.id = c_min.product_id AND c_min.price = (
         SELECT MIN(price) FROM classify WHERE product_id = p.id
-    )
-    LEFT JOIN classify c_max ON p.id = c_max.product_id AND c_max.price = (
-        SELECT MAX(price) FROM classify WHERE product_id = p.id
     )
     LEFT JOIN user u ON p.user_id = u.id
     `;
@@ -190,11 +184,7 @@ let ProductServices = {
         (parseInt(pageIndex) - 1) * parseInt(pageSize)
       );
     }
-    console.log(orderClause);
-    console.log(whereClause);
     const fullQuery = `${baseQuery} ${whereClause} ${orderClause} ${limitClause}`;
-    console.log(fullQuery);
-    console.log(params);
     try {
       const totalCountRows = await Connection.query(
         `${countQuery}${whereClause}`,
@@ -299,7 +289,6 @@ async function handleImages(productId, images) {
   }
 }
 async function handleUpdateImages(productId, images) {
-  console.log(images);
   if (images && images.length > 0) {
     await Promise.all(
       images.map((image, index) =>
@@ -422,13 +411,11 @@ async function buildQueryConditions({
 
   if (priceRange) {
     conditions.push(
-      "(c_min.price >= ? AND c_max.price <= ?) OR (c_max.price BETWEEN ? AND ?)"
+      "(c_min.price >= ? AND c_min.price <= ?)"
     );
     params.push(
       priceRange.minPrice,
       priceRange.maxPrice,
-      priceRange.minPrice,
-      priceRange.maxPrice
     );
   }
 

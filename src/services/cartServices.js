@@ -1,8 +1,7 @@
+import { DiscountType } from "../constants/typeDiscount.js";
 import CartModel from "../models/cartModel.js";
-import ProductModel from "../models/productModel.js";
+import DiscountModel from "../models/DiscountModel.js";
 import UserModel from "../models/userModel.js";
-// import Connection from "../db/configMysql.js";
-// const connection = await Connection.getConnection();
 
 let CartService = {
   addToCart: async (data) => {
@@ -27,37 +26,25 @@ let CartService = {
   // updateCart
   updateCart: async (data, body) => {
     const { cart, product, user, status, classify } = data;
-    const price_classify = classify[0].price;
-    const balance_user = user.balance;
-    console.log(balance_user, price_classify);
-    if (balance_user < price_classify) {
+    const priceClassify = classify[0].price;
+    const balanceUser = user.balance;
+    // Tính giá sau khi áp dụng mã giảm giá (nếu có)
+    body.price = await calculatePrice(body.code, priceClassify);
+    // Kiểm tra số dư
+    if (balanceUser < body.price) {
       throw new Error("Số dư không đủ để mua sản phẩm");
     }
+    // Tính toán số dư mới và thông tin người giới thiệu
+    body.last_balance = balanceUser - body.price;
+    const refInfo = await calculateReferralInfo(user, priceClassify);
+    Object.assign(body, refInfo);
 
-    const last_balance = balance_user - price_classify;
-    body.last_balance = last_balance;
-
-    const updateCart = await CartModel.updateCart(body);
-
-    const ref_user = await UserModel.getUserByField(
-      "referral_code",
-      user.referrer_id
-    );
-
-    const ref_balance = ref_user.balance + 0.2 * price_classify;
-    console.log(ref_balance);
-    const updateRefBalance = await UserModel.updateUser({
-      balance: ref_balance,
-      id: ref_user.id,
-    });
-
-    // const cartUser = await CartModel.updateStatusProduct(data);
-    // return cartUser;
+    // Cập nhật giỏ hàng
+    return await CartModel.updateCart(body);
   },
   // removeCart
   removeFromCart: async (data) => {
     try {
-      console.log(data);
       const cart = await CartModel.removeProductInCart(data);
       return cart;
     } catch (error) {
@@ -74,26 +61,44 @@ let CartService = {
       return { message: "Lỗi khi lấy giỏ hàng", error };
     }
   },
-
-  // getCartSuccess
-  getCartSuccess: async (data) => {
-    const { page, limit } = data;
-    try {
-      const cart = await CartModel.getCartSuccess(connection, page, limit);
-      return cart;
-    } catch (error) {
-      throw new Error("Không lấy được giỏ hàng");
-    }
-  },
-  getCartPending: async (data) => {
-    const { page, limit } = data;
-    try {
-      const cart = await CartModel.getCartPending(connection, page, limit);
-      return cart;
-    } catch (error) {
-      throw new Error("Không lấy được giỏ hàng");
-    }
-  },
 };
+// Hàm phụ trợ để tính giá
+async function calculatePrice(code, priceClassify) {
+  if (!code) return priceClassify;
+
+  const discount = await DiscountModel.getDiscountByField("code", code);
+  if (discount.length === 0) {
+    throw new Error("Mã giảm giá không tồn tại");
+  }
+  return calculateDiscountedPrice(discount, priceClassify);
+}
+// Hàm phụ trợ để tính giá sau khi áp dụng mã giảm giá  
+function calculateDiscountedPrice(discount, priceClassify) {
+  const discountInfo = discount[0];
+  let lastPrice;
+
+  if (discountInfo.type === DiscountType.PERCENT) {
+    const discountAmount = priceClassify * (discountInfo.percent / 100);
+    lastPrice = priceClassify - discountAmount;
+  } else if (discountInfo.type === DiscountType.AMOUNT) {
+    lastPrice = priceClassify - discountInfo.priceClassify;
+  } else {
+    throw new Error("Loại giảm giá không hợp lệ");
+  }
+
+  return Math.max(lastPrice, 0);
+}
+
+// Hàm phụ trợ để tính thông tin người giới thiệu
+async function calculateReferralInfo(user, price) {
+  const ref_user = await UserModel.getUserByField("referral_code", user.referrer_id);
+  if (!ref_user) return {};
+
+  const ref_balance = ref_user.balance + 0.2 * price;
+  return {
+    ref_balance,
+    ref_user_id: ref_user.id
+  };
+}
 
 export default CartService;

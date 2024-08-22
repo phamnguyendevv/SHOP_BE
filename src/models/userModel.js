@@ -49,7 +49,7 @@ let UserModel = {
           hashed,
           data.qr_admin,
           data.status_id || 1,
-          data.referrer_id,
+          data.referrer_id || null,
           data.referral_code,
         ]
       );

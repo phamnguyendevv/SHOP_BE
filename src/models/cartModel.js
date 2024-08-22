@@ -73,48 +73,73 @@ let cartModel = {
   },
 
   updateCart: async (data) => {
-    console.log(data);
-    const fieldsToUpdate = [];
-    const params = [];
+    const requiredFields = ["cart_id", "user_id"];
+    const optionalFields = [
+      "product_id",
+      "classify_id",
+      "status_id",
+      "note",
+      "ref_balance",
+    ];
 
-    if (data.product_id !== undefined) {
-      fieldsToUpdate.push("product_id = ?");
-      params.push(data.product_id);
+    if (
+      !requiredFields.every((field) => data[field]) ||
+      !optionalFields.some((field) => data[field] !== undefined)
+    ) {
+      throw new Error("Invalid input data");
     }
-    if (data.classify_id !== undefined) {
-      fieldsToUpdate.push("classify_id = ?");
-      params.push(data.classify_id);
-    }
-    if (data.user_id !== undefined) {
-      fieldsToUpdate.push("user_id = ?");
-      params.push(data.user_id);
-    }
-    if (data.status_id !== undefined) {
-      fieldsToUpdate.push("status_id = ?");
-      params.push(data.status_id);
-    }
-    if (data.note !== undefined) {
-      fieldsToUpdate.push("note = ?");
-      params.push(data.note);
+    console.log(optionalFields);
+    console.log(requiredFields);
+
+    const updateCartFields = {
+      product_id: "product_id = ?",
+      classify_id: "classify_id = ?",
+      status_id: "status_id = ?",
+      note: "note = ?",
+    };
+
+    const updateFields = Object.entries(updateCartFields)
+      .filter(([key]) => data[key] !== undefined)
+      .map(([, value]) => value);
+
+    const updateParams = Object.keys(updateCartFields)
+      .filter((key) => data[key] !== undefined)
+      .map((key) => data[key]);
+
+    updateParams.push(data.cart_id);
+
+    const updateCartQuery = `
+      UPDATE product_cart
+      SET ${updateFields.join(", ")}, updated_at = NOW()
+      WHERE id = ?
+    `;
+
+    const updateUserQueries = [];
+    const updateUserParams = [];
+
+    if (data.ref_balance !== undefined) {
+      updateUserQueries.push("UPDATE user SET balance = ? WHERE id = ?");
+      updateUserParams.push([data.ref_balance, data.ref_user_id]);
     }
 
-    params.push(data.cart_id);
+    updateUserQueries.push("UPDATE user SET balance = ? WHERE id = ?");
+    updateUserParams.push([data.last_balance, data.user_id]);
 
-    const fieldsToUpdateString = fieldsToUpdate.join(", ");
-    const query = `UPDATE product_cart   SET ${fieldsToUpdateString}, updated_at = NOW() WHERE id = ?`;
-    console.log(query, params);
-    const result = await Connection.executeTransaction(async (connection) => {
+    console.log(updateUserQueries); 
+    console.log(updateUserParams);
+    try {
+      await Connection.executeTransaction(async (connection) => {
+        await connection.query(updateCartQuery, updateParams);
+        for (let i = 0; i < updateUserQueries.length; i++) {
+          await connection.query(updateUserQueries[i], updateUserParams[i]);
+        }
+      });
 
-      await connection.query(query, params);
-      await connection.query(`UPDATE user SET balance = ? WHERE id = ?`, [
-        data.last_balance,
-        data.user_id,
-      ]);
-
-      return { success: true, message: "Cập nhật giỏ hàng thành công" };
-    });
-  
-    return;
+      return { message: "Cập nhật giỏ hàng thành công", status: 200 };
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      throw new Error("Lỗi khi cập nhật giỏ hàng");
+    }
   },
 };
 export default cartModel;
