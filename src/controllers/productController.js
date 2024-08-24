@@ -34,7 +34,6 @@ let productsController = {
     return res.json({
       message: "Lấy sản phẩm thành công!",
       data: result,
-      status: 200,
     });
   },
 

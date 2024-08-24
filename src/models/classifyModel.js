@@ -16,6 +16,7 @@ let ClassifyModel = {
   },
 
   getClassifyByFields: async (field, values) => {
+    console.log(field, values);
     const query = `SELECT * FROM \`classify\` WHERE ${field}`;
     const rows = await Connection.execute(query, values);
     return rows;

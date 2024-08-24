@@ -20,6 +20,7 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
+              console.log(value);
               const product = await ProductModel.getProductByField("id", value);
               const classify = await ClassifyModel.getClassifyByField(
                 "product_id",
@@ -31,6 +32,7 @@ let cartMiddlewares = {
               if (classify.length === 0) {
                 throw new Error("Sản phẩm chưa có loại");
               }
+              console.log(product)
               req.product = product;
               return true;
             },
@@ -58,10 +60,13 @@ let cartMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const id = Number(value);
+              console.log(req.product); 
+              if (!req.product) {
+                throw new Error("Sản phẩm không tồn tại");
+              }
               const classifyProduct = await ClassifyModel.getClassifyByFields(
                 "id = ? AND product_id = ?",
-                [id, req.product.id]
+                [value, req.product.id]
               );
               if (classifyProduct.length === 0) {
                 throw new Error("Sai loạn sản phẩm");
@@ -71,7 +76,6 @@ let cartMiddlewares = {
           },
         },
       },
-      ["body"]
     )
   ),
   updateCartValidator: validate(

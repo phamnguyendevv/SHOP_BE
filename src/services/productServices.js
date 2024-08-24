@@ -1,7 +1,6 @@
 import mysql from "mysql2";
 import getSlug from "speakingurl";
 import crypto from "crypto";
-import CategoryService from "./categoryServices.js";
 import CategoryModel from "../models/categoryModel.js";
 import ProductModel from "../models/productModel.js";
 import ClassifyModel from "../models/classifyModel.js";
@@ -100,7 +99,6 @@ let ProductServices = {
   },
 
   getProductBySlug: async (slug_product) => {
-    try {
       // Lấy thông tin sản phẩm dựa trên slug
       const product = await ProductModel.getProductByField(
         "slug",
@@ -108,7 +106,7 @@ let ProductServices = {
       );
 
       if (!product) {
-        throw new Error("Sản phẩm không tồn tại");
+        throw new Error("Không tìm thấy sản phẩm");
       }
       // Thực hiện đồng thời các truy vấn khác
       const [categories, classify, images, technologies] = await Promise.all([
@@ -120,14 +118,18 @@ let ProductServices = {
       // Gán dữ liệu vào đối tượng sản phẩm
       product.images = images;
       product.categories = categories;
-      product.technologies = technologies;
-      product.classify = classify;
+    product.technologies = technologies;
+    const classifyData = classify.map((c) => ({
+      id: c.id,
+      price: c.price,
+      name: c.name,
+      description: c.description,
+    }));
+    console.log("classifyData", classifyData);
+      product.classify = classifyData;
 
       return product;
-    } catch (error) {
-      console.error("Lỗi khi lấy thông tin sản phẩm:", error);
-      throw new Error("Có lỗi xảy ra khi lấy thông tin sản phẩm");
-    }
+
   },
 
   getList: async (data) => {
