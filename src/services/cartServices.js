@@ -38,7 +38,7 @@ let CartService = {
     body.last_balance = balanceUser - body.price;
     const refInfo = await calculateReferralInfo(user, priceClassify);
     Object.assign(body, refInfo);
-
+    
     // Cập nhật giỏ hàng
     return await CartModel.updateCart(body);
   },

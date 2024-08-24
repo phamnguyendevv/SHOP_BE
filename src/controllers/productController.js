@@ -6,6 +6,7 @@ let productsController = {
     const result = await ProductServices.addProduct(req.body);
     return res.json({
       message: "Thêm sản phẩm thành công!",
+      status: 200,
     });
   },
   //update product

@@ -250,11 +250,9 @@ async function handleTechnologies(productId, technologies) {
     (newTech) =>
       !existingTechnologies.some((existingTech) => existingTech.id === newTech)
   );
-  console.log("cần thêm", technologiesToAdd);
   const technologiesToRemove = existingTechnologies.filter(
     (existingTech) => !technologies.includes(existingTech.id)
   );
-  console.log("cần xóa", technologiesToRemove);
 
   await Promise.all([
     ...technologiesToRemove.map((tech) =>
@@ -289,17 +287,46 @@ async function handleImages(productId, images) {
   }
 }
 async function handleUpdateImages(productId, images) {
-  if (images && images.length > 0) {
-    await Promise.all(
-      images.map((image, index) =>
-        ImageModel.updateImage({
-          product_id: productId,
-          url: image,
-          type: index === 0 ? 1 : 0,
-        })
-      )
-    );
-  }
+  if (!images || images.length === 0) return; // Skip if images is empty or undefined
+
+  const existingImages = await ImageModel.getImageByField(
+    "product_id",
+    productId
+  );
+
+  const imagesToAdd = images.filter(
+    (newImage) =>
+      !existingImages.some((existingImg) => existingImg.url === newImage)
+  );
+
+  const imagesToRemove = existingImages.filter(
+    (existingImg) => !images.includes(existingImg.url)
+  );
+
+  // Add new images
+  await Promise.all(
+    imagesToAdd.map(async (url, index) => {
+      const image = {
+        product_id: productId,
+        url: url,
+        type: index === 0 ? 1 : 0, // First image is set as type 1, others as type 0
+      };
+      await connection.query(
+        `INSERT INTO images (product_id, url, type) VALUES (?, ?, ?)`,
+        [image.product_id, image.url, image.type]
+      );
+    })
+  );
+
+  // Remove old images
+  await Promise.all(
+    imagesToRemove.map(async (image) => {
+      await connection.query(
+        `DELETE FROM images WHERE product_id = ? AND id = ?`,
+        [image.product_id, image.id]
+      );
+    })
+  );
 }
 
 // Hàm xử lý classify data
@@ -410,13 +437,8 @@ async function buildQueryConditions({
   }
 
   if (priceRange) {
-    conditions.push(
-      "(c_min.price >= ? AND c_min.price <= ?)"
-    );
-    params.push(
-      priceRange.minPrice,
-      priceRange.maxPrice,
-    );
+    conditions.push("(c_min.price >= ? AND c_min.price <= ?)");
+    params.push(priceRange.minPrice, priceRange.maxPrice);
   }
 
   if (is_popular === 1) {

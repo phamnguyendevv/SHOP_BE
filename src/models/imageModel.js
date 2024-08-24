@@ -29,9 +29,9 @@ let ImageModel = {
     }
   },
   updateImage: async (data) => {
+    console.log(data);
     try {
       // Base query
-    
       let query = `UPDATE images SET `;
       let queryParams = [];
       let updateFields = [];
