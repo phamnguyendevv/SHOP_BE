@@ -7,7 +7,6 @@ import ProductModel from "../models/productModel.js";
 import ClassifyModel from "../models/classifyModel.js";
 import TechnologyModel from "../models/technologyModel.js";
 import categoryProductModel from "../models/categoryProductModel.js";
-import categoryProdcutModel from "../models/categoryProductModel.js";
 import ProductTechnologyModel from "../models/productTechnologyMode.js";
 import ImageModel from "../models/imageModel.js";
 import Connection from "../db/configMysql.js";
@@ -60,27 +59,22 @@ let ProductServices = {
   updateProduct: async (data) => {
     const { productData, classifyData } = data;
     const productId = Number(productData.id);
-
+    const { createdAt, updatedAt, images, categories, technologies, ...updateDataProduct } = productData;
     try {
-      // Update product
-      await ProductModel.updateProduct(productData);
-
-      // Handle categories
-      if (productData.categories?.length > 0) {
-        await updateProductCategories(productId, productData.categories);
-      }
-      if (productData.technologies?.length > 0) {
-        await handleTechnologies(productId, productData.technologies);
-      }
-      // Handle classify data
-      if (classifyData?.length > 0) {
-        await updateProductClassify(productId, classifyData);
-      }
-      if (productData.images?.length > 0) {
-        await handleUpdateImages(productId, productData.images);
-      }
-
-      return await ProductModel.getProductByField("id", productId);
+      await Connection.executeTransaction(async (connection) => {
+        await updateCategories(connection, productId, productData.categories);
+        await updateTechnologies(
+          connection,
+          productId,
+          productData.technologies
+        );
+        await updateClassify(connection, productId, classifyData);
+        await updateImages(connection, productId, productData.images);
+        await connection.query(`UPDATE product SET ? WHERE id = ?`, [
+          updateDataProduct,
+          productId,
+        ]);
+      });
     } catch (error) {
       console.error("Không cập nhật được sản phẩm: ", error);
       throw new Error("Không cập nhật được sản phẩm");
@@ -286,48 +280,7 @@ async function handleImages(productId, images) {
     );
   }
 }
-async function handleUpdateImages(productId, images) {
-  if (!images || images.length === 0) return; // Skip if images is empty or undefined
 
-  const existingImages = await ImageModel.getImageByField(
-    "product_id",
-    productId
-  );
-
-  const imagesToAdd = images.filter(
-    (newImage) =>
-      !existingImages.some((existingImg) => existingImg.url === newImage)
-  );
-
-  const imagesToRemove = existingImages.filter(
-    (existingImg) => !images.includes(existingImg.url)
-  );
-
-  // Add new images
-  await Promise.all(
-    imagesToAdd.map(async (url, index) => {
-      const image = {
-        product_id: productId,
-        url: url,
-        type: index === 0 ? 1 : 0, // First image is set as type 1, others as type 0
-      };
-      await connection.query(
-        `INSERT INTO images (product_id, url, type) VALUES (?, ?, ?)`,
-        [image.product_id, image.url, image.type]
-      );
-    })
-  );
-
-  // Remove old images
-  await Promise.all(
-    imagesToRemove.map(async (image) => {
-      await connection.query(
-        `DELETE FROM images WHERE product_id = ? AND id = ?`,
-        [image.product_id, image.id]
-      );
-    })
-  );
-}
 
 // Hàm xử lý classify data
 async function handleClassifyData(productId, classifyData) {
@@ -341,69 +294,7 @@ async function handleClassifyData(productId, classifyData) {
     )
   );
 }
-async function updateProductClassify(productId, classifyData) {
-  const existingClassifies = await ClassifyModel.getClassifyByField(
-    "product_id",
-    productId
-  );
 
-  const classifiesToAdd = classifyData.filter(
-    (newClassify) =>
-      !existingClassifies.some(
-        (existingClassify) => existingClassify.id === newClassify.id
-      )
-  );
-
-  const classifiesToRemove = existingClassifies.filter(
-    (existingClassify) =>
-      !classifyData.some(
-        (newClassify) => newClassify.id === existingClassify.id
-      )
-  );
-
-  await Promise.all([
-    ...classifiesToRemove.map((classify) =>
-      ClassifyModel.deleteClassify(productId, classify.id)
-    ),
-    ...classifiesToAdd.map(async (classify) => {
-      if (classify.id) {
-        const existingClassify = await ClassifyModel.getClassifyByField(
-          "id",
-          classify.id
-        );
-        if (existingClassify) {
-          return ClassifyModel.updateClassify(productId, classify);
-        }
-      }
-      classify.product_id = productId;
-      return ClassifyModel.addClassify(productId, classify);
-    }),
-  ]);
-}
-
-async function updateProductCategories(productId, newCategories) {
-  const existingCategories =
-    await categoryProductModel.getCategoriesByProductId(productId);
-
-  const categoriesToAdd = newCategories.filter(
-    (newCat) =>
-      !existingCategories.some((existingCat) => existingCat.id === newCat)
-  );
-  const categoriesToRemove = existingCategories.filter(
-    (existingCat) => !newCategories.includes(existingCat.id)
-  );
-
-  await Promise.all([
-    ...categoriesToRemove.map((cat) =>
-      categoryProductModel.removeProductCategory(productId, cat.id)
-    ),
-    ...categoriesToAdd.map(async (catId) => {
-      const category = await CategoryModel.getCategoryByField("id", catId);
-      if (!category) throw new Error("Không tìm thấy danh mục sản phẩm");
-      return categoryProductModel.addProductCategory(productId, catId);
-    }),
-  ]);
-}
 
 async function buildQueryConditions({
   categories,
@@ -475,6 +366,205 @@ async function buildOrderClause(orderBy) {
     )} ${sortOrder.toUpperCase()}`;
   }
   return "";
+}
+
+async function updateCategories(connection, productId, categories) {
+  const existingCategories =
+    await categoryProductModel.getCategoriesByProductId(productId);
+
+  // Tìm các danh mục cần thêm
+  const categoriesToAdd = categories.filter(
+    (newCat) =>
+      !existingCategories.some((existingCat) => existingCat.id === newCat)
+  );
+
+  // Tìm các danh mục cần xóa
+  const categoriesToRemove = existingCategories.filter(
+    (existingCat) => !categories.includes(existingCat.id)
+  );
+
+  // Thêm các danh mục mới
+  await Promise.all(
+    categoriesToAdd.map(async (catId) => {
+      const category = await CategoryModel.getCategoryByField("id", catId);
+      if (!category) throw new Error("Không tìm thấy danh mục sản phẩm");
+      return connection.query(
+        `INSERT INTO products_categories (product_id, category_id) VALUES (?, ?)`,
+        [productId, catId]
+      );
+    })
+  );
+
+  // Xóa các danh mục cũ
+  await Promise.all(
+    categoriesToRemove.map((cat) =>
+      connection.query(
+        `DELETE FROM products_categories WHERE product_id = ? AND category_id = ?`,
+        [productId, cat.id]
+      )
+    )
+  );
+}
+
+async function updateTechnologies(connection, productId, technologies) {
+  const existingTechnologies =
+    await ProductTechnologyModel.getTechnologiesByProductId(productId);
+
+  // Tìm các công nghệ cần thêm
+  const technologiesToAdd = technologies.filter(
+    (newTech) =>
+      !existingTechnologies.some((existingTech) => existingTech.id === newTech)
+  );
+
+  // Tìm các công nghệ cần xóa
+  const technologiesToRemove = existingTechnologies.filter(
+    (existingTech) => !technologies.includes(existingTech.id)
+  );
+
+  // Thêm các công nghệ mới
+  await Promise.all(
+    technologiesToAdd.map(async (techId) => {
+      const technology = await TechnologyModel.getTechnologyByField(
+        "id",
+        techId
+      );
+      if (!technology) throw new Error("Không tìm thấy công nghệ sản phẩm");
+      return connection.query(
+        `INSERT INTO products_technologies (product_id, technology_id) VALUES (?, ?)`,
+        [productId, techId]
+      );
+    })
+
+
+  );
+
+
+  // Xóa các công nghệ cũ
+  await Promise.all(
+    technologiesToRemove.map((tech) =>
+      connection.query(
+        `DELETE FROM products_technologies WHERE product_id = ? AND technology_id = ?`,
+        [productId, tech.id]
+      )
+    )
+  );
+}
+
+async function updateClassify(connection, productId, classifyData) {
+  console.log("classifyData", classifyData);
+  const existingClassifies = await ClassifyModel.getClassifyByField(
+    "product_id",
+    productId
+  );
+
+  // Tìm các phân loại cần thêm
+  const classifiesToAdd = classifyData.filter(
+    (newClassify) =>
+      !existingClassifies.some(
+        (existingClassify) => existingClassify.id === newClassify.id
+      )
+  );
+
+  // Tìm các phân loại cần cập nhật
+  const classifiesToUpdate = classifyData.filter((newClassify) =>
+    existingClassifies.some(
+      (existingClassify) => existingClassify.id === newClassify.id
+    )
+  );
+
+  // Tìm các phân loại cần xóa
+  const classifiesToRemove = existingClassifies.filter(
+    (existingClassify) =>
+      !classifyData.some(
+        (newClassify) => newClassify.id === existingClassify.id
+      )
+  );
+
+  // Thêm các phân loại mới
+  await Promise.all(
+    classifiesToAdd.map(async (classify) => {
+      classify.product_id = productId;
+      return connection.query(
+        `INSERT INTO classify (product_id, price, name, url_download,description) VALUES (?, ?, ?, ?, ?)`,
+        [
+          productId,
+          classify.price,
+          classify.name,
+          classify.urldownload,
+          classify.description,
+        ]
+      );
+    })
+
+  );
+
+  // Cập nhật các phân loại cũ
+  await Promise.all(
+    classifiesToUpdate.map(async (classify) => {
+      const existingClassify = await ClassifyModel.getClassifyByField(
+        "id",
+        classify.id
+      );
+      if (existingClassify) {
+        return connection.query(
+          `UPDATE classify SET ? WHERE product_id = ? AND id = ?`,
+          [classify, productId, classify.id]
+        );
+      }
+    })
+  );
+ 
+
+  // Xóa các phân loại cũ
+  await Promise.all(
+    classifiesToRemove.map((classify) =>
+      connection.query(`DELETE FROM classify WHERE product_id = ? AND id = ?`, [
+        productId,
+        classify.id,
+      ])
+    )
+  );
+}
+
+async function updateImages(connection, productId, images) {
+  
+  if (!images || images.length === 0) return; // Skip if images is empty or undefined
+  const existingImages = await ImageModel.getImageByField("product_id", productId
+  );
+  const imagesToAdd = images.filter(
+    (newImage) =>
+      !existingImages.some((existingImg) => existingImg.url === newImage)
+  );
+
+  const imagesToRemove = existingImages.filter(
+    (existingImg) => !images.includes(existingImg.url)
+  );
+
+
+  // Add new images
+  await Promise.all(
+    imagesToAdd.map(async (url, index) => {
+      const image = {
+        product_id: productId,
+        url: url,
+        type: index === 0 ? 1 : 0, // First image is set as type 1, others as type 0
+      };
+      await connection.query(
+        `INSERT INTO images (product_id, url, type) VALUES (?, ?, ?)`,
+        [image.product_id, image.url, image.type]
+      );
+    })
+  );
+
+  // Remove old images
+  await Promise.all(
+    imagesToRemove.map(async (image) => {
+      await connection.query(
+        `DELETE FROM images WHERE product_id = ? AND id = ?`,
+        [image.product_id, image.id]
+      );
+    })
+  );
 }
 
 export default ProductServices;

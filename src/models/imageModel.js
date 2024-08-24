@@ -3,6 +3,7 @@ import Connection from "../db/configMysql.js";
 
 let ImageModel = {
   getImageByField: async (field, value) => {
+
     try {
       const query = `SELECT * FROM images WHERE ${field} = ?`;
       const result = await Connection.query(query, [value]);
