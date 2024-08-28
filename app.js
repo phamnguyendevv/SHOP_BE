@@ -1,7 +1,7 @@
 import express from 'express'
 import indexRouter from './src/routers/index.js';
 import initDatabase from "./src/db/checkExistsDB.js";
-
+import redis from "./src/db/configRedis.js";
 import logger from './src/loggers/loggerRun.js'
 import defaultErrorHandler from './src/middlewares/errorMiddewares.js'
 import dotenv from 'dotenv';

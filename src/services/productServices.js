@@ -1,16 +1,16 @@
 import mysql from "mysql2";
-import getSlug from "speakingurl";
 import crypto from "crypto";
-import CategoryModel from "../models/categoryModel.js";
+import getSlug from "speakingurl";
+import redis from "../db/configRedis.js";
+import Connection from "../db/configMysql.js";
+import ImageModel from "../models/imageModel.js";
 import ProductModel from "../models/productModel.js";
+import CategoryModel from "../models/categoryModel.js";
 import ClassifyModel from "../models/classifyModel.js";
 import TechnologyModel from "../models/technologyModel.js";
 import categoryProductModel from "../models/categoryProductModel.js";
 import ProductTechnologyModel from "../models/productTechnologyMode.js";
-import ImageModel from "../models/imageModel.js";
-import Connection from "../db/configMysql.js";
 const connection = await Connection.getConnection();
-
 let ProductServices = {
   createSlug: async (name) => {
     const slug = getSlug(name, { lang: "vn" });
@@ -58,7 +58,14 @@ let ProductServices = {
   updateProduct: async (data) => {
     const { productData, classifyData } = data;
     const productId = Number(productData.id);
-    const { createdAt, updatedAt, images, categories, technologies, ...updateDataProduct } = productData;
+    const {
+      createdAt,
+      updatedAt,
+      images,
+      categories,
+      technologies,
+      ...updateDataProduct
+    } = productData;
     try {
       await Connection.executeTransaction(async (connection) => {
         await updateCategories(connection, productId, productData.categories);
@@ -99,37 +106,50 @@ let ProductServices = {
   },
 
   getProductBySlug: async (slug_product) => {
-      // Lấy thông tin sản phẩm dựa trên slug
-      const product = await ProductModel.getProductByField(
-        "slug",
-        slug_product
-      );
-
-      if (!product) {
-        throw new Error("Không tìm thấy sản phẩm");
+    const productKey = `product:${slug_product}`;
+    const cachedProduct = await redis.get(productKey);
+    if (cachedProduct) {
+      const parsedProduct = JSON.parse(cachedProduct);
+      if (parsedProduct && Object.keys(parsedProduct).length > 0) {
+        console.log("Lấy sản phẩm từ cache");
+        return parsedProduct;
       }
-      // Thực hiện đồng thời các truy vấn khác
-      const [categories, classify, images, technologies] = await Promise.all([
-        categoryProductModel.getCategoriesByProductId(product.id),
-        ClassifyModel.getClassifyByField("product_id", product.id),
-        ImageModel.getImageByField("product_id", product.id),
-        ProductTechnologyModel.getTechnologiesByProductId(product.id),
-      ]);
-      // Gán dữ liệu vào đối tượng sản phẩm
-      product.images = images;
-      product.categories = categories;
-    product.technologies = technologies;
-    const classifyData = classify.map((c) => ({
-      id: c.id,
-      price: c.price,
-      name: c.name,
-      description: c.description,
-    }));
-    console.log("classifyData", classifyData);
-      product.classify = classifyData;
+    }
 
-      return product;
+    // Nếu không có trong cache, lấy từ database
+    console.log("Lấy sản phẩm từ database");
+    const product = await ProductModel.getProductByField("slug", slug_product);
 
+    if (!product) {
+      throw new Error("Không tìm thấy sản phẩm");
+    }
+
+    // Thực hiện đồng thời các truy vấn khác
+    const [categories, classify, images, technologies] = await Promise.all([
+      categoryProductModel.getCategoriesByProductId(product.id),
+      ClassifyModel.getClassifyByField("product_id", product.id),
+      ImageModel.getImageByField("product_id", product.id),
+      ProductTechnologyModel.getTechnologiesByProductId(product.id),
+    ]);
+
+    // Gán dữ liệu vào đối tượng sản phẩm
+    const enrichedProduct = {
+      ...product,
+      images,
+      categories,
+      technologies,
+      classify: classify.map(({ id, price, name, description }) => ({
+        id,
+        price,
+        name,
+        description,
+      })),
+    };
+
+    // Lưu sản phẩm vào Redis
+    await redis.set(productKey, JSON.stringify(enrichedProduct), "EX", 7200);
+
+    return enrichedProduct;
   },
 
   getList: async (data) => {
@@ -137,6 +157,18 @@ let ProductServices = {
     const { orderBy, keyword, pageIndex, isPaging, pageSize } = pagingParams;
     const { categories, technologies, is_popular, priceRange, user_id } =
       filterParams;
+
+    // Tạo một key duy nhất cho truy vấn này
+    const cacheKey = `products:${JSON.stringify({
+      pagingParams,
+      filterParams,
+    })}`;
+    // Kiểm tra cache trước
+    const cachedResult = await redis.get(cacheKey);
+    if (cachedResult) {
+      console.log("Returning result from cache");
+      return JSON.parse(cachedResult);
+    }
 
     const baseQuery = `
     SELECT  DISTINCT p.*, i.url as image, u.full_name as user_name,
@@ -182,19 +214,23 @@ let ProductServices = {
     }
     const fullQuery = `${baseQuery} ${whereClause} ${orderClause} ${limitClause}`;
     try {
-      const totalCountRows = await Connection.query(
-        `${countQuery}${whereClause}`,
-        params
-      );
-      const totalCount = totalCountRows[0].totalCount;
+      const [totalCountRows, rows] = await Promise.all([
+        connection.query(`${countQuery} ${whereClause}`, params),
+        connection.query(fullQuery, params),
+      ]);
+
+      const totalCount = totalCountRows[0][0].totalCount;
       const totalPage = Math.ceil(totalCount / pageSize);
 
-      const [rows] = await connection.query(fullQuery, params);
-
-      return {
-        data: rows,
+      const result = {
+        data: rows[0],
         meta: { total: totalCount, totalPage },
       };
+
+      // Cache kết quả trong 5 phút
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 300);
+
+      return result;
     } catch (error) {
       console.error("Lỗi khi lấy danh sách sản phẩm:", error);
       throw new Error("Có lỗi xảy ra khi lấy danh sách sản phẩm");
@@ -283,7 +319,6 @@ async function handleImages(productId, images) {
   }
 }
 
-
 // Hàm xử lý classify data
 async function handleClassifyData(productId, classifyData) {
   const classifyDataArray = classifyData.map((classify) => ({
@@ -296,7 +331,6 @@ async function handleClassifyData(productId, classifyData) {
     )
   );
 }
-
 
 async function buildQueryConditions({
   categories,
@@ -436,10 +470,7 @@ async function updateTechnologies(connection, productId, technologies) {
         [productId, techId]
       );
     })
-
-
   );
-
 
   // Xóa các công nghệ cũ
   await Promise.all(
@@ -497,7 +528,6 @@ async function updateClassify(connection, productId, classifyData) {
         ]
       );
     })
-
   );
 
   // Cập nhật các phân loại cũ
@@ -515,7 +545,6 @@ async function updateClassify(connection, productId, classifyData) {
       }
     })
   );
- 
 
   // Xóa các phân loại cũ
   await Promise.all(
@@ -529,9 +558,10 @@ async function updateClassify(connection, productId, classifyData) {
 }
 
 async function updateImages(connection, productId, images) {
-  
   if (!images || images.length === 0) return; // Skip if images is empty or undefined
-  const existingImages = await ImageModel.getImageByField("product_id", productId
+  const existingImages = await ImageModel.getImageByField(
+    "product_id",
+    productId
   );
   const imagesToAdd = images.filter(
     (newImage) =>
@@ -541,7 +571,6 @@ async function updateImages(connection, productId, images) {
   const imagesToRemove = existingImages.filter(
     (existingImg) => !images.includes(existingImg.url)
   );
-
 
   // Add new images
   await Promise.all(

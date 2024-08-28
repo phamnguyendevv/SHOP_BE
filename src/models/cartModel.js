@@ -88,8 +88,6 @@ let cartModel = {
     ) {
       throw new Error("Invalid input data");
     }
-    console.log(optionalFields);
-    console.log(requiredFields);
 
     const updateCartFields = {
       product_id: "product_id = ?",
