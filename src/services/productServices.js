@@ -1,7 +1,7 @@
 import mysql from "mysql2";
 import crypto from "crypto";
 import getSlug from "speakingurl";
-import redis from "../db/configRedis.js";
+// import redis from "../db/configRedis.js";
 import Connection from "../db/configMysql.js";
 import ImageModel from "../models/imageModel.js";
 import ProductModel from "../models/productModel.js";
@@ -107,14 +107,14 @@ let ProductServices = {
 
   getProductBySlug: async (slug_product) => {
     const productKey = `product:${slug_product}`;
-    const cachedProduct = await redis.get(productKey);
-    if (cachedProduct) {
-      const parsedProduct = JSON.parse(cachedProduct);
-      if (parsedProduct && Object.keys(parsedProduct).length > 0) {
-        console.log("Lấy sản phẩm từ cache");
-        return parsedProduct;
-      }
-    }
+    // const cachedProduct = await redis.get(productKey);
+    // if (cachedProduct) {
+    //   const parsedProduct = JSON.parse(cachedProduct);
+    //   if (parsedProduct && Object.keys(parsedProduct).length > 0) {
+    //     console.log("Lấy sản phẩm từ cache");
+    //     return parsedProduct;
+    //   }
+    // }
 
     // Nếu không có trong cache, lấy từ database
     console.log("Lấy sản phẩm từ database");
@@ -147,7 +147,7 @@ let ProductServices = {
     };
 
     // Lưu sản phẩm vào Redis
-    await redis.set(productKey, JSON.stringify(enrichedProduct), "EX", 7200);
+    // await redis.set(productKey, JSON.stringify(enrichedProduct), "EX", 7200);
 
     return enrichedProduct;
   },
@@ -164,11 +164,11 @@ let ProductServices = {
       filterParams,
     })}`;
     // Kiểm tra cache trước
-    const cachedResult = await redis.get(cacheKey);
-    if (cachedResult) {
-      console.log("Returning result from cache");
-      return JSON.parse(cachedResult);
-    }
+    // const cachedResult = await redis.get(cacheKey);
+    // if (cachedResult) {
+    //   console.log("Returning result from cache");
+    //   return JSON.parse(cachedResult);
+    // }
 
     const baseQuery = `
     SELECT  DISTINCT p.*, i.url as image, u.full_name as user_name,
@@ -228,7 +228,7 @@ let ProductServices = {
       };
 
       // Cache kết quả trong 5 phút
-      await redis.set(cacheKey, JSON.stringify(result), "EX", 300);
+      // await redis.set(cacheKey, JSON.stringify(result), "EX", 300);
 
       return result;
     } catch (error) {

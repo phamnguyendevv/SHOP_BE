@@ -2,7 +2,7 @@ import { DiscountType } from "../constants/typeDiscount.js";
 import CartModel from "../models/cartModel.js";
 import DiscountModel from "../models/DiscountModel.js";
 import UserModel from "../models/userModel.js";
-import redis from "../db/configRedis.js";
+// import redis from "../db/configRedis.js";
 
 let CartService = {
   addToCart: async (data) => {
@@ -66,18 +66,18 @@ let CartService = {
   getCart: async (data) => {
     try {
       const cartKey = `cart:${data.user_id}`;
-      const cart = await redis.get(cartKey);
-      if (cart) {
-        const parsedCart = JSON.parse(cart);
-        if (Array.isArray(parsedCart) && parsedCart.length > 0) {
-          return parsedCart;
-        }
-      }
+      // const cart = await redis.get(cartKey);
+      // if (cart) {
+      //   const parsedCart = JSON.parse(cart);
+      //   if (Array.isArray(parsedCart) && parsedCart.length > 0) {
+      //     return parsedCart;
+      //   }
+      // }
       // Nếu không có dữ liệu hoặc giỏ hàng rỗng, lấy dữ liệu từ cơ sở dữ liệu
       console.log("get cart from db");
       const freshCart = await CartModel.getCartStatus(data);
       // Lưu giỏ hàng mới vào Redis
-      await redis.set(cartKey, JSON.stringify(freshCart), "EX", 7200);
+      // await redis.set(cartKey, JSON.stringify(freshCart), "EX", 7200);
 
       return freshCart;
     } catch (error) {
