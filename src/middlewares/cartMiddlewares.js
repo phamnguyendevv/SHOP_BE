@@ -4,10 +4,7 @@ import ProductModel from "../models/productModel.js";
 import { checkSchema } from "express-validator";
 import statusProductModel from "../models/statusProductModel.js";
 import cartModel from "../models/cartModel.js";
-import Connection from "../db/configMysql.js";
 import ClassifyModel from "../models/classifyModel.js";
-import DiscountModel from "../models/DiscountModel.js";
-const connection = await Connection.getConnection();
 
 let cartMiddlewares = {
   addCartValidator: validate(

@@ -1,6 +1,5 @@
 import Connection from "../db/configMysql.js";
 import CategoryModel from "../models/categoryModel.js";
-import ProductModel from "../models/productModel.js";
 import crypto from "crypto";
 import getSlug from "speakingurl";
 

@@ -1,6 +1,4 @@
 import statusProductModel from '../models/statusProductModel.js';
-// import Connection from "../db/configMysql.js";
-// const connection = await Connection.getConnection();
 
 import USERS_MESSAGES from  '../constants/messages.js';
 import HTTP_STATUS from '../constants/httpStatus.js';

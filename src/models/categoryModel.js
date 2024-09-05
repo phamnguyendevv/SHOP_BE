@@ -1,24 +1,9 @@
 
 import Connection from "../db/configMysql.js";
 let CategoryModel = {
-  //get category by id
-  getCategoryById: async (connection, id) => {
-    const [rows, fields] = await connection.execute(
-      "SELECT * FROM `category` WHERE id = ?",
-      [id]
-    );
-    return rows[0];
-  },
-  //get category by slug
-  getCategoryBySlug: async (connection, slug) => {
-    const [rows, fields] = await connection.execute(
-      "SELECT * FROM `categories` WHERE slug_categories = ?",
-      [slug]
-    );
-    return rows[0];
-  },
-  getCategoryByName: async (connection, name) => {
-    const [rows, fields] = await connection.execute(
+
+  getCategoryByName: async (name) => {
+    const [rows, fields] = await Connection.execute(
       "SELECT * FROM `categories` WHERE name = ?",
       [name]
     );

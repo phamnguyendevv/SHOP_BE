@@ -1,11 +1,7 @@
-import UserModel from "../models/userModel.js";
 import validate from "../utils/validate.js";
-import USERS_MESSAGES from "../constants/messages.js";
 import { checkSchema } from "express-validator";
 import CategoryModel from "../models/categoryModel.js";
 import TechnologyModel from "../models/technologyModel.js";
-import Connection from "../db/configMysql.js";
-const connection = await Connection.getConnection();
 
 let technologyMiddlewares = {
   // add category validator

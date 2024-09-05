@@ -1,12 +1,7 @@
 import UserModel from "../models/userModel.js";
 import validate from "../utils/validate.js";
-import USERS_MESSAGES from "../constants/messages.js";
 import { checkSchema } from "express-validator";
-import Connection from "../db/configMysql.js";
-const connection = await Connection.getConnection();
-
 import CategoryModel from "../models/categoryModel.js";
-import ProductModel from "../models/productModel.js";
 
 let categoryMiddlewares = {
   // add category validator
@@ -37,7 +32,7 @@ let categoryMiddlewares = {
           custom: {
             options: async (value, { req }) => {
               const category = await CategoryModel.getCategoryByName(
-                connection,
+             
                 value
               );
               if (category.length > 0) {

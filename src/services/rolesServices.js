@@ -1,6 +1,4 @@
 import RoleModel from '../models/roleModel.js';
-// import Connection from "../db/configMysql.js";
-// const connection = await Connection.getConnection();
 
 
 let rolesServices = {

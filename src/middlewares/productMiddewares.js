@@ -1,12 +1,8 @@
 import UserModel from "../models/userModel.js";
 import validate from "../utils/validate.js"; // Đảm bảo đường dẫn đúng
 import ProductModel from "../models/productModel.js";
-import CategoryModel from "../models/categoryModel.js";
-import { validationResult, check, body, checkSchema } from "express-validator";
-import ClassifyModel from "../models/classifyModel.js";
+import {checkSchema } from "express-validator";
 import ImageModel from "../models/imageModel.js";
-import Connection from "../db/configMysql.js";
-const connection = await Connection.getConnection();
 
 let productMiddlewares = {
   addProductValidator: validate(
@@ -148,7 +144,7 @@ let productMiddlewares = {
         custom: {
           options: async (value, { req }) => {
             const product = await ProductModel.getProductByField(
-              connection,
+            
               "id",
               value
             );
@@ -174,7 +170,6 @@ let productMiddlewares = {
         custom: {
           options: async (value, { req }) => {
             const image = await ImageModel.getImageByField(
-              connection,
               "id",
               value
             );
@@ -193,7 +188,6 @@ let productMiddlewares = {
         custom: {
           options: async (value, { req }) => {
             const product = await ProductModel.getProductByField(
-              connection,
               "id",
               value
             );
@@ -219,7 +213,6 @@ let productMiddlewares = {
         custom: {
           options: async (value, { req }) => {
             const image = await ImageModel.getImageByField(
-              connection,
               "id",
               value
             );
@@ -242,7 +235,6 @@ let productMiddlewares = {
         custom: {
           options: async (value, { req }) => {
             const image = await ImageModel.getImageByField(
-              connection,
               "id",
               value
             );
