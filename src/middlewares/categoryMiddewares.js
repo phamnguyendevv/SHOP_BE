@@ -31,10 +31,9 @@ let categoryMiddlewares = {
           },
           custom: {
             options: async (value, { req }) => {
-              const category = await CategoryModel.getCategoryByName(
-             
-                value
-              );
+              const category = await CategoryModel.getCategoryByField(
+                "name",
+                value);
               if (category.length > 0) {
                 throw new Error("Danh mục đã tồn tại");
               }

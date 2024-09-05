@@ -1,15 +1,6 @@
 
 import Connection from "../db/configMysql.js";
 let CategoryModel = {
-
-  getCategoryByName: async (name) => {
-    const [rows, fields] = await Connection.execute(
-      "SELECT * FROM `categories` WHERE name = ?",
-      [name]
-    );
-    return rows;
-  },
-
   getCategoryByField: async (field, value) => {
     const query = `SELECT * FROM \`categories\` WHERE ${field} = ?`;
     const results = await Connection.execute(query, [value]);
