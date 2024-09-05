@@ -25,24 +25,21 @@ jobs:
         run: docker build -t beshopweb .
 
       - name: Push Docker image to registry
-        env:
-          DOCKER_USERNAME: ${{ env.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ env.DOCKER_PASSWORD }}
         run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-          docker tag beshopweb enestars/beshopweb
-          docker push enestars/beshopweb
+          docker login -u duchaidev -p "le duc hai"
+          docker tag beshopweb duchaidev/beshopweb
+          docker push duchaidev/beshopweb
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ env.SERVER_HOST }}
-          username: ${{ env.SERVER_USERNAME }}
-          password: ${{ env.SERVER_PASSWORD }}
+          host: 103.167.88.206
+          username: root
+          password: Vpssieure@vnvn
           script: |
-            docker pull enestars/beshopweb
+            docker pull duchaidev/beshopweb
             docker stop beshopweb || true
             docker rm beshopweb || true
             docker image prune -f
-            CONTAINER_ID=$(docker run -d --name beshopweb -p 8888:8989 enestars/beshopweb)
+            CONTAINER_ID=$(docker run -d --name beshopweb -p 8888:8989 duchaidev/beshopweb)
             docker logs "$CONTAINER_ID"
