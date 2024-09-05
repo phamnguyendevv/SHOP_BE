@@ -26,8 +26,8 @@ jobs:
 
       - name: Push Docker image to registry
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ variables.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ variables.DOCKER_PASSWORD }}
         run: |
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
           docker tag beshopweb enestars/beshopweb
@@ -36,9 +36,9 @@ jobs:
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          password: ${{ secrets.SERVER_PASSWORD }}
+          host: ${{ variables.SERVER_HOST }}
+          username: ${{ variables.SERVER_USERNAME }}
+          password: ${{ variables.SERVER_PASSWORD }}
           script: |
             docker pull enestars/beshopweb
             docker stop beshopweb || true
