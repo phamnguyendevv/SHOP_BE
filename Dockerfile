@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Cài đặt các dependency
+RUN npm install pm2 -g
 RUN npm install
 
 # Sao chép các file còn lại của dự án vào thư mục làm việc
@@ -17,4 +18,4 @@ COPY . .
 EXPOSE 8989
 
 # Khởi chạy ứng dụng
-CMD ["node", "server.js"]
+CMD ["pm2-runtime","node", "server.js"]
