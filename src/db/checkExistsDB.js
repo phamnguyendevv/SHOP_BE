@@ -4,7 +4,7 @@ import Connection from "./configMysql.js";
 
 async function createDatabaseIfNotExists() {
   const tempConnection = await mysql.createConnection({
-    host: process.env.DB_HOST,
+    host: '103.167.88.206',
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
